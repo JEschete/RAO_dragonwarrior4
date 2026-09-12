@@ -1,0 +1,43 @@
+schema_version = 1
+plugin_id = "org.jeschete.retroarch-overlay.dragonwarrior4"
+slug = "dragonwarrior4"
+name = "Dragon Warrior IV"
+api_version = 1
+entry = "plugin.py"
+license = "MIT"
+ra_game_id = 4612
+
+[match]
+cores = [
+    "bnes",
+    "bnes_higan",
+    "emux_nes",
+    "famicom",
+    "fceumm",
+    "fixnes",
+    "mesen",
+    "nes",
+    "nes_famicom",
+    "nestopia",
+    "nintendo_nes_famicom_bnes",
+    "nintendo_nes_famicom_emux_nes",
+    "nintendo_nes_famicom_fceumm",
+    "nintendo_nes_famicom_fixnes",
+    "nintendo_nes_famicom_mesen",
+    "nintendo_nes_famicom_nes",
+    "nintendo_nes_famicom_nestopia",
+    "nintendo_nes_famicom_quicknes",
+    "quicknes",
+]
+content_hints = [
+    "dragonwarrior4",
+    "dragon warrior 4",
+    "dragon warrior iv",
+    "dragonquest4",
+    "dragon quest iv",
+]
+hashes = [
+    "192f2997b7f5123ebc81b7b8c469c1ea",
+    "80d5683ac95537401f2f003a76379b8e",
+    "d8a1d610c93b96ad98e55e09dfcc7533",
+]
