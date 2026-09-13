@@ -1,6 +1,9 @@
+import ast
 from pathlib import Path
+import json
 
 from retroarch_overlay.core.contracts import GameContext
+from retroarch_overlay.core.retroachievements import RAProgress
 from retroarch_overlay.models import RetroArchStatus
 
 from game.adapter import Adapter
@@ -39,8 +42,78 @@ def memory() -> FakeMemory:
     wram[1] = 0x80
     wram[2:4] = (40).to_bytes(2, "little")
     wram[13:15] = (50).to_bytes(2, "little")
+    wram[7:12] = bytes((18, 21, 24, 27, 30))
+    wram[20:28] = bytes((0x80, 0x53) + (0xFF,) * 6)
+    wram[28] = 0b00000100
     wram[0x2ED] = 0x84
     return FakeMemory(bytes(ram), bytes(wram))
+
+
+def test_every_panel_section_and_action_declares_a_stable_key() -> None:
+    path = ROOT / "game" / "adapter.py"
+    tree = ast.parse(path.read_text(encoding="utf-8"), filename=str(path))
+    missing = []
+    for node in ast.walk(tree):
+        if not isinstance(node, ast.Call) or not isinstance(node.func, ast.Name):
+            continue
+        if node.func.id not in {"PanelSection", "PanelAction"}:
+            continue
+        if not any(keyword.arg == "key" for keyword in node.keywords):
+            missing.append((node.func.id, node.lineno))
+
+    assert missing == []
+
+
+def test_snapshot_has_unique_shared_qt_roles_and_identities(tmp_path: Path) -> None:
+    context = GameContext(
+        settings={"dashboard": False},
+        repository_root=ROOT,
+        state_directory=tmp_path,
+    )
+
+    snapshot = Adapter(context).snapshot(memory())
+
+    section_keys = [section.key for section in snapshot.sections]
+    assert len(section_keys) == len(set(section_keys))
+    assert all(section_keys)
+    assert all(
+        action.key
+        for section in snapshot.sections
+        for action in section.actions
+    )
+    assert {section.key: section.role for section in snapshot.sections} == {
+        "journey": "goals",
+        "party": "party",
+        "resources": "party",
+        "retroachievements": "goals",
+        "atlas-confidence": "area",
+    }
+
+
+def test_content_lifecycle_resets_session_services_and_dashboard_suppression(
+    tmp_path: Path,
+) -> None:
+    context = GameContext(
+        settings={"dashboard": True, "dashboard_launch": False},
+        repository_root=ROOT,
+        state_directory=tmp_path,
+    )
+    adapter = Adapter(context)
+    adapter.snapshot(memory())
+    first_playthrough = adapter.playthrough_id
+    controls = adapter._dashboard.controls()
+    controls["dashboard_open"] = False
+    adapter._dashboard._write_json(adapter._dashboard.controls_path, controls)
+
+    adapter.deactivate()
+    assert adapter.playthrough_id == ""
+    assert adapter._last_ram is None
+    assert adapter.dialogue_journal.path is None
+
+    adapter.activate(("nes", "Dragon Warrior IV", "rom-hash"))
+    assert adapter._dashboard.controls()["dashboard_open"] is True
+    adapter.snapshot(memory())
+    assert adapter.playthrough_id == first_playthrough
 
 
 def test_snapshot_composes_live_floor_party_and_reference_sections(tmp_path: Path) -> None:
@@ -61,12 +134,37 @@ def test_snapshot_composes_live_floor_party_and_reference_sections(tmp_path: Pat
         "Journey",
         "Party",
         "Resources",
+        "RetroAchievements",
         "Atlas confidence",
     )
     assert "Lv" in snapshot.sections[1].rows[0].text
+    party_action = snapshot.sections[1].actions[0]
+    assert party_action.title == "Party Equipment, Stats, and Spells"
+    assert "STR 18" in party_action.rows[0].text
+    assert party_action.rows[1].text == "Equipped: Weapon: Cypress Stick"
+    assert party_action.rows[2].text == "Carried: Medical Herb"
+    assert party_action.rows[3].text == "Battle spells: Blaze"
     assert snapshot.display_spec is not None
     assert snapshot.display_spec.layout_key == "nes-4-3"
     assert not (tmp_path / "dashboard").exists()
+
+
+def test_snapshot_presents_retroachievements_progress(tmp_path: Path) -> None:
+    context = GameContext(
+        settings={"dashboard": False},
+        repository_root=ROOT,
+        state_directory=tmp_path,
+        ra_progress_provider=lambda _: RAProgress("Jude", frozenset({52318})),
+    )
+
+    snapshot = Adapter(context).snapshot(memory())
+
+    section = next(
+        value for value in snapshot.sections if value.title == "RetroAchievements"
+    )
+    assert section.rows[0].text == "1/43 unlocked · 5/360 points"
+    assert section.rows[1].text == "Account: Jude"
+    assert section.actions[0].rows[0].caught is True
 
 
 def test_dialogue_journal_records_even_when_dashboard_is_disabled(tmp_path: Path) -> None:
@@ -87,7 +185,9 @@ def test_dialogue_journal_records_even_when_dashboard_is_disabled(tmp_path: Path
     adapter.snapshot(game_memory)
 
     assert adapter.dialogue_journal.entries[0].text == "Hello"
-    assert (tmp_path / "dashboard" / "dialogue-journal.json").is_file()
+    assert adapter.dialogue_journal.path is not None
+    assert adapter.dialogue_journal.path.is_file()
+    assert adapter.dialogue_journal.path.parent.parent == tmp_path / "playthroughs"
 
 
 def test_adapter_checkpoints_combat_after_one_coherent_sample(tmp_path: Path) -> None:
@@ -102,10 +202,39 @@ def test_adapter_checkpoints_combat_after_one_coherent_sample(tmp_path: Path) ->
     game_memory.battle = bytes(battle)
     adapter = Adapter(context)
 
-    adapter.snapshot(game_memory)
+    snapshot = adapter.snapshot(game_memory)
 
     assert adapter.encounter_log.active_document is not None
-    assert (tmp_path / "encounters" / "active.json").is_file()
+    assert adapter.encounter_log.active_path is not None
+    assert adapter.encounter_log.active_path.is_file()
+    assert snapshot.sections[0].title == "Battle"
+    assert "ATK 14" in snapshot.sections[0].rows[0].text
+    assert "Highest observed ATK" in snapshot.sections[0].actions[0].rows[0].text
+
+
+def test_persistence_is_scoped_by_configured_save_path(tmp_path: Path) -> None:
+    first = Adapter(
+        GameContext(
+            settings={"dashboard": False, "save_path": tmp_path / "slot-one.sav"},
+            repository_root=ROOT,
+            state_directory=tmp_path,
+        )
+    )
+    second = Adapter(
+        GameContext(
+            settings={"dashboard": False, "save_path": tmp_path / "slot-two.sav"},
+            repository_root=ROOT,
+            state_directory=tmp_path,
+        )
+    )
+
+    first.snapshot(memory())
+    second.snapshot(memory())
+
+    assert first.playthrough_id.startswith("slot-one-")
+    assert second.playthrough_id.startswith("slot-two-")
+    assert first.playthrough_id != second.playthrough_id
+    assert first.encounter_log.root != second.encounter_log.root
 
 
 def test_high_frequency_capture_records_flow_between_snapshots(tmp_path: Path) -> None:
@@ -156,3 +285,31 @@ def test_supports_common_nes_cores_and_dw4_content() -> None:
     assert not adapter.supports(
         RetroArchStatus("PLAYING", "SwanStation", "Dragon Warrior 4.bin")
     )
+
+
+def test_selected_world_layer_reaches_snapshot_and_dashboard(tmp_path: Path) -> None:
+    dashboard_root = tmp_path / "dashboard"
+    dashboard_root.mkdir()
+    dashboard_root.joinpath("controls.json").write_text(
+        json.dumps({"world_map": "underworld", "dashboard_open": True}),
+        encoding="utf-8",
+    )
+    context = GameContext(
+        settings={"dashboard_launch": False},
+        repository_root=ROOT,
+        state_directory=tmp_path,
+    )
+    game_memory = memory()
+    ram = bytearray(game_memory.ram)
+    ram[0x63:0x65] = bytes((0xFF, 0xFF))
+    ram[0x42:0x44] = bytes((20, 15))
+    game_memory.ram = bytes(ram)
+
+    snapshot = Adapter(context).snapshot(game_memory)
+
+    assert snapshot.location == "Underworld · (20,15)"
+    assert snapshot.map_position is not None
+    assert snapshot.map_position.area == "Underworld"
+    live = json.loads(dashboard_root.joinpath("live.json").read_text(encoding="utf-8"))
+    assert live["location"]["map_key"] == "underworld"
+    assert live["location"]["title"] == "Underworld"

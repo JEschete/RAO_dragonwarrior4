@@ -27,6 +27,7 @@ def test_reads_us_location_party_and_persistent_progress() -> None:
     wram[0x2A2] = 17
     wram[0x2AD:0x2B0] = (54321).to_bytes(3, "little")
     wram[0x2ED] = 0x84
+    wram[0x2E7:0x2EA] = bytes((3, 2, 1))
     hero = 1
     wram[hero] = 0xA0
     wram[hero + 1:hero + 3] = (51).to_bytes(2, "little")
@@ -35,6 +36,9 @@ def test_reads_us_location_party_and_persistent_progress() -> None:
     wram[hero + 12:hero + 14] = (60).to_bytes(2, "little")
     wram[hero + 14:hero + 16] = (19).to_bytes(2, "little")
     wram[hero + 16:hero + 19] = (777).to_bytes(3, "little")
+    wram[hero + 6:hero + 11] = bytes((18, 21, 24, 27, 30))
+    wram[hero + 19:hero + 27] = bytes((0x80, 0x53) + (0xFF,) * 6)
+    wram[hero + 27:hero + 30] = bytes((0b01000100, 0, 0b00000100))
 
     state = read_state(
         bytes(ram),
@@ -57,11 +61,37 @@ def test_reads_us_location_party_and_persistent_progress() -> None:
     assert state.treasure_opened == 3
     assert state.has_boat and state.has_balloon
     assert state.small_medals == 17
+    assert state.taloon_shop_stock == (
+        ("Boomerang", 3),
+        ("Chain Sickle", 2),
+        ("Sword of Malice", 1),
+    )
     assert tuple(character.character_id for character in state.characters if character.active) == (0, 1, 7)
     assert state.characters[0].name == "Jude"
     assert state.characters[0].hp == 51
     assert state.characters[0].max_hp == 60
     assert state.characters[0].poisoned
+    assert (
+        state.characters[0].strength,
+        state.characters[0].agility,
+        state.characters[0].vitality,
+        state.characters[0].intelligence,
+        state.characters[0].luck,
+    ) == (18, 21, 24, 27, 30)
+    assert tuple(
+        (item.item_id, item.name, item.category, item.equipped)
+        for item in state.characters[0].items
+    ) == (
+        (0x00, "Cypress Stick", "weapon", True),
+        (0x53, "Medical Herb", "item", False),
+    )
+    assert tuple(
+        (spell.name, spell.usage) for spell in state.characters[0].spells
+    ) == (
+        ("Blaze", "battle"),
+        ("Firebal", "battle"),
+        ("Return", "field"),
+    )
 
 
 def test_uses_japanese_code_note_location_when_region_marker_is_jp() -> None:

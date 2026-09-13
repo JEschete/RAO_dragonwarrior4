@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import os
 from pathlib import Path
 from typing import Any, TYPE_CHECKING
 
@@ -72,8 +73,7 @@ def render_area_map(
                     graphics.patterns[pattern_id],
                     colors,
                 )
-    output.parent.mkdir(parents=True, exist_ok=True)
-    image.save(output, format="PNG", optimize=True)
+    _save_png(image, output)
 
 
 def render_world_map(
@@ -108,8 +108,17 @@ def render_world_map(
                     (left, top + tile_pixels - 1, left + tile_pixels - 1, top + tile_pixels - 1),
                     fill=(73, 137, 188),
                 )
+    _save_png(image, output)
+
+
+def _save_png(image: Image.Image, output: Path) -> None:
     output.parent.mkdir(parents=True, exist_ok=True)
-    image.save(output, format="PNG", optimize=True)
+    temporary = output.with_name(f".{output.name}.{os.getpid()}.tmp")
+    try:
+        image.save(temporary, format="PNG", optimize=True)
+        os.replace(temporary, output)
+    finally:
+        temporary.unlink(missing_ok=True)
 
 
 def _draw_pattern(

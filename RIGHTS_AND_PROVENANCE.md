@@ -15,4 +15,6 @@ The ignored `resources` directory may contain local saved copies of these pages:
 
 These captures are reference material, not plugin assets, and remain ignored by Git. `game/reference_data.py` records factual identifiers, addresses, value labels, source URLs, and local availability; it does not redistribute the captured pages. Contributors must review third-party terms before deliberately adding any captured content.
 
+`game/data/dw4_knowledge.json` is a locally generated factual index containing numeric identifiers, short value labels, source revisions, submap names, treasure records, spell flags, and public achievement metadata. It intentionally excludes page markup, images, private achievement trigger logic, ROM bytes, and extracted game graphics. `tools/generate_knowledge.py --check` verifies the artifact against reviewed local captures when those ignored source files are available.
+
 Dragon Warrior IV, Dragon Quest IV, character names, graphics, music, and related marks remain the property of their respective rights holders. No ownership or endorsement is claimed.

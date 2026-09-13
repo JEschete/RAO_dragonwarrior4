@@ -5,6 +5,8 @@ from html.parser import HTMLParser
 from pathlib import Path
 import re
 
+from .knowledge import DragonWarrior4Knowledge
+
 
 DATA_CRYSTAL_ROOT = "https://datacrystal.tcrf.net/wiki/Dragon_Warrior_IV_(NES)"
 
@@ -31,6 +33,12 @@ class TreasureRecord:
         return byte_index < len(treasure_flags) and bool(
             treasure_flags[byte_index] & (1 << bit)
         )
+
+
+@dataclass(frozen=True, slots=True)
+class SpellDefinition:
+    name: str
+    usage: str
 
 
 REFERENCE_SOURCE_SPECS = (
@@ -199,6 +207,281 @@ PARTY_NAMES = (
     "Taloon",
     "Ragnar",
     "Alena",
+)
+
+ITEM_NAMES = (
+    "Cypress Stick",
+    "Club",
+    "Copper Sword",
+    "Iron Claw",
+    "Chain Sickle",
+    "Iron Spear",
+    "Broad Sword",
+    "Battle Axe",
+    "Silver Tarot Cards",
+    "Thorn Whip",
+    "Morning Star",
+    "Boomerang",
+    "Abacus of Virtue",
+    "Iron Fan",
+    "Metal Babble Sword",
+    "Poison Needle",
+    "Staff of Force",
+    "Staff of Thunder",
+    "Demon Hammer",
+    "Multi-edge Sword",
+    "Zenithian Sword (1)",
+    "Dragon Killer",
+    "Stilleto Earrings",
+    "Staff of Punishment",
+    "Sword of Lethargy",
+    "Venomous Dagger",
+    "Fire Claw",
+    "Ice Blade",
+    "Sword of Miracles",
+    "Staff of Antimagic",
+    "Magma Staff",
+    "Sword of Decimation",
+    "Staff of Healing",
+    "Zenithian Sword (2)",
+    "Staff of Jubilation",
+    "Sword of Malice",
+    "Basic Clothes",
+    "Wayfarer's Clothes",
+    "Leather Armor",
+    "Chain Mail",
+    "Half Plate Armor",
+    "Iron Apron",
+    "Full Plate Armor",
+    "Silk Robe",
+    "Dancer's Costume",
+    "Bronze Armor",
+    "Metal Babble Armor",
+    "Fur Coat",
+    "Leather Dress",
+    "Pink Leotard",
+    "Dragon Mail",
+    "Cloak of Evasion",
+    "Sacred Robe",
+    "Water Flying Clothes",
+    "Mysterious Bolero",
+    "Zenithian Armor",
+    "Swordedge Armor",
+    "Robe of Serenity",
+    "Zombie Mail",
+    "Dress of Radiance",
+    "Demon Armor",
+    "Leather Shield",
+    "Scale Shield",
+    "Iron Shield",
+    "Shield of Strength",
+    "Mirror Shield",
+    "Aeolus' Shield",
+    "Dragon Shield",
+    "Zenithian Shield",
+    "Metal Babble Shield",
+    "Leather Hat",
+    "Wooden Hat",
+    "Iron Helmet",
+    "Iron Mask",
+    "Feather Hat",
+    "Zenithian Helm",
+    "Mask of Corruption",
+    "Golden Barrette",
+    "Hat of Happiness",
+    "Metal Babble Helm",
+    "Meteorite Armband",
+    "Unknown item $51",
+    "Baron's Horn",
+    "Medical Herb",
+    "Antidote Herb",
+    "Fairy Water",
+    "Wing of Wyvern",
+    "Leaf of World Tree",
+    "Full Moon Herb",
+    "Wizard's Ring",
+    "Magic Potion",
+    "Dew of World Tree",
+    "Flute of Uncovering",
+    "Sphere of Silence",
+    "Scent Pouch",
+    "Sandglass of Regression",
+    "Sage's Stone",
+    "Strength Seed",
+    "Agility Seed",
+    "Luck Seed",
+    "Lifeforce Nuts",
+    "Mystic Acorns",
+    "Mirror of Ra",
+    "Lamp of Darkness",
+    "Staff of Transform",
+    "Small Medal",
+    "Stone of Drought",
+    "Iron Safe",
+    "Flying Shoes",
+    "Silver Statuette",
+    "Treasure Map",
+    "Symbol of Faith",
+    "Gunpowder Jar",
+    "Thief's Key",
+    "Magic Key",
+    "Final Key",
+    "Lunch",
+    "Birdsong Nector",
+    "Golden Bracelet",
+    "Prince's Letter",
+    "Royal Scroll",
+    "Gum Pod",
+    "Boarding Pass",
+    "Padequia Root",
+    "Fire of Serenity",
+    "Gas Canister",
+    "Padequia Seed",
+)
+
+
+def _battle_spell(name: str) -> SpellDefinition:
+    return SpellDefinition(name, "battle")
+
+
+def _field_spell(name: str) -> SpellDefinition:
+    return SpellDefinition(name, "field")
+
+
+CHARACTER_SPELL_BITS: tuple[tuple[SpellDefinition | None, ...], ...] = (
+    (
+        _battle_spell("Expel"),
+        _battle_spell("Healmore"),
+        _battle_spell("Blaze"),
+        _battle_spell("Return"),
+        _battle_spell("Sleepmore"),
+        _battle_spell("Awake"),
+        _battle_spell("Firebal"),
+        _battle_spell("Healall"),
+        _battle_spell("Ironize"),
+        _battle_spell("FendSpell"),
+        _battle_spell("Zap"),
+        _battle_spell("Transform"),
+        _battle_spell("Boom"),
+        _battle_spell("Healusall"),
+        _battle_spell("Lightning"),
+        _battle_spell("Vivify"),
+        _battle_spell("Thordain"),
+        _battle_spell("Chance"),
+        _field_spell("Return"),
+        _field_spell("Healmore"),
+        _field_spell("Repel"),
+        _field_spell("Outside"),
+        _field_spell("Healall"),
+        _field_spell("Vivify"),
+    ),
+    (
+        _battle_spell("Upper"),
+        _battle_spell("Heal"),
+        _battle_spell("Surround"),
+        _battle_spell("Healmore"),
+        _battle_spell("StopSpell"),
+        _battle_spell("Healall"),
+        _battle_spell("Increase"),
+        _battle_spell("Healus"),
+        _battle_spell("Beat"),
+        _battle_spell("Vivify"),
+        _battle_spell("Defeat"),
+        _battle_spell("Revive"),
+        None,
+        None,
+        None,
+        None,
+        _field_spell("Heal"),
+        _field_spell("Antidote"),
+        _field_spell("Healmore"),
+        _field_spell("Vivify"),
+        _field_spell("Healall"),
+        _field_spell("Healus"),
+        _field_spell("Revive"),
+        None,
+    ),
+    (
+        _battle_spell("Infernos"),
+        _battle_spell("Heal"),
+        _battle_spell("Sleep"),
+        _battle_spell("Healmore"),
+        _battle_spell("NumbOff"),
+        _battle_spell("Healall"),
+        _battle_spell("Infermore"),
+        _battle_spell("Barrior"),
+        _battle_spell("Sleepmore"),
+        _battle_spell("Vivify"),
+        _battle_spell("Infermost"),
+        _battle_spell("Farewell"),
+        None,
+        None,
+        None,
+        None,
+        _field_spell("Heal"),
+        _field_spell("NumbOff"),
+        _field_spell("Healmore"),
+        _field_spell("Vivify"),
+        _field_spell("Healall"),
+        None,
+        None,
+        None,
+    ),
+    (
+        _battle_spell("Blaze"),
+        _battle_spell("Sap"),
+        _battle_spell("Firebal"),
+        _battle_spell("RobMagic"),
+        _battle_spell("Bang"),
+        _battle_spell("BeDragon"),
+        _battle_spell("Blazemore"),
+        _battle_spell("Blazemost"),
+        _battle_spell("Firebane"),
+        _battle_spell("Firevolt"),
+        _battle_spell("Boom"),
+        _battle_spell("Explodet"),
+        None,
+        None,
+        None,
+        None,
+        _field_spell("Return"),
+        _field_spell("Outside"),
+        _field_spell("StepGuard"),
+        None,
+        None,
+        None,
+        None,
+        None,
+    ),
+    (
+        _battle_spell("IceBolt"),
+        _battle_spell("Sap"),
+        _battle_spell("Snowstorm"),
+        _battle_spell("Bounce"),
+        _battle_spell("Icespears"),
+        _battle_spell("Return"),
+        _battle_spell("RobMagic"),
+        _battle_spell("Defence"),
+        _battle_spell("Chaos"),
+        _battle_spell("SpeedUp"),
+        _battle_spell("Blizzard"),
+        _battle_spell("Bikill"),
+        None,
+        None,
+        None,
+        None,
+        _field_spell("Return"),
+        _field_spell("Outside"),
+        _field_spell("Day-Night"),
+        _field_spell("X-Ray"),
+        None,
+        None,
+        None,
+        None,
+    ),
+    (None,) * 24,
+    (None,) * 24,
+    (None,) * 24,
 )
 
 RETURN_LOCATIONS = (
@@ -392,6 +675,16 @@ def reference_sources(repository_root: Path | None) -> tuple[ReferenceSource, ..
 def load_submap_names(repository_root: Path | None) -> dict[tuple[int, int], str]:
     if repository_root is None:
         return {}
+    try:
+        document = DragonWarrior4Knowledge.load(
+            repository_root / "game" / "data" / "dw4_knowledge.json"
+        )
+        return {
+            tuple(int(part, 16) for part in key.split(":")): str(value)
+            for key, value in document["submap_names"].items()
+        }
+    except (ValueError, TypeError):
+        pass
     path = repository_root / "resources" / REFERENCE_SOURCE_SPECS[8][1]
     try:
         document = path.read_text(encoding="utf-8")
@@ -407,6 +700,13 @@ def load_treasure_records(
 ) -> tuple[TreasureRecord, ...]:
     if repository_root is None:
         return ()
+    try:
+        document = DragonWarrior4Knowledge.load(
+            repository_root / "game" / "data" / "dw4_knowledge.json"
+        )
+        return tuple(TreasureRecord(**value) for value in document["treasures"])
+    except (ValueError, TypeError):
+        pass
     path = repository_root / "resources" / REFERENCE_SOURCE_SPECS[2][1]
     try:
         document = path.read_text(encoding="utf-8")
@@ -426,6 +726,42 @@ def map_title(
         return submap_names[(map_id, submap)]
     base = MAP_NAMES[map_id] if 0 <= map_id < len(MAP_NAMES) else f"Map ${map_id:02X}"
     return base if submap == 0 else f"{base} · Submap {submap + 1}"
+
+
+def item_name(item_id: int) -> str:
+    if 0 <= item_id < len(ITEM_NAMES):
+        return ITEM_NAMES[item_id]
+    return f"Item ${item_id:02X}"
+
+
+def item_category(item_id: int) -> str:
+    if 0x00 <= item_id <= 0x23:
+        return "weapon"
+    if 0x24 <= item_id <= 0x3C:
+        return "armor"
+    if 0x3D <= item_id <= 0x45:
+        return "shield"
+    if 0x46 <= item_id <= 0x4F:
+        return "helmet"
+    if item_id == 0x50:
+        return "accessory"
+    return "item"
+
+
+def learned_spells(
+    character_id: int,
+    flags: bytes,
+) -> tuple[SpellDefinition, ...]:
+    if not 0 <= character_id < len(CHARACTER_SPELL_BITS):
+        return ()
+    definitions = CHARACTER_SPELL_BITS[character_id]
+    return tuple(
+        definition
+        for index, definition in enumerate(definitions)
+        if definition is not None
+        and index // 8 < len(flags)
+        and flags[index // 8] & (1 << (index % 8))
+    )
 
 
 def time_of_day(value: int) -> str:

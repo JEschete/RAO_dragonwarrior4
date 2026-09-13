@@ -17,6 +17,8 @@ class DialogueEntry:
     first_seen: str
     last_seen: str
     seen_count: int = 1
+    x: int = -1
+    y: int = -1
 
 
 @dataclass(slots=True)
@@ -25,6 +27,8 @@ class _PendingDialogue:
     location: str
     map_id: int
     submap: int
+    x: int
+    y: int
     since: datetime
     committed: bool = False
 
@@ -54,6 +58,8 @@ class DialogueJournal:
         map_id: int,
         submap: int,
         *,
+        x: int = -1,
+        y: int = -1,
         now: datetime | None = None,
     ) -> tuple[DialogueEntry, ...]:
         observed_at = now or datetime.now(timezone.utc)
@@ -75,9 +81,14 @@ class DialogueJournal:
                 location,
                 map_id,
                 submap,
+                x,
+                y,
                 observed_at,
             )
         elif same_location and normalized == pending.text:
+            if min(x, y) >= 0:
+                pending.x = x
+                pending.y = y
             if not pending.committed and observed_at - pending.since >= self.settle_time:
                 self._commit(pending, observed_at)
                 pending.committed = True
@@ -87,6 +98,8 @@ class DialogueJournal:
                 location,
                 map_id,
                 submap,
+                x,
+                y,
                 observed_at,
             )
         else:
@@ -97,6 +110,8 @@ class DialogueJournal:
                 location,
                 map_id,
                 submap,
+                x,
+                y,
                 observed_at,
             )
         return self.entries
@@ -136,6 +151,8 @@ class DialogueJournal:
                     previous.first_seen,
                     timestamp,
                     previous.seen_count,
+                    pending.x,
+                    pending.y,
                 )
                 self._write()
                 return
@@ -149,6 +166,9 @@ class DialogueJournal:
                 pending.submap,
                 timestamp,
                 timestamp,
+                1,
+                pending.x,
+                pending.y,
             )
         )
         self._write()

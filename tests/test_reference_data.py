@@ -1,14 +1,31 @@
 from pathlib import Path
 
 from game.reference_data import (
+    CHARACTER_SPELL_BITS,
+    ITEM_NAMES,
     _SubmapTableParser,
     load_treasure_records,
     decode_text,
+    item_category,
     load_submap_names,
     map_title,
     reference_sources,
     time_of_day,
 )
+
+
+def test_item_and_spell_tables_cover_documented_party_records() -> None:
+    assert len(ITEM_NAMES) == 0x7F
+    assert len(CHARACTER_SPELL_BITS) == 8
+    assert all(len(spells) == 24 for spells in CHARACTER_SPELL_BITS)
+    assert CHARACTER_SPELL_BITS[0][2].name == "Blaze"
+    assert CHARACTER_SPELL_BITS[4][19].name == "X-Ray"
+    assert item_category(0x00) == "weapon"
+    assert item_category(0x24) == "armor"
+    assert item_category(0x3D) == "shield"
+    assert item_category(0x46) == "helmet"
+    assert item_category(0x50) == "accessory"
+    assert item_category(0x53) == "item"
 
 
 ROOT = Path(__file__).parents[1]
@@ -18,7 +35,10 @@ def test_saved_reference_catalog_accounts_for_every_page() -> None:
     sources = reference_sources(ROOT)
 
     assert len(sources) == 10
-    assert all(source.available for source in sources)
+    assert all(
+        source.available == (ROOT / "resources" / source.filename).is_file()
+        for source in sources
+    )
     assert {source.title for source in sources} >= {
         "ROM map",
         "RAM map",

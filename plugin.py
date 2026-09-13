@@ -18,7 +18,16 @@ class Plugin:
             MapDocument(
                 "Dragon Warrior IV Atlas",
                 assets.map_layers(),
-                ("objective", "collectibles", "entrance"),
+                (
+                    "objective",
+                    "collectibles",
+                    "entrance",
+                    "services",
+                    "locks",
+                    "connections",
+                    "npcs",
+                    "encounters",
+                ),
             )
             if assets is not None
             else None

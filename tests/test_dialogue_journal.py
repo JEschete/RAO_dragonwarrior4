@@ -23,12 +23,15 @@ def test_commits_dialogue_after_text_settles(tmp_path) -> None:
         "Endor",
         4,
         6,
+        x=12,
+        y=9,
         now=NOW + timedelta(seconds=1),
     )
 
     assert len(entries) == 1
     assert entries[0].text == "The king awaits."
     assert entries[0].location == "Endor"
+    assert (entries[0].x, entries[0].y) == (12, 9)
 
 
 def test_replaces_recent_typewriter_prefix_instead_of_keeping_fragments(tmp_path) -> None:

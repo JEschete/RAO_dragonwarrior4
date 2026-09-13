@@ -1,7 +1,9 @@
 import unittest
 import tempfile
 from pathlib import Path
-from unittest.mock import Mock
+from unittest.mock import Mock, patch
+
+from PIL import Image
 
 from game.rom_assets import (
     AreaGraphics,
@@ -348,6 +350,32 @@ class RomAtlasTests(unittest.TestCase):
         self.assertTrue(all("Small Medal" in point.detail for point in overlay.waypoints))
         self.assertTrue(all("Aeolus' Shield" in point.detail for point in overlay.waypoints))
 
+    def test_feature_overlay_distinguishes_entrances_services_and_locks(self) -> None:
+        assets = DragonWarrior4RomAssets.__new__(DragonWarrior4RomAssets)
+        descriptor = AreaMapDescriptor(3, 1, 0, 3, 1, 9, 0)
+        assets._descriptor_by_key = {descriptor.key: descriptor}
+        graphics = AreaGraphics(
+            ((0, 0, 0, 0),),
+            (0,),
+            (bytes(16),),
+            (0,) * 12,
+            (0x06, 0x31, 0x95),
+            (0,),
+        )
+        assets._area_layout = Mock(return_value=(((0, 1, 2),), graphics))
+
+        overlay = assets.feature_overlay(3, 1)
+
+        self.assertIsNotNone(overlay)
+        self.assertEqual(
+            tuple((point.kind, point.marker) for point in overlay.waypoints),
+            (
+                ("entrance", "entrance"),
+                ("services", "service"),
+                ("locks", "lock"),
+            ),
+        )
+
     def test_world_rows_follow_four_byte_pointer_table(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
@@ -409,6 +437,33 @@ class RendererTests(unittest.TestCase):
             with Image.open(output) as image:
                 self.assertEqual(image.size, (8, 8))
                 self.assertNotEqual(image.getpixel((0, 0)), image.getpixel((4, 0)))
+
+    def test_failed_map_write_does_not_leave_a_cached_image(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            output = Path(directory) / "maps" / "area.png"
+            graphics = AreaGraphics(
+                ((0, 0, 0, 0),),
+                (0,),
+                (bytes(16),),
+                (0x0F, 0x10, 0x20) * 4,
+                (0,),
+                (0,),
+            )
+
+            def fail_after_partial_write(
+                _image: Image.Image,
+                path: Path,
+                **_kwargs,
+            ) -> None:
+                Path(path).write_bytes(b"partial")
+                raise OSError("render interrupted")
+
+            with patch.object(Image.Image, "save", fail_after_partial_write):
+                with self.assertRaisesRegex(OSError, "render interrupted"):
+                    render_area_map(((0,),), graphics, output)
+
+            self.assertFalse(output.exists())
+            self.assertEqual(tuple(output.parent.iterdir()), ())
 
 
 if __name__ == "__main__":

@@ -469,11 +469,16 @@ class DragonWarrior4RomAssets:
                         detail = "Contents are not documented in the saved treasure table"
                         completed = False
                 elif behavior in {0x06, 0x07, 0x08, 0x09, 0x0A, 0x0C}:
-                    kind, marker = "entrance", "stairs"
+                    kind = "entrance"
+                    marker = "stairs" if behavior in {0x08, 0x09} else "entrance"
                     detail = f"ROM tile behavior ${behavior:02X}"
                     completed = False
-                elif behavior in {0x31, 0x95, 0x96}:
-                    kind, marker = "objective", "service" if behavior == 0x31 else "lock"
+                elif behavior == 0x31:
+                    kind, marker = "services", "service"
+                    detail = f"ROM tile behavior ${behavior:02X}"
+                    completed = False
+                elif behavior in {0x95, 0x96}:
+                    kind, marker = "locks", "lock"
                     detail = f"ROM tile behavior ${behavior:02X}"
                     completed = False
                 else:

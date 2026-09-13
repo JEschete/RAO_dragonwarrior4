@@ -7,8 +7,12 @@ from .reference_data import (
     CHAPTERS,
     PARTY_NAMES,
     RETURN_LOCATIONS,
+    SpellDefinition,
     TACTICS,
     decode_text,
+    item_category,
+    item_name,
+    learned_spells,
     map_title,
     time_of_day,
 )
@@ -41,6 +45,14 @@ class LocationState:
 
 
 @dataclass(frozen=True, slots=True)
+class InventoryItemState:
+    item_id: int
+    name: str
+    category: str
+    equipped: bool
+
+
+@dataclass(frozen=True, slots=True)
 class CharacterState:
     character_id: int
     name: str
@@ -54,7 +66,13 @@ class CharacterState:
     mp: int
     max_mp: int
     experience: int
-    items: tuple[int, ...]
+    strength: int
+    agility: int
+    vitality: int
+    intelligence: int
+    luck: int
+    items: tuple[InventoryItemState, ...]
+    spells: tuple[SpellDefinition, ...]
 
 
 @dataclass(frozen=True, slots=True)
@@ -76,6 +94,7 @@ class DragonWarrior4State:
     has_boat: bool
     has_balloon: bool
     small_medals: int
+    taloon_shop_stock: tuple[tuple[str, int], ...]
     dialogue: str
 
 
@@ -123,6 +142,11 @@ def read_state(
         bool(wram[0x28E] & 0x01),
         bool(wram[0x28E] & 0x02),
         wram[0x2A2],
+        (
+            ("Boomerang", wram[0x2E7]),
+            ("Chain Sickle", wram[0x2E8]),
+            ("Sword of Malice", wram[0x2E9]),
+        ),
         decode_text(ram[0x6AA:0x76C]),
     )
 
@@ -146,6 +170,16 @@ def _character(
     record = wram[start:start + 30]
     flags = record[0]
     name = hero_name if character_id == 0 and hero_name else PARTY_NAMES[character_id]
+    items = tuple(
+        InventoryItemState(
+            value & 0x7F,
+            item_name(value & 0x7F),
+            item_category(value & 0x7F),
+            bool(value & 0x80),
+        )
+        for value in record[19:27]
+        if value & 0x7F != 0x7F
+    )
     return CharacterState(
         character_id,
         name,
@@ -159,7 +193,13 @@ def _character(
         int.from_bytes(record[3:5], "little"),
         int.from_bytes(record[14:16], "little"),
         int.from_bytes(record[16:19], "little"),
-        tuple(value & 0x7F for value in record[19:27] if value & 0x7F != 0x7F),
+        record[6],
+        record[7],
+        record[8],
+        record[9],
+        record[10],
+        items,
+        learned_spells(character_id, record[27:30]),
     )
 
 

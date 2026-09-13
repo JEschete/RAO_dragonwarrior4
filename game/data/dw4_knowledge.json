@@ -1,0 +1,2439 @@
+{
+  "achievements": [
+    {
+      "achievement_id": 52318,
+      "description": "Help Flora find her missing husband",
+      "points": 5,
+      "title": "Reunited"
+    },
+    {
+      "achievement_id": 52319,
+      "description": "Complete Chapter 1",
+      "points": 10,
+      "title": "In Search of a Hero"
+    },
+    {
+      "achievement_id": 52320,
+      "description": "Bring peace to Tempe",
+      "points": 5,
+      "title": "The Offering"
+    },
+    {
+      "achievement_id": 52321,
+      "description": "Restore the King's Voice",
+      "points": 5,
+      "title": "Speak No Evil"
+    },
+    {
+      "achievement_id": 52322,
+      "description": "Collect the Iron Safe and leave",
+      "points": 5,
+      "title": "It's a Trap"
+    },
+    {
+      "achievement_id": 52323,
+      "description": "Let the Healer slime join your party",
+      "points": 5,
+      "title": "Making Friends"
+    },
+    {
+      "achievement_id": 52324,
+      "description": "Find a way out of the Castle",
+      "points": 5,
+      "title": "Sneaking Out"
+    },
+    {
+      "achievement_id": 52325,
+      "description": "Rescue the fake princess",
+      "points": 5,
+      "title": "The Kidnapped Imposter"
+    },
+    {
+      "achievement_id": 52326,
+      "description": "Complete Chapter 2",
+      "points": 10,
+      "title": "The Empty Castle"
+    },
+    {
+      "achievement_id": 52327,
+      "description": "Repair the bridge to Endor",
+      "points": 5,
+      "title": "The Architect"
+    },
+    {
+      "achievement_id": 52328,
+      "description": "Purchase the shop in Endor",
+      "points": 5,
+      "title": "Moving In"
+    },
+    {
+      "achievement_id": 52329,
+      "description": "Complete Chapter 3",
+      "points": 10,
+      "title": "The Traveling Merchant"
+    },
+    {
+      "achievement_id": 52330,
+      "description": "Get Orin to join your party",
+      "points": 5,
+      "title": "Edgar's Pupil"
+    },
+    {
+      "achievement_id": 52331,
+      "description": "Complete Chapter 4",
+      "points": 10,
+      "title": "Refugees"
+    },
+    {
+      "achievement_id": 52332,
+      "description": "Acquire the wagon",
+      "points": 10,
+      "title": "Caravan"
+    },
+    {
+      "achievement_id": 52333,
+      "description": "Acquire the boat",
+      "points": 10,
+      "title": "Starboard the Helm!"
+    },
+    {
+      "achievement_id": 52334,
+      "description": "Help Cristo recover from his illness",
+      "points": 5,
+      "title": "Miracle Plant"
+    },
+    {
+      "achievement_id": 52335,
+      "description": "Defeat Keeleon",
+      "points": 5,
+      "title": "Rematch"
+    },
+    {
+      "achievement_id": 52336,
+      "description": "Defeat the evolved Balzack",
+      "points": 5,
+      "title": "You've Changed"
+    },
+    {
+      "achievement_id": 52337,
+      "description": "Get the Zenithian Helm",
+      "points": 5,
+      "title": "Not So Funny"
+    },
+    {
+      "achievement_id": 52338,
+      "description": "Get the Zenithian Shield",
+      "points": 5,
+      "title": "Proof of Innocence"
+    },
+    {
+      "achievement_id": 52339,
+      "description": "Get the Zenithian Armor",
+      "points": 5,
+      "title": "Underwater Oasis"
+    },
+    {
+      "achievement_id": 52340,
+      "description": "Attend the conference at the Dire Palace",
+      "points": 5,
+      "title": "A Monstrous Announcement"
+    },
+    {
+      "achievement_id": 52341,
+      "description": "Acquire the hot air balloon",
+      "points": 10,
+      "title": "There's Gas Inside"
+    },
+    {
+      "achievement_id": 52342,
+      "description": "Get the Zenithian Sword",
+      "points": 5,
+      "title": "The Highest Branches"
+    },
+    {
+      "achievement_id": 52343,
+      "description": "Talk to the Master Dragon",
+      "points": 5,
+      "title": "Humans are Curious Creatures"
+    },
+    {
+      "achievement_id": 52344,
+      "description": "Defeat the four guardians of the Dark World",
+      "points": 10,
+      "title": "And Then There Were None"
+    },
+    {
+      "achievement_id": 52345,
+      "description": "Defeat Necrosaro",
+      "points": 25,
+      "title": "Is This The End?"
+    },
+    {
+      "achievement_id": 52346,
+      "description": "Defeat Necrosaro without the hero in the party",
+      "points": 25,
+      "title": "We Don't Need Another Hero"
+    },
+    {
+      "achievement_id": 52347,
+      "description": "Defeat Necrosaro with a party of two",
+      "points": 25,
+      "title": "Just the Two of Us"
+    },
+    {
+      "achievement_id": 52348,
+      "description": "Have at least 10,000 Casino coins",
+      "points": 5,
+      "title": "High Roller"
+    },
+    {
+      "achievement_id": 52349,
+      "description": "Be the 1000th person to use the new tunnel",
+      "points": 5,
+      "title": "Tunnel Rat"
+    },
+    {
+      "achievement_id": 52350,
+      "description": "Find out what happened to Rosa",
+      "points": 5,
+      "title": "Rosa's Fate"
+    },
+    {
+      "achievement_id": 52351,
+      "description": "Try Pufpuf",
+      "points": 5,
+      "title": "Private Dance"
+    },
+    {
+      "achievement_id": 52352,
+      "description": "Doran joined the party",
+      "points": 5,
+      "title": "Zenithia's Finest"
+    },
+    {
+      "achievement_id": 52353,
+      "description": "Defeat a King Metal",
+      "points": 5,
+      "title": "The One That Didn't Get Away"
+    },
+    {
+      "achievement_id": 52354,
+      "description": "Find all three hidden treasures in the Great Lighthouse",
+      "points": 5,
+      "title": "Hidden Treasure - Great Lighthouse"
+    },
+    {
+      "achievement_id": 52355,
+      "description": "Find the hidden treasure in Endor",
+      "points": 5,
+      "title": "Hidden Treasure - Endor"
+    },
+    {
+      "achievement_id": 52356,
+      "description": "Find the hidden treasure in Gardenbur",
+      "points": 5,
+      "title": "Hidden Treasure - Gardenbur"
+    },
+    {
+      "achievement_id": 52357,
+      "description": "Find the hidden treasure in the Shrine of the Horn",
+      "points": 5,
+      "title": "Hidden Treasure - Shrine of the Horn"
+    },
+    {
+      "achievement_id": 52358,
+      "description": "Find the hidden treasure in Necrosaro's Palace",
+      "points": 5,
+      "title": "Hidden Treasure - Necrosaro's Palace"
+    },
+    {
+      "achievement_id": 52359,
+      "description": "Pluck a leaf from the World Tree",
+      "points": 5,
+      "title": "Arboreal Vandal"
+    },
+    {
+      "achievement_id": 52360,
+      "description": "Find all 32 small medals",
+      "points": 50,
+      "title": "Small Medal Collector"
+    }
+  ],
+  "items": [
+    "Cypress Stick",
+    "Club",
+    "Copper Sword",
+    "Iron Claw",
+    "Chain Sickle",
+    "Iron Spear",
+    "Broad Sword",
+    "Battle Axe",
+    "Silver Tarot Cards",
+    "Thorn Whip",
+    "Morning Star",
+    "Boomerang",
+    "Abacus of Virtue",
+    "Iron Fan",
+    "Metal Babble Sword",
+    "Poison Needle",
+    "Staff of Force",
+    "Staff of Thunder",
+    "Demon Hammer",
+    "Multi-edge Sword",
+    "Zenithian Sword (1)",
+    "Dragon Killer",
+    "Stilleto Earrings",
+    "Staff of Punishment",
+    "Sword of Lethargy",
+    "Venomous Dagger",
+    "Fire Claw",
+    "Ice Blade",
+    "Sword of Miracles",
+    "Staff of Antimagic",
+    "Magma Staff",
+    "Sword of Decimation",
+    "Staff of Healing",
+    "Zenithian Sword (2)",
+    "Staff of Jubilation",
+    "Sword of Malice",
+    "Basic Clothes",
+    "Wayfarer's Clothes",
+    "Leather Armor",
+    "Chain Mail",
+    "Half Plate Armor",
+    "Iron Apron",
+    "Full Plate Armor",
+    "Silk Robe",
+    "Dancer's Costume",
+    "Bronze Armor",
+    "Metal Babble Armor",
+    "Fur Coat",
+    "Leather Dress",
+    "Pink Leotard",
+    "Dragon Mail",
+    "Cloak of Evasion",
+    "Sacred Robe",
+    "Water Flying Clothes",
+    "Mysterious Bolero",
+    "Zenithian Armor",
+    "Swordedge Armor",
+    "Robe of Serenity",
+    "Zombie Mail",
+    "Dress of Radiance",
+    "Demon Armor",
+    "Leather Shield",
+    "Scale Shield",
+    "Iron Shield",
+    "Shield of Strength",
+    "Mirror Shield",
+    "Aeolus' Shield",
+    "Dragon Shield",
+    "Zenithian Shield",
+    "Metal Babble Shield",
+    "Leather Hat",
+    "Wooden Hat",
+    "Iron Helmet",
+    "Iron Mask",
+    "Feather Hat",
+    "Zenithian Helm",
+    "Mask of Corruption",
+    "Golden Barrette",
+    "Hat of Happiness",
+    "Metal Babble Helm",
+    "Meteorite Armband",
+    "Unknown item $51",
+    "Baron's Horn",
+    "Medical Herb",
+    "Antidote Herb",
+    "Fairy Water",
+    "Wing of Wyvern",
+    "Leaf of World Tree",
+    "Full Moon Herb",
+    "Wizard's Ring",
+    "Magic Potion",
+    "Dew of World Tree",
+    "Flute of Uncovering",
+    "Sphere of Silence",
+    "Scent Pouch",
+    "Sandglass of Regression",
+    "Sage's Stone",
+    "Strength Seed",
+    "Agility Seed",
+    "Luck Seed",
+    "Lifeforce Nuts",
+    "Mystic Acorns",
+    "Mirror of Ra",
+    "Lamp of Darkness",
+    "Staff of Transform",
+    "Small Medal",
+    "Stone of Drought",
+    "Iron Safe",
+    "Flying Shoes",
+    "Silver Statuette",
+    "Treasure Map",
+    "Symbol of Faith",
+    "Gunpowder Jar",
+    "Thief's Key",
+    "Magic Key",
+    "Final Key",
+    "Lunch",
+    "Birdsong Nector",
+    "Golden Bracelet",
+    "Prince's Letter",
+    "Royal Scroll",
+    "Gum Pod",
+    "Boarding Pass",
+    "Padequia Root",
+    "Fire of Serenity",
+    "Gas Canister",
+    "Padequia Seed"
+  ],
+  "schema_version": 1,
+  "sources": {
+    "data_crystal": {
+      "revision": 65852,
+      "url": "https://datacrystal.tcrf.net/wiki/Dragon_Warrior_IV_(NES)/Values"
+    },
+    "retroachievements": {
+      "captured": "2026.08.26",
+      "url": "https://retroachievements.org/game/4612"
+    }
+  },
+  "spells": [
+    [
+      {
+        "name": "Expel",
+        "usage": "battle"
+      },
+      {
+        "name": "Healmore",
+        "usage": "battle"
+      },
+      {
+        "name": "Blaze",
+        "usage": "battle"
+      },
+      {
+        "name": "Return",
+        "usage": "battle"
+      },
+      {
+        "name": "Sleepmore",
+        "usage": "battle"
+      },
+      {
+        "name": "Awake",
+        "usage": "battle"
+      },
+      {
+        "name": "Firebal",
+        "usage": "battle"
+      },
+      {
+        "name": "Healall",
+        "usage": "battle"
+      },
+      {
+        "name": "Ironize",
+        "usage": "battle"
+      },
+      {
+        "name": "FendSpell",
+        "usage": "battle"
+      },
+      {
+        "name": "Zap",
+        "usage": "battle"
+      },
+      {
+        "name": "Transform",
+        "usage": "battle"
+      },
+      {
+        "name": "Boom",
+        "usage": "battle"
+      },
+      {
+        "name": "Healusall",
+        "usage": "battle"
+      },
+      {
+        "name": "Lightning",
+        "usage": "battle"
+      },
+      {
+        "name": "Vivify",
+        "usage": "battle"
+      },
+      {
+        "name": "Thordain",
+        "usage": "battle"
+      },
+      {
+        "name": "Chance",
+        "usage": "battle"
+      },
+      {
+        "name": "Return",
+        "usage": "field"
+      },
+      {
+        "name": "Healmore",
+        "usage": "field"
+      },
+      {
+        "name": "Repel",
+        "usage": "field"
+      },
+      {
+        "name": "Outside",
+        "usage": "field"
+      },
+      {
+        "name": "Healall",
+        "usage": "field"
+      },
+      {
+        "name": "Vivify",
+        "usage": "field"
+      }
+    ],
+    [
+      {
+        "name": "Upper",
+        "usage": "battle"
+      },
+      {
+        "name": "Heal",
+        "usage": "battle"
+      },
+      {
+        "name": "Surround",
+        "usage": "battle"
+      },
+      {
+        "name": "Healmore",
+        "usage": "battle"
+      },
+      {
+        "name": "StopSpell",
+        "usage": "battle"
+      },
+      {
+        "name": "Healall",
+        "usage": "battle"
+      },
+      {
+        "name": "Increase",
+        "usage": "battle"
+      },
+      {
+        "name": "Healus",
+        "usage": "battle"
+      },
+      {
+        "name": "Beat",
+        "usage": "battle"
+      },
+      {
+        "name": "Vivify",
+        "usage": "battle"
+      },
+      {
+        "name": "Defeat",
+        "usage": "battle"
+      },
+      {
+        "name": "Revive",
+        "usage": "battle"
+      },
+      null,
+      null,
+      null,
+      null,
+      {
+        "name": "Heal",
+        "usage": "field"
+      },
+      {
+        "name": "Antidote",
+        "usage": "field"
+      },
+      {
+        "name": "Healmore",
+        "usage": "field"
+      },
+      {
+        "name": "Vivify",
+        "usage": "field"
+      },
+      {
+        "name": "Healall",
+        "usage": "field"
+      },
+      {
+        "name": "Healus",
+        "usage": "field"
+      },
+      {
+        "name": "Revive",
+        "usage": "field"
+      },
+      null
+    ],
+    [
+      {
+        "name": "Infernos",
+        "usage": "battle"
+      },
+      {
+        "name": "Heal",
+        "usage": "battle"
+      },
+      {
+        "name": "Sleep",
+        "usage": "battle"
+      },
+      {
+        "name": "Healmore",
+        "usage": "battle"
+      },
+      {
+        "name": "NumbOff",
+        "usage": "battle"
+      },
+      {
+        "name": "Healall",
+        "usage": "battle"
+      },
+      {
+        "name": "Infermore",
+        "usage": "battle"
+      },
+      {
+        "name": "Barrior",
+        "usage": "battle"
+      },
+      {
+        "name": "Sleepmore",
+        "usage": "battle"
+      },
+      {
+        "name": "Vivify",
+        "usage": "battle"
+      },
+      {
+        "name": "Infermost",
+        "usage": "battle"
+      },
+      {
+        "name": "Farewell",
+        "usage": "battle"
+      },
+      null,
+      null,
+      null,
+      null,
+      {
+        "name": "Heal",
+        "usage": "field"
+      },
+      {
+        "name": "NumbOff",
+        "usage": "field"
+      },
+      {
+        "name": "Healmore",
+        "usage": "field"
+      },
+      {
+        "name": "Vivify",
+        "usage": "field"
+      },
+      {
+        "name": "Healall",
+        "usage": "field"
+      },
+      null,
+      null,
+      null
+    ],
+    [
+      {
+        "name": "Blaze",
+        "usage": "battle"
+      },
+      {
+        "name": "Sap",
+        "usage": "battle"
+      },
+      {
+        "name": "Firebal",
+        "usage": "battle"
+      },
+      {
+        "name": "RobMagic",
+        "usage": "battle"
+      },
+      {
+        "name": "Bang",
+        "usage": "battle"
+      },
+      {
+        "name": "BeDragon",
+        "usage": "battle"
+      },
+      {
+        "name": "Blazemore",
+        "usage": "battle"
+      },
+      {
+        "name": "Blazemost",
+        "usage": "battle"
+      },
+      {
+        "name": "Firebane",
+        "usage": "battle"
+      },
+      {
+        "name": "Firevolt",
+        "usage": "battle"
+      },
+      {
+        "name": "Boom",
+        "usage": "battle"
+      },
+      {
+        "name": "Explodet",
+        "usage": "battle"
+      },
+      null,
+      null,
+      null,
+      null,
+      {
+        "name": "Return",
+        "usage": "field"
+      },
+      {
+        "name": "Outside",
+        "usage": "field"
+      },
+      {
+        "name": "StepGuard",
+        "usage": "field"
+      },
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    [
+      {
+        "name": "IceBolt",
+        "usage": "battle"
+      },
+      {
+        "name": "Sap",
+        "usage": "battle"
+      },
+      {
+        "name": "Snowstorm",
+        "usage": "battle"
+      },
+      {
+        "name": "Bounce",
+        "usage": "battle"
+      },
+      {
+        "name": "Icespears",
+        "usage": "battle"
+      },
+      {
+        "name": "Return",
+        "usage": "battle"
+      },
+      {
+        "name": "RobMagic",
+        "usage": "battle"
+      },
+      {
+        "name": "Defence",
+        "usage": "battle"
+      },
+      {
+        "name": "Chaos",
+        "usage": "battle"
+      },
+      {
+        "name": "SpeedUp",
+        "usage": "battle"
+      },
+      {
+        "name": "Blizzard",
+        "usage": "battle"
+      },
+      {
+        "name": "Bikill",
+        "usage": "battle"
+      },
+      null,
+      null,
+      null,
+      null,
+      {
+        "name": "Return",
+        "usage": "field"
+      },
+      {
+        "name": "Outside",
+        "usage": "field"
+      },
+      {
+        "name": "Day-Night",
+        "usage": "field"
+      },
+      {
+        "name": "X-Ray",
+        "usage": "field"
+      },
+      null,
+      null,
+      null,
+      null
+    ],
+    [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  ],
+  "submap_names": {
+    "00:00": "Keeleon - Outside",
+    "00:01": "Keeleon - F1",
+    "00:02": "Keeleon - F2",
+    "00:03": "Keeleon - F3",
+    "00:04": "Keeleon - B1, Jail",
+    "01:00": "Santeem - F1",
+    "01:01": "Santeem - F2",
+    "01:02": "Santeem - F3",
+    "02:00": "Burland",
+    "02:01": "Burland - Castle, F1",
+    "02:02": "Burland - Castle, F2",
+    "02:03": "Burland - Flora's House, F2 -- Armor Shop, F2",
+    "03:00": "Dire Palace - F1",
+    "03:01": "Dire Palace - F2",
+    "03:02": "Dire Palace - B1, Kitchen/Jail -- B1, 4-Chest Room",
+    "03:03": "Dire Palace - B1, Tomb",
+    "04:00": "Endor",
+    "04:01": "Endor - Casino/Monster Arena",
+    "04:02": "Endor - Castle, F1",
+    "04:03": "Endor - Bottom-right building, F1",
+    "04:04": "Endor - Middle-right building, F1",
+    "04:05": "Endor - Castle, B1",
+    "04:06": "Endor - Castle, F2 (throne room)",
+    "04:07": "Endor - Back Castle, Arena",
+    "04:08": "Endor - Taloon's Shop, F2",
+    "04:09": "Endor - Bottom-right building, F2",
+    "04:0a": "Endor - Middle-right building, F2",
+    "04:0b": "Endor - Inn, F2",
+    "04:0c": "Endor - Castle, F3 (chamber)",
+    "04:0d": "Endor - Castle, Behind center stairs, secret door, F2, F3, F4, F5",
+    "04:0e": "Endor - Back Castle, F2",
+    "05:00": "Bonmalmo - B1, Jail",
+    "05:01": "Bonmalmo - Main",
+    "06:00": "Branca",
+    "06:01": "Branca - Castle, F2, Throne Room",
+    "06:02": "Branca - Left house, F2",
+    "06:03": "Branca - Inn, F2",
+    "07:00": "Soretta",
+    "07:01": "Soretta - F2, Throne room",
+    "08:00": "Gardenbur - Entrance",
+    "08:01": "Gardenbur - Castle",
+    "08:02": "Gardenbur - F2",
+    "08:03": "Gardenbur - Top-Left, B1, Jail -- Middle, behind throne room stairs, B1",
+    "08:04": "Gardenbur - Top-Right, B1, Flowers",
+    "09:00": "Stancia",
+    "09:01": "Stancia - Castle, Entrance",
+    "09:02": "Stancia - Castle, F1, Interior",
+    "09:03": "Stancia - Castle, F1, Front -- Castle, F2",
+    "09:04": "Stancia - Castle, F3, Throne Room",
+    "09:05": "Stancia - Restaurant",
+    "09:06": "Stancia - Church",
+    "09:07": "Stancia - Top-right house, F2",
+    "0a:00": "Aktemto",
+    "0b:00": "Riverton",
+    "0b:01": "Riverton - Middle-right house, F2 -- Bottom-right house, F2",
+    "0c:00": "Bazaar",
+    "0d:00": "Mintos",
+    "0d:01": "Mintos - Inn, F1 -- Inn, F2",
+    "0d:02": "Mintos - Middle-right house, F2",
+    "0e:00": "Tempe",
+    "0f:00": "Frenor",
+    "0f:01": "Frenor - Inn, F2 -- Top-left house, F2",
+    "10:00": "Aneaux",
+    "10:01": "Aneaux - Bottom-right Inn, F2",
+    "10:02": "Aneaux - Church, F2",
+    "10:03": "Aneaux - Top-left house, F2",
+    "11:00": "Haville",
+    "11:01": "Haville - Inn, F2 -- Bottom-right building, F2, Restaurant",
+    "11:02": "Haville - B1, Jail",
+    "11:03": "Haville - Piers on left",
+    "11:04": "Haville - Ship, B1",
+    "11:05": "Haville - Ship's Cabin",
+    "12:00": "Izmit",
+    "12:01": "Izmit - Inn, F2 -- Item Shop, F2 -- Middle-right house, F2",
+    "12:02": "Izmit - Jail, B1",
+    "13:00": "Surene",
+    "13:01": "Surene - Inn, F2 -- Far right house, F2",
+    "13:02": "Surene - Main Building, Center F1",
+    "13:03": "Surene - Main Building, Sides -- Main Building, Center F2",
+    "13:04": "Surene - Main Building, Old man's room under advanced weapon shop",
+    "14:00": "Hometown",
+    "14:01": "Hometown - B1",
+    "14:02": "Hometown - Destroyed",
+    "15:00": "Monbaraba",
+    "15:01": "Monbaraba - Middle-right house, F2 -- Bottom-left house, F2 -- Restaurant, F2",
+    "15:02": "Monbaraba - Theater, B1, no crowd",
+    "15:03": "Monbaraba - Theater, B1, full crowd",
+    "16:00": "Lakanaba",
+    "16:01": "Lakanaba - Taloon's House, F2 -- Armor Shop, F2",
+    "16:02": "Lakanaba - Shop, B1",
+    "17:00": "Kievs",
+    "17:01": "Kievs - Top-right house, B1",
+    "18:00": "Foxville",
+    "18:01": "Foxville - Empty field",
+    "19:00": "Seaside Village - Day",
+    "19:01": "Seaside Village - Night",
+    "19:02": "Seaside Village - Item Shop, F2",
+    "1a:00": "Gottside",
+    "1a:01": "Gottside - Top-right house, B1 -- Top-left house, B1",
+    "1b:00": "Rosaville",
+    "1b:01": "Rosaville - Tower, F1, Chruch -- Tower, B1",
+    "1b:02": "Rosaville - Tower, Secret Area, F1 -- Tower, Secret Area, F2",
+    "1b:03": "Rosaville - Tower, Secret Area, F3",
+    "1c:00": "Secret Playground Entrance",
+    "1c:01": "Secret Playground Entrance - B1, Exit",
+    "1d:00": "House of Prophecy",
+    "1e:00": "Shrine from Frenor to Endor",
+    "1f:00": "Shrine northwest of Endor (to Frenor)",
+    "20:00": "Woodsman's Shack",
+    "21:00": "Desert Inn",
+    "22:00": "Small Medal King Shrine",
+    "22:01": "Small Medal King Shrine - B1, shrine portal",
+    "23:00": "Shrine East of Mintos (Soretta)",
+    "24:00": "Small Island Shack North of Haville",
+    "25:00": "Royal Crypt Entrance - Inside",
+    "25:01": "Royal Crypt Entrance - Outside",
+    "26:00": "Last Refuge",
+    "27:00": "SW barrier shrine (Gigademon) - Outside",
+    "27:01": "SW barrier shrine (Gigademon) - B1",
+    "27:02": "SW barrier shrine (Gigademon) - B2",
+    "28:00": "SE barrier shrine (Anderoug) - Outside",
+    "28:01": "SE barrier shrine (Anderoug) - B1",
+    "28:02": "SE barrier shrine (Anderoug) - B2",
+    "29:00": "NW barrier shrine (Infurnus Shadow) - Outside",
+    "29:01": "NW barrier shrine (Infurnus Shadow) - B1",
+    "2a:00": "Final Cave (Entrance in underworld)",
+    "2b:00": "Travel Door near Riverton - To Shrine East of Mintos",
+    "2c:00": "Shrine of Colossus, Outside",
+    "2d:00": "Aktemto Mine - B1",
+    "2d:01": "Aktemto Mine - B2",
+    "2d:02": "Aktemto Mine - B3, Gun Powder",
+    "2d:03": "Aktemto Mine - B3, Ruler of Evil",
+    "2d:04": "Aktemto Mine - B4",
+    "2d:05": "Aktemto Mine - Ruins, F1",
+    "2d:06": "Aktemto Mine - F3",
+    "2d:07": "Aktemto Mine - Ruins, Entry Room -- Ruins, F2",
+    "2d:08": "Aktemto Mine - Ruins, Outside",
+    "2d:09": "Aktemto Mine - Ruins, Health Restore Room",
+    "2e:00": "Shrine of Breaking Waves",
+    "2e:01": "Shrine of Breaking Waves - B1",
+    "2f:00": "Padaquea Cave - B1",
+    "2f:01": "Padaquea Cave - B2",
+    "2f:02": "Padaquea Cave - B3",
+    "30:00": "Bakor's Hideout - B3",
+    "30:01": "Bakor's Hideout - B1",
+    "30:02": "Bakor's Hideout - B2",
+    "31:00": "Cave West of Kievs - B1",
+    "31:01": "Cave West of Kievs - B2",
+    "31:02": "Cave West of Kievs - B3, Corridor",
+    "31:03": "Cave West of Kievs - B4",
+    "31:04": "Cave West of Kievs - B5",
+    "32:00": "Cave South Of Frenor - B2",
+    "32:01": "Cave South Of Frenor - B1",
+    "33:00": "Secret Playground Dungeon - B1, Section #1 (left)",
+    "33:01": "Secret Playground Dungeon - B1, Section #2 (right)",
+    "33:02": "Secret Playground Dungeon - B2, Exit",
+    "33:03": "Secret Playground Dungeon - B2, Section #1 (left)",
+    "33:04": "Secret Playground Dungeon - B2, Section #2 (right)",
+    "33:05": "Secret Playground Dungeon - B3, left dead-end",
+    "33:06": "Secret Playground Dungeon - B3",
+    "34:00": "Cascade Cave - F1",
+    "34:01": "Cascade Cave - B1",
+    "34:02": "Cascade Cave - B3",
+    "34:03": "Cascade Cave - F1, Behind Waterfall",
+    "34:04": "Cascade Cave - B2",
+    "35:00": "Final Cave - B1",
+    "35:01": "Final Cave - B2",
+    "35:02": "Final Cave - B4",
+    "35:03": "Final Cave - B3",
+    "35:04": "Final Cave - B5",
+    "35:05": "Final Cave - B8",
+    "35:06": "Final Cave - B7",
+    "35:07": "Final Cave - B6, middle and top",
+    "35:08": "Final Cave - B6, bottom",
+    "35:09": "Final Cave - B9",
+    "36:00": "Cave North of Lakanaba - B1",
+    "36:01": "Cave North of Lakanaba - B2, before water",
+    "36:02": "Cave North of Lakanaba - B2, after water",
+    "36:03": "Cave North of Lakanaba - B3",
+    "36:04": "Cave North of Lakanaba - B4",
+    "36:05": "Cave North of Lakanaba - B5 (right side/wrong side)",
+    "36:06": "Cave North of Lakanaba - B5 (left side)",
+    "37:00": "Cave of Betrayal - B1",
+    "37:01": "Cave of Betrayal - B2",
+    "37:02": "Cave of Betrayal - B3",
+    "38:00": "Silver Statuette Cave - B1",
+    "38:01": "Silver Statuette Cave - B2, before water change",
+    "38:02": "Silver Statuette Cave - B2, after water change",
+    "38:03": "Silver Statuette Cave - B3, first time, before water change",
+    "38:04": "Silver Statuette Cave - B3, after water change",
+    "38:05": "Silver Statuette Cave - B4",
+    "39:00": "Burland-Izmit Tunnel",
+    "3a:00": "Branca-Endor tunnel, before tunnel is built",
+    "3a:01": "Branca-Endor tunnel, after tunnel is built",
+    "3b:00": "Royal Crypt Dungeon - B1",
+    "3b:01": "Royal Crypt Dungeon - B2",
+    "3b:02": "Royal Crypt Dungeon - B3",
+    "3c:00": "Necrosaro's Lair - ???",
+    "3d:00": "Zenithian Tower - Outside [TODO: Use map to describe each value]",
+    "3d:01": "Zenithian Tower - F1",
+    "3d:02": "Zenithian Tower - F2 (#3)",
+    "3d:03": "Zenithian Tower - F2 (#7)",
+    "3d:04": "Zenithian Tower - F3 (#4)",
+    "3d:05": "Zenithian Tower - F2, (#9)",
+    "3d:06": "Zenithian Tower - F3, (#12)",
+    "3d:07": "Zenithian Tower - F3, (#8)",
+    "3d:08": "Zenithian Tower - ???",
+    "3d:09": "Zenithian Tower - ???",
+    "3d:0a": "Zenithian Tower - ???",
+    "3d:0b": "Zenithian Tower - ???",
+    "3d:0c": "Zenithian Tower - ???",
+    "3d:0d": "Zenithian Tower - ???",
+    "3d:0e": "Zenithian Tower - ???",
+    "3d:0f": "Zenithian Tower - ???",
+    "3d:10": "Zenithian Tower - ???",
+    "3e:00": "Outside Zenethia",
+    "3f:00": "Birdsong Tower - F5",
+    "3f:01": "Birdsong Tower - F3",
+    "3f:02": "Birdsong Tower - F2",
+    "3f:03": "Birdsong Tower - F1",
+    "3f:04": "Birdsong Tower - B1/Inn",
+    "3f:05": "Birdsong Tower - F4",
+    "40:00": "World Tree - F3-2",
+    "40:01": "World Tree - F4",
+    "40:02": "World Tree - F3-1",
+    "40:03": "World Tree - F2",
+    "40:04": "World Tree - F1",
+    "40:05": "World Tree - Elfville",
+    "41:00": "Loch Tower - F4",
+    "41:01": "Loch Tower - F3",
+    "41:02": "Loch Tower - F2",
+    "41:03": "Loch Tower - F1",
+    "41:04": "Loch Tower - B1, boss room",
+    "41:05": "Loch Tower - B1, hp/mp refresh room",
+    "42:00": "Great Lighthouse - F5",
+    "42:01": "Great Lighthouse - F4",
+    "42:02": "Great Lighthouse - F3",
+    "42:03": "Great Lighthouse - F2",
+    "42:04": "Great Lighthouse - F1",
+    "43:00": "Konenber - Top-left, Ship Building",
+    "43:01": "Konenber - Top-left, Ship Building, Ship, B1",
+    "43:02": "Konenber - Top-left, Ship Building, Ship, Cabin",
+    "43:03": "Konenber - Bottom-left house, F2",
+    "43:04": "Konenber - Inn, F2",
+    "43:05": "Konenber - Top-right house, F2",
+    "43:06": "Konenber - Outside (entrance)",
+    "43:07": "Konenber - Piers on left, Ship",
+    "43:08": "Konenber - Piers on left, Ship, B1",
+    "43:09": "Konenber - Piers on left, Ship, Cabin",
+    "44:00": "NE barrier shrine (Radimvice) - Outside",
+    "44:01": "NE barrier shrine (Radimvice) - F2",
+    "44:02": "NE barrier shrine (Radimvice) - F3",
+    "44:03": "NE barrier shrine (Radimvice) - F4",
+    "45:00": "Necrosaro's Palace - Outside",
+    "45:01": "Necrosaro's Palace - F1",
+    "45:02": "Necrosaro's Palace - ???",
+    "45:03": "Necrosaro's Palace - ???",
+    "45:04": "Necrosaro's Palace - ???",
+    "45:05": "Necrosaro's Palace - F2",
+    "45:06": "Necrosaro's Palace - ???",
+    "45:07": "Necrosaro's Palace - ???",
+    "46:00": "Zenithian Castle - Outside",
+    "46:01": "Zenithian Castle - B1",
+    "46:02": "Zenithian Castle - F1",
+    "46:03": "Zenithian Castle - F2, F3",
+    "47:00": "Shrine of the Horn - F1, B1, B2",
+    "47:01": "Shrine of the Horn - B3",
+    "48:00": "Shrine of Colossus, Dungeon - Outside",
+    "48:01": "Shrine of Colossus, Dungeon - F1",
+    "48:02": "Shrine of Colossus, Dungeon - F2",
+    "48:03": "Shrine of Colossus, Dungeon - F3",
+    "48:04": "Shrine of Colossus, Dungeon - F6",
+    "48:05": "Shrine of Colossus, Dungeon - B1",
+    "48:06": "Shrine of Colossus, Dungeon - F4",
+    "48:07": "Shrine of Colossus, Dungeon - F4, Outside on Hands",
+    "48:08": "Shrine of Colossus, Dungeon - F5"
+  },
+  "treasures": [
+    {
+      "description": "Burland - Castle, F1, left chest group, bottom-left chest",
+      "flag_index": 0,
+      "map_id": 2,
+      "reward": "Agility Seed",
+      "submap": 1
+    },
+    {
+      "description": "Burland - Castle, F1, left chest group, top-right chest",
+      "flag_index": 1,
+      "map_id": 2,
+      "reward": "Iron Helmet",
+      "submap": 1
+    },
+    {
+      "description": "Burland - Castle, F1, left chest group, top-middle chest",
+      "flag_index": 2,
+      "map_id": 2,
+      "reward": "160 gold",
+      "submap": 1
+    },
+    {
+      "description": "Burland - Castle, F1, left chest group, top-left chest",
+      "flag_index": 3,
+      "map_id": 2,
+      "reward": "Lifeforce Nuts",
+      "submap": 1
+    },
+    {
+      "description": "Santeem - F1, top-middle, right chest",
+      "flag_index": 4,
+      "map_id": 1,
+      "reward": "Magma Staff",
+      "submap": 0
+    },
+    {
+      "description": "Santeem - F1, top-middle, middle chest",
+      "flag_index": 5,
+      "map_id": 1,
+      "reward": "Flute of Uncovering",
+      "submap": 0
+    },
+    {
+      "description": "Santeem - F1, top-middle, left chest",
+      "flag_index": 6,
+      "map_id": 1,
+      "reward": "Strength Seed",
+      "submap": 0
+    },
+    {
+      "description": "Keeleon - B1, Jail, bottom, chest",
+      "flag_index": 7,
+      "map_id": 0,
+      "reward": "Boarding Pass",
+      "submap": 4
+    },
+    {
+      "description": "Dire Palace - B1, 4-Chest Room, bottom-right chest",
+      "flag_index": 10,
+      "map_id": 3,
+      "reward": "\ud83d\udfbf Mimic!",
+      "submap": 2
+    },
+    {
+      "description": "Dire Palace - B1, 4-Chest Room, bottom-left chest",
+      "flag_index": 11,
+      "map_id": 3,
+      "reward": "\ud83d\udfbf Mimic!",
+      "submap": 2
+    },
+    {
+      "description": "Dire Palace - B1, 4-Chest Room, top-right chest",
+      "flag_index": 12,
+      "map_id": 3,
+      "reward": "Aeolus' Shield",
+      "submap": 2
+    },
+    {
+      "description": "Dire Palace - B1, 4-Chest Room, top-left chest",
+      "flag_index": 13,
+      "map_id": 3,
+      "reward": "Small Medal",
+      "submap": 2
+    },
+    {
+      "description": "Burland - Castle, F1, left chest group, bottom-right chest",
+      "flag_index": 14,
+      "map_id": 2,
+      "reward": "320 gold",
+      "submap": 1
+    },
+    {
+      "description": "Burland - Castle, F1, left chest group, bottom-middle chest",
+      "flag_index": 15,
+      "map_id": 2,
+      "reward": "Strength Seed",
+      "submap": 1
+    },
+    {
+      "description": "Endor - Castle, F3 (chamber), right room, bottom chest",
+      "flag_index": 18,
+      "map_id": 4,
+      "reward": "Feather Hat",
+      "submap": 12
+    },
+    {
+      "description": "Endor - Castle, F3 (chamber), right room, top chest",
+      "flag_index": 19,
+      "map_id": 4,
+      "reward": "Pink Leotard",
+      "submap": 12
+    },
+    {
+      "description": "Endor - Castle, left side, B1, chest",
+      "flag_index": 20,
+      "map_id": 4,
+      "reward": "Lifeforce Nuts",
+      "submap": 5
+    },
+    {
+      "description": "Endor - Bottom-right building, F1, bottom chest",
+      "flag_index": 21,
+      "map_id": 4,
+      "reward": "Multi-edge Sword",
+      "submap": 3
+    },
+    {
+      "description": "Endor - Bottom-right building, F1, top chest",
+      "flag_index": 22,
+      "map_id": 4,
+      "reward": "Strength Seed",
+      "submap": 3
+    },
+    {
+      "description": "Gardenbur - Top-Right, B1, Flowers, chest",
+      "flag_index": 25,
+      "map_id": 8,
+      "reward": "Zenithian Shield",
+      "submap": 4
+    },
+    {
+      "description": "Gardenbur - Middle, behind throne room stairs, B1, chest",
+      "flag_index": 26,
+      "map_id": 8,
+      "reward": "Fire Claw",
+      "submap": 3
+    },
+    {
+      "description": "Branca, top-left, bottom chest",
+      "flag_index": 27,
+      "map_id": 6,
+      "reward": "Small Medal",
+      "submap": 0
+    },
+    {
+      "description": "Branca, top-left, top-right chest",
+      "flag_index": 28,
+      "map_id": 6,
+      "reward": "120 gold",
+      "submap": 0
+    },
+    {
+      "description": "Branca, top-left, top-left chest",
+      "flag_index": 29,
+      "map_id": 6,
+      "reward": "Mystic Acorns",
+      "submap": 0
+    },
+    {
+      "description": "Aktemto Mine - B1, top, chest",
+      "flag_index": 32,
+      "map_id": 45,
+      "reward": "Silver Tarot Cards",
+      "submap": 0
+    },
+    {
+      "description": "Desert Inn - top, chest",
+      "flag_index": 33,
+      "map_id": 33,
+      "reward": "Lunch",
+      "submap": 0
+    },
+    {
+      "description": "Kievs - Top-right house, B1, chest",
+      "flag_index": 34,
+      "map_id": 23,
+      "reward": "Empty!",
+      "submap": 1
+    },
+    {
+      "description": "Lakanaba - Shop, B1, top-left chest group, right chest",
+      "flag_index": 35,
+      "map_id": 22,
+      "reward": "Chain Sickle",
+      "submap": 2
+    },
+    {
+      "description": "Lakanaba - Shop, B1, top-left chest group, middle chest",
+      "flag_index": 36,
+      "map_id": 22,
+      "reward": "Ice Blade",
+      "submap": 2
+    },
+    {
+      "description": "Lakanaba - Shop, B1, top-left chest group, left chest",
+      "flag_index": 37,
+      "map_id": 22,
+      "reward": "Strength Seed",
+      "submap": 2
+    },
+    {
+      "description": "Aktemto Mine - Ruins, F1, bottom-right, right chest",
+      "flag_index": 40,
+      "map_id": 45,
+      "reward": "\ud83d\udfbf Mimic!",
+      "submap": 5
+    },
+    {
+      "description": "Aktemto Mine - Ruins, F1, bottom-right, left chest",
+      "flag_index": 41,
+      "map_id": 45,
+      "reward": "Small Medal",
+      "submap": 5
+    },
+    {
+      "description": "Aktemto Mine - Ruins, F1, middle-middle, right room, chest",
+      "flag_index": 42,
+      "map_id": 45,
+      "reward": "Small Medal",
+      "submap": 5
+    },
+    {
+      "description": "Aktemto Mine - Ruins, F1, middle-middle, left room, chest",
+      "flag_index": 43,
+      "map_id": 45,
+      "reward": "\ud83d\udfbf Mimic!",
+      "submap": 5
+    },
+    {
+      "description": "Aktemto Mine - Ruins, F1, middle-left, left room, chest",
+      "flag_index": 44,
+      "map_id": 45,
+      "reward": "2480 gold",
+      "submap": 5
+    },
+    {
+      "description": "Aktemto Mine - Ruins, F1, top-right, chest",
+      "flag_index": 45,
+      "map_id": 45,
+      "reward": "Gas Canister",
+      "submap": 5
+    },
+    {
+      "description": "Aktemto Mine - B3, chest",
+      "flag_index": 46,
+      "map_id": 45,
+      "reward": "Gunpowder Jar",
+      "submap": 2
+    },
+    {
+      "description": "Aktemto Mine - B1, bottom right, chest",
+      "flag_index": 47,
+      "map_id": 45,
+      "reward": "Mystic Acorns",
+      "submap": 0
+    },
+    {
+      "description": "Padequia Cave - B2, top-right, chest",
+      "flag_index": 48,
+      "map_id": 47,
+      "reward": "800 gold",
+      "submap": 1
+    },
+    {
+      "description": "Padequia Cave - B2, top-left, chest",
+      "flag_index": 49,
+      "map_id": 47,
+      "reward": "Mystic Acorns",
+      "submap": 1
+    },
+    {
+      "description": "Padequia Cave - B1, chest",
+      "flag_index": 50,
+      "map_id": 47,
+      "reward": "Agility Seed",
+      "submap": 0
+    },
+    {
+      "description": "Shrine of Breaking Waves - B1, right chest",
+      "flag_index": 51,
+      "map_id": 46,
+      "reward": "Zenithian Armor",
+      "submap": 1
+    },
+    {
+      "description": "Shrine of Breaking Waves - B1, left chest",
+      "flag_index": 52,
+      "map_id": 46,
+      "reward": "Small Medal",
+      "submap": 1
+    },
+    {
+      "description": "Shrine of Breaking Waves - middle area, bottom-right, chest",
+      "flag_index": 53,
+      "map_id": 46,
+      "reward": "Small Medal",
+      "submap": 0
+    },
+    {
+      "description": "Aktemto Mine - Ruins, F1, bottom-left, right chest",
+      "flag_index": 54,
+      "map_id": 45,
+      "reward": "Strength Seed",
+      "submap": 5
+    },
+    {
+      "description": "Aktemto Mine - Ruins, F1, bottom-left, left chest",
+      "flag_index": 55,
+      "map_id": 45,
+      "reward": "Agility Seed",
+      "submap": 5
+    },
+    {
+      "description": "Bakor's Hideout - B2, middle-left, chest",
+      "flag_index": 56,
+      "map_id": 48,
+      "reward": "Iron Mask",
+      "submap": 2
+    },
+    {
+      "description": "Bakor's Hideout - B2, middle-right, chest",
+      "flag_index": 57,
+      "map_id": 48,
+      "reward": "Strength Seed",
+      "submap": 2
+    },
+    {
+      "description": "Bakor's Hideout - B1, middle, chest",
+      "flag_index": 58,
+      "map_id": 48,
+      "reward": "Small Medal",
+      "submap": 1
+    },
+    {
+      "description": "Bakor's Hideout - B1, top-right, chest",
+      "flag_index": 59,
+      "map_id": 48,
+      "reward": "1200 gold",
+      "submap": 1
+    },
+    {
+      "description": "Bakor's Hideout - B1, middle-top, chest",
+      "flag_index": 60,
+      "map_id": 48,
+      "reward": "Agility Seed",
+      "submap": 1
+    },
+    {
+      "description": "Padequia Cave - B3, bottom-left, chest",
+      "flag_index": 61,
+      "map_id": 47,
+      "reward": "\ud83d\udfbf Man-Eater Chest!",
+      "submap": 2
+    },
+    {
+      "description": "Padequia Cave - B3, middle, chest",
+      "flag_index": 62,
+      "map_id": 47,
+      "reward": "Padequia Seed",
+      "submap": 2
+    },
+    {
+      "description": "Padequia Cave - B2, middle-left, chest",
+      "flag_index": 63,
+      "map_id": 47,
+      "reward": "Robe of Serenity",
+      "submap": 1
+    },
+    {
+      "description": "Cave South Of Frenor - B2, left, chest",
+      "flag_index": 64,
+      "map_id": 50,
+      "reward": "Magic Potion",
+      "submap": 0
+    },
+    {
+      "description": "Cave West of Kievs - B5, chest",
+      "flag_index": 65,
+      "map_id": 49,
+      "reward": "Magic Key",
+      "submap": 4
+    },
+    {
+      "description": "Cave West of Kievs - B4, middle, chest",
+      "flag_index": 66,
+      "map_id": 49,
+      "reward": "Sphere of Silence",
+      "submap": 3
+    },
+    {
+      "description": "Cave West of Kievs - B4, middle, chest",
+      "flag_index": 67,
+      "map_id": 49,
+      "reward": "Lamp of Darkness",
+      "submap": 3
+    },
+    {
+      "description": "Cave West of Kievs - B2, bottom-left, chest",
+      "flag_index": 68,
+      "map_id": 49,
+      "reward": "240 gold",
+      "submap": 1
+    },
+    {
+      "description": "Cave West of Kievs - B2, right, chest",
+      "flag_index": 69,
+      "map_id": 49,
+      "reward": "Lifeforce Nuts",
+      "submap": 1
+    },
+    {
+      "description": "Cave West of Kievs - B1, top-left, chest",
+      "flag_index": 70,
+      "map_id": 49,
+      "reward": "Wing of Wyvern",
+      "submap": 0
+    },
+    {
+      "description": "Bakor's Hideout - B2, bottom-left, chest",
+      "flag_index": 71,
+      "map_id": 48,
+      "reward": "Dragon Shield",
+      "submap": 2
+    },
+    {
+      "description": "Cascade Cave - B1, middle-left, chest",
+      "flag_index": 72,
+      "map_id": 52,
+      "reward": "Small Medal",
+      "submap": 1
+    },
+    {
+      "description": "Secret Playground Dungeon - B2, middle-right, chest",
+      "flag_index": 73,
+      "map_id": 51,
+      "reward": "600 gold",
+      "submap": 4
+    },
+    {
+      "description": "Secret Playground Dungeon - B2, top, chest",
+      "flag_index": 74,
+      "map_id": 51,
+      "reward": "Flying Shoes",
+      "submap": 3
+    },
+    {
+      "description": "Secret Playground Dungeon - B1, bottom-right, chest",
+      "flag_index": 75,
+      "map_id": 51,
+      "reward": "Medical Herb",
+      "submap": 1
+    },
+    {
+      "description": "Cave South Of Frenor - B1, bottom-right, chest",
+      "flag_index": 76,
+      "map_id": 50,
+      "reward": "Wing of Wyvern",
+      "submap": 1
+    },
+    {
+      "description": "Cave South Of Frenor - B1, middle, chest",
+      "flag_index": 77,
+      "map_id": 50,
+      "reward": "Agility Seed",
+      "submap": 1
+    },
+    {
+      "description": "Cave South Of Frenor - B1, top-left, chest",
+      "flag_index": 78,
+      "map_id": 50,
+      "reward": "360 gold",
+      "submap": 1
+    },
+    {
+      "description": "Cave South Of Frenor - B2, bottom, chest",
+      "flag_index": 79,
+      "map_id": 50,
+      "reward": "Golden Bracelet",
+      "submap": 0
+    },
+    {
+      "description": "Final Cave - B2, bottom-left, chest",
+      "flag_index": 81,
+      "map_id": 53,
+      "reward": "Demon Armor",
+      "submap": 1
+    },
+    {
+      "description": "Final Cave - B2, bottom-right, chest",
+      "flag_index": 82,
+      "map_id": 53,
+      "reward": "Small Medal",
+      "submap": 1
+    },
+    {
+      "description": "Final Cave - B1, top-right, chest",
+      "flag_index": 83,
+      "map_id": 53,
+      "reward": "Dress of Radiance",
+      "submap": 0
+    },
+    {
+      "description": "Cascade Cave - B2, bottom-left, chest",
+      "flag_index": 84,
+      "map_id": 52,
+      "reward": "Mask of Corruption",
+      "submap": 4
+    },
+    {
+      "description": "Cascade Cave - B2, middle, chest",
+      "flag_index": 85,
+      "map_id": 52,
+      "reward": "1040 gold",
+      "submap": 4
+    },
+    {
+      "description": "Cascade Cave - F1, Behind Waterfall, chest",
+      "flag_index": 86,
+      "map_id": 52,
+      "reward": "Sandglass of Regression",
+      "submap": 3
+    },
+    {
+      "description": "Cascade Cave - B3, bottom, chest",
+      "flag_index": 87,
+      "map_id": 52,
+      "reward": "Metal Babble Sword",
+      "submap": 2
+    },
+    {
+      "description": "Final Cave - B7, middle, chest",
+      "flag_index": 88,
+      "map_id": 53,
+      "reward": "Mirror Shield",
+      "submap": 6
+    },
+    {
+      "description": "Final Cave - B3 (from #2), bottom-right, chest",
+      "flag_index": 89,
+      "map_id": 53,
+      "reward": "\ud83d\udfbf Mimic!",
+      "submap": 3
+    },
+    {
+      "description": "Final Cave - B3, middle-left (from #2), bottom-right chest",
+      "flag_index": 90,
+      "map_id": 53,
+      "reward": "Strength Seed",
+      "submap": 3
+    },
+    {
+      "description": "Final Cave - B3, middle-left (from #2), bottom-left chest",
+      "flag_index": 91,
+      "map_id": 53,
+      "reward": "Agility Seed",
+      "submap": 3
+    },
+    {
+      "description": "Final Cave - B3, middle-left (from #2), top-right chest",
+      "flag_index": 92,
+      "map_id": 53,
+      "reward": "3280 gold",
+      "submap": 3
+    },
+    {
+      "description": "Final Cave - B3, middle-left (from #2), top-left chest",
+      "flag_index": 93,
+      "map_id": 53,
+      "reward": "Lifeforce Nuts",
+      "submap": 3
+    },
+    {
+      "description": "Final Cave - B3 (from #2), top-middle, chest",
+      "flag_index": 94,
+      "map_id": 53,
+      "reward": "Staff of Jubilation",
+      "submap": 3
+    },
+    {
+      "description": "Final Cave - B4, bottom-middle, chest",
+      "flag_index": 95,
+      "map_id": 53,
+      "reward": "Water Flying Clothes",
+      "submap": 2
+    },
+    {
+      "description": "Silver Statuette Cave - B2, after water change, bottom, chest",
+      "flag_index": 96,
+      "map_id": 56,
+      "reward": "Medical Herb",
+      "submap": 2
+    },
+    {
+      "description": "Silver Statuette Cave - B2, after water change, top-left, chest",
+      "flag_index": 97,
+      "map_id": 56,
+      "reward": "760 gold",
+      "submap": 2
+    },
+    {
+      "description": "Silver Statuette Cave - B2, after water change, middle-left, chest",
+      "flag_index": 98,
+      "map_id": 56,
+      "reward": "Morning Star",
+      "submap": 2
+    },
+    {
+      "description": "Silver Statuette Cave - B2, after water change, top-right, chest",
+      "flag_index": 99,
+      "map_id": 56,
+      "reward": "Iron Spear",
+      "submap": 2
+    },
+    {
+      "description": "Cave of Betrayal - B3, chest",
+      "flag_index": 100,
+      "map_id": 55,
+      "reward": "Symbol of Faith",
+      "submap": 2
+    },
+    {
+      "description": "Cave North of Lakanaba - B5 (left side), top, chest",
+      "flag_index": 101,
+      "map_id": 54,
+      "reward": "Iron Safe",
+      "submap": 6
+    },
+    {
+      "description": "Cave North of Lakanaba - B2, middle-left, chest",
+      "flag_index": 102,
+      "map_id": 54,
+      "reward": "Chain Sickle",
+      "submap": 1
+    },
+    {
+      "description": "Final Cave - B7, right, chest",
+      "flag_index": 103,
+      "map_id": 53,
+      "reward": "Lifeforce Nuts",
+      "submap": 6
+    },
+    {
+      "description": "Burland-Izmit tunnel, bottom-right, chest",
+      "flag_index": 104,
+      "map_id": 57,
+      "reward": "Medical Herb",
+      "submap": 0
+    },
+    {
+      "description": "Burland-Izmit tunnel, top-left, chest",
+      "flag_index": 105,
+      "map_id": 57,
+      "reward": "40 gold",
+      "submap": 0
+    },
+    {
+      "description": "Silver Statuette Cave - B4, chest",
+      "flag_index": 106,
+      "map_id": 56,
+      "reward": "Silver Statuette",
+      "submap": 5
+    },
+    {
+      "description": "Silver Statuette Cave - B3, after water change, bottom-middle, chest",
+      "flag_index": 107,
+      "map_id": 56,
+      "reward": "Broad Sword",
+      "submap": 4
+    },
+    {
+      "description": "Silver Statuette Cave - B3, before water change, left, chest",
+      "flag_index": 108,
+      "map_id": 56,
+      "reward": "Wing of Wyvern",
+      "submap": 3
+    },
+    {
+      "description": "Silver Statuette Cave - B3, after water change, top-right, right chest",
+      "flag_index": 109,
+      "map_id": 56,
+      "reward": "Empty!",
+      "submap": 4
+    },
+    {
+      "description": "Silver Statuette Cave - B3, after water change, top-right, left chest",
+      "flag_index": 110,
+      "map_id": 56,
+      "reward": "Empty!",
+      "submap": 4
+    },
+    {
+      "description": "Silver Statuette Cave - B3, after water change, top-left, chest",
+      "flag_index": 111,
+      "map_id": 56,
+      "reward": "Half Plate Armor",
+      "submap": 4
+    },
+    {
+      "description": "Zenithian Tower - F6, (#23), middle-bottom, chest",
+      "flag_index": 112,
+      "map_id": 61,
+      "reward": "Dragon Shield",
+      "submap": 15
+    },
+    {
+      "description": "Zenithian Tower - F3, (#12), chest",
+      "flag_index": 113,
+      "map_id": 61,
+      "reward": "Small Medal",
+      "submap": 6
+    },
+    {
+      "description": "Zenithian Tower - F2, right room, chest [TODO: verify description]",
+      "flag_index": 114,
+      "map_id": 61,
+      "reward": "Mystic Acorns",
+      "submap": 3
+    },
+    {
+      "description": "Zenithian Tower - Outside, #6, chest",
+      "flag_index": 115,
+      "map_id": 61,
+      "reward": "Magic Potion",
+      "submap": 0
+    },
+    {
+      "description": "Zenithian Tower - Outside, #20, chest",
+      "flag_index": 116,
+      "map_id": 61,
+      "reward": "Mysterious Bolero",
+      "submap": 0
+    },
+    {
+      "description": "Royal Crypt Dungeon - B3, middle, chest",
+      "flag_index": 117,
+      "map_id": 59,
+      "reward": "Small Medal",
+      "submap": 2
+    },
+    {
+      "description": "Royal Crypt Dungeon - B3, top-middle, chest",
+      "flag_index": 118,
+      "map_id": 59,
+      "reward": "Staff of Antimagic",
+      "submap": 2
+    },
+    {
+      "description": "Royal Crypt Dungeon - B1, bottom, chest",
+      "flag_index": 119,
+      "map_id": 59,
+      "reward": "Staff of Transform",
+      "submap": 0
+    },
+    {
+      "description": "Loch Tower - F3, left side, chest",
+      "flag_index": 120,
+      "map_id": 65,
+      "reward": "Wing of Wyvern",
+      "submap": 1
+    },
+    {
+      "description": "Loch Tower - F3, top-right, chest",
+      "flag_index": 121,
+      "map_id": 65,
+      "reward": "Strength Seed",
+      "submap": 1
+    },
+    {
+      "description": "World Tree - F2, top-left, chest",
+      "flag_index": 122,
+      "map_id": 64,
+      "reward": "Staff of Healing",
+      "submap": 3
+    },
+    {
+      "description": "World Tree - F4, bottom, chest",
+      "flag_index": 123,
+      "map_id": 64,
+      "reward": "Dew of World Tree",
+      "submap": 1
+    },
+    {
+      "description": "World Tree - F3-2, bottom-right, chest",
+      "flag_index": 124,
+      "map_id": 64,
+      "reward": "Zenithian Sword",
+      "submap": 0
+    },
+    {
+      "description": "Birdsong Tower - F3, middle, right chest",
+      "flag_index": 125,
+      "map_id": 63,
+      "reward": "1200 gold",
+      "submap": 1
+    },
+    {
+      "description": "Birdsong Tower - F3, middle, left chest",
+      "flag_index": 126,
+      "map_id": 63,
+      "reward": "Strength Seed",
+      "submap": 1
+    },
+    {
+      "description": "Birdsong Tower - F3, top-right",
+      "flag_index": 127,
+      "map_id": 63,
+      "reward": "Wing of Wyvern",
+      "submap": 1
+    },
+    {
+      "description": "Great Lighthouse - F3, top-right, chest",
+      "flag_index": 128,
+      "map_id": 66,
+      "reward": "Full Moon Herb",
+      "submap": 2
+    },
+    {
+      "description": "Great Lighthouse - F3, top-left, chest",
+      "flag_index": 129,
+      "map_id": 66,
+      "reward": "Magic Potion",
+      "submap": 2
+    },
+    {
+      "description": "Great Lighthouse - F4, middle, chest",
+      "flag_index": 130,
+      "map_id": 66,
+      "reward": "Fire of Serenity",
+      "submap": 1
+    },
+    {
+      "description": "Great Lighthouse - F5, top-left, chest",
+      "flag_index": 131,
+      "map_id": 66,
+      "reward": "Golden Barrette",
+      "submap": 0
+    },
+    {
+      "description": "Loch Tower - F1, top-right, chest",
+      "flag_index": 132,
+      "map_id": 65,
+      "reward": "Luck Seed",
+      "submap": 3
+    },
+    {
+      "description": "Loch Tower - F1, top-left, chest",
+      "flag_index": 133,
+      "map_id": 65,
+      "reward": "Sword of Malice",
+      "submap": 3
+    },
+    {
+      "description": "Loch Tower - F2, middle, chest",
+      "flag_index": 134,
+      "map_id": 65,
+      "reward": "Scale Shield",
+      "submap": 2
+    },
+    {
+      "description": "Loch Tower - F2, middle-right, chest",
+      "flag_index": 135,
+      "map_id": 65,
+      "reward": "640 gold",
+      "submap": 2
+    },
+    {
+      "description": "Konenber - Inn, F2, top-right room, chest",
+      "flag_index": 138,
+      "map_id": 67,
+      "reward": "Sword of Decimation",
+      "submap": 4
+    },
+    {
+      "description": "Great Lighthouse - F1, middle, right chest",
+      "flag_index": 139,
+      "map_id": 66,
+      "reward": "400 gold",
+      "submap": 4
+    },
+    {
+      "description": "Great Lighthouse - F1, middle, left chest",
+      "flag_index": 140,
+      "map_id": 66,
+      "reward": "Luck Seed",
+      "submap": 4
+    },
+    {
+      "description": "Great Lighthouse - F2, bottom-left, chest",
+      "flag_index": 141,
+      "map_id": 66,
+      "reward": "Strength Seed",
+      "submap": 3
+    },
+    {
+      "description": "Great Lighthouse - F3, left, right chest",
+      "flag_index": 142,
+      "map_id": 66,
+      "reward": "Boomerang",
+      "submap": 2
+    },
+    {
+      "description": "Great Lighthouse - F3, left, left chest",
+      "flag_index": 143,
+      "map_id": 66,
+      "reward": "\ud83d\udfbf Man-Eater Chest!",
+      "submap": 2
+    },
+    {
+      "description": "NE barrier shrine (Radimvice) - F3, bottom-right, chest",
+      "flag_index": 148,
+      "map_id": 68,
+      "reward": "Zombie Mail",
+      "submap": 2
+    },
+    {
+      "description": "Shrine of Colossus, Dungeon - F4, Outside on Hands, left hand (on right side), chest",
+      "flag_index": 152,
+      "map_id": 72,
+      "reward": "Demon Hammer",
+      "submap": 7
+    },
+    {
+      "description": "Shrine of Colossus, Dungeon - F4, top-right, chest",
+      "flag_index": 153,
+      "map_id": 72,
+      "reward": "\ud83d\udfbf Mimic!",
+      "submap": 6
+    },
+    {
+      "description": "Shrine of Colossus, Dungeon - B1, bottom-left, chest",
+      "flag_index": 154,
+      "map_id": 72,
+      "reward": "640 gold",
+      "submap": 5
+    },
+    {
+      "description": "Shrine of Colossus, Dungeon - F2, right, chest",
+      "flag_index": 155,
+      "map_id": 72,
+      "reward": "Agility Seed",
+      "submap": 2
+    },
+    {
+      "description": "Shrine of Colossus, Dungeon - F1, middle, chest",
+      "flag_index": 156,
+      "map_id": 72,
+      "reward": "Small Medal",
+      "submap": 1
+    },
+    {
+      "description": "Shrine of the Horn - B3, chest",
+      "flag_index": 157,
+      "map_id": 71,
+      "reward": "Dress of Radiance",
+      "submap": 1
+    },
+    {
+      "description": "Shrine of the Horn - B2, chest",
+      "flag_index": 158,
+      "map_id": 71,
+      "reward": "Baron's Horn (part 2?) [TODO: $6270#80 happens when you serch it, #40 happens when you get it]",
+      "submap": 0
+    },
+    {
+      "description": "Shrine of the Horn - B2, chest",
+      "flag_index": 159,
+      "map_id": 71,
+      "reward": "Baron's Horn",
+      "submap": 0
+    },
+    {
+      "description": "Mintos - middle, left of well, search",
+      "flag_index": 168,
+      "map_id": 13,
+      "reward": "Small Medal",
+      "submap": 0
+    },
+    {
+      "description": "Hometown - Destroyed, middle of flowers, search",
+      "flag_index": 169,
+      "map_id": 20,
+      "reward": "Feather Hat",
+      "submap": 2
+    },
+    {
+      "description": "Aneaux - Top-left, cemetary, middle tombstone",
+      "flag_index": 170,
+      "map_id": 16,
+      "reward": "Strength Seed",
+      "submap": 0
+    },
+    {
+      "description": "Tempe - Top, red monster platform, center, broken tile",
+      "flag_index": 172,
+      "map_id": 14,
+      "reward": "Lifeforce Nuts",
+      "submap": 0
+    },
+    {
+      "description": "Riverton - Middle Island, bottom, search",
+      "flag_index": 173,
+      "map_id": 11,
+      "reward": "Small Medal",
+      "submap": 0
+    },
+    {
+      "description": "Aktemto Mine - B4, middle, next to water, search",
+      "flag_index": 174,
+      "map_id": 45,
+      "reward": "Small Medal",
+      "submap": 4
+    },
+    {
+      "description": "Dire Palace - B1, Tomb, tombstone, search",
+      "flag_index": 175,
+      "map_id": 3,
+      "reward": "Lifeforce Nuts",
+      "submap": 3
+    },
+    {
+      "description": "Santeem - F1, right side, room behind chapel, drawer #2",
+      "flag_index": 176,
+      "map_id": 1,
+      "reward": "Fairy Water",
+      "submap": 0
+    },
+    {
+      "description": "Santeem - F1, top-left, right drawer",
+      "flag_index": 177,
+      "map_id": 1,
+      "reward": "Wing of Wyvern",
+      "submap": 0
+    },
+    {
+      "description": "Zenithian Castle - F1, middle-top room, right drawer",
+      "flag_index": 178,
+      "map_id": 70,
+      "reward": "Small Medal",
+      "submap": 2
+    },
+    {
+      "description": "SW barrier shrine (Gigademon) - Outside, top-left corner, search",
+      "flag_index": 181,
+      "map_id": 39,
+      "reward": "Small Medal",
+      "submap": 0
+    },
+    {
+      "description": "Shrine East of Mintos - Left-back, middle, search",
+      "flag_index": 182,
+      "map_id": 35,
+      "reward": "Small Medal",
+      "submap": 0
+    },
+    {
+      "description": "Seaside Village - Day, middle, south of statue, search",
+      "flag_index": 183,
+      "map_id": 25,
+      "reward": "Small Medal",
+      "submap": 0
+    },
+    {
+      "description": "Stancia - top-right house, F2, right pot",
+      "flag_index": 184,
+      "map_id": 9,
+      "reward": "Small Medal",
+      "submap": 7
+    },
+    {
+      "description": "Stancia - Castle, F1, Interior, top-right room, drawer #2",
+      "flag_index": 185,
+      "map_id": 9,
+      "reward": "Small Medal",
+      "submap": 2
+    },
+    {
+      "description": "Gardenbur - F2, Top-right, right drawer",
+      "flag_index": 186,
+      "map_id": 8,
+      "reward": "Agility Seed",
+      "submap": 2
+    },
+    {
+      "description": "Gardenbur - Castle, bottom-left, right pot",
+      "flag_index": 187,
+      "map_id": 8,
+      "reward": "Small Medal",
+      "submap": 1
+    },
+    {
+      "description": "Endor - Castle, F3 (chamber), right room, right drawer",
+      "flag_index": 188,
+      "map_id": 4,
+      "reward": "Small Medal",
+      "submap": 12
+    },
+    {
+      "description": "Dire Palace - B1, left pot",
+      "flag_index": 189,
+      "map_id": 3,
+      "reward": "Small Medal",
+      "submap": 2
+    },
+    {
+      "description": "Burland - Castle, F1, bottom-right room, drawer #4",
+      "flag_index": 190,
+      "map_id": 2,
+      "reward": "Medical Herb",
+      "submap": 1
+    },
+    {
+      "description": "Santeem - F3, Alena's room, drawer #2",
+      "flag_index": 191,
+      "map_id": 1,
+      "reward": "Feather Hat",
+      "submap": 1
+    },
+    {
+      "description": "Monbaraba - Theater, B1, top room, drawer #2",
+      "flag_index": 192,
+      "map_id": 21,
+      "reward": "Strength Seed",
+      "submap": 2
+    },
+    {
+      "description": "Monbaraba - top-right, top pot",
+      "flag_index": 193,
+      "map_id": 21,
+      "reward": "Medical Herb",
+      "submap": 0
+    },
+    {
+      "description": "Hometown - B1, top-left pot",
+      "flag_index": 194,
+      "map_id": 20,
+      "reward": "Medical Herb",
+      "submap": 1
+    },
+    {
+      "description": "Izmit - middle-right house, right drawer",
+      "flag_index": 195,
+      "map_id": 18,
+      "reward": "Medical Herb",
+      "submap": 0
+    },
+    {
+      "description": "Haville - B1, Jail, right cell, pot",
+      "flag_index": 196,
+      "map_id": 17,
+      "reward": "Small Medal",
+      "submap": 2
+    },
+    {
+      "description": "Haville - B1, Jail, left cell, pot",
+      "flag_index": 197,
+      "map_id": 17,
+      "reward": "Small Medal",
+      "submap": 2
+    },
+    {
+      "description": "Bazaar - bottom-right, right pot",
+      "flag_index": 198,
+      "map_id": 12,
+      "reward": "Gum Pod",
+      "submap": 0
+    },
+    {
+      "description": "Bazaar - bottom-right, left pot",
+      "flag_index": 199,
+      "map_id": 12,
+      "reward": "Strength Seed",
+      "submap": 0
+    },
+    {
+      "description": "Secret Playground Entrance - B1, Exit, top-left pot",
+      "flag_index": 200,
+      "map_id": 28,
+      "reward": "Medical Herb",
+      "submap": 1
+    },
+    {
+      "description": "Cave West of Kievs - B5, left pot",
+      "flag_index": 201,
+      "map_id": 49,
+      "reward": "Small Medal",
+      "submap": 4
+    },
+    {
+      "description": "Small Island Shack North of Haville - right pot",
+      "flag_index": 202,
+      "map_id": 36,
+      "reward": "Small Medal",
+      "submap": 0
+    },
+    {
+      "description": "Konenber - Piers on left, Ship, B1, bottom room, drawer",
+      "flag_index": 204,
+      "map_id": 67,
+      "reward": "Small Medal",
+      "submap": 8
+    },
+    {
+      "description": "Gottside - Top-right house, B1, right drawer",
+      "flag_index": 205,
+      "map_id": 26,
+      "reward": "Small Medal",
+      "submap": 1
+    },
+    {
+      "description": "Kievs - top-right house, right pot",
+      "flag_index": 206,
+      "map_id": 23,
+      "reward": "Lifeforce Nuts",
+      "submap": 0
+    },
+    {
+      "description": "Lakanaba - Taloon's House, F1, left pot",
+      "flag_index": 207,
+      "map_id": 22,
+      "reward": "Medical Herb",
+      "submap": 0
+    },
+    {
+      "description": "Woodsman's Shack - right pot",
+      "flag_index": 208,
+      "map_id": 32,
+      "reward": "50 gold",
+      "submap": 0
+    },
+    {
+      "description": "Woodsman's Shack - middle pot",
+      "flag_index": 209,
+      "map_id": 32,
+      "reward": "Medical Herb",
+      "submap": 0
+    },
+    {
+      "description": "Woodsman's Shack - left pot",
+      "flag_index": 210,
+      "map_id": 32,
+      "reward": "Leather Armor",
+      "submap": 0
+    },
+    {
+      "description": "Secret Playground Entrance - B1, Exit, top-middle pot",
+      "flag_index": 211,
+      "map_id": 28,
+      "reward": "Agility Seed",
+      "submap": 1
+    },
+    {
+      "description": "Seaside Village - Day, beach, left-middle, search",
+      "flag_index": 212,
+      "map_id": 25,
+      "reward": "Stone of Drought",
+      "submap": 0
+    },
+    {
+      "description": "Frenor, Church Garden, bottom-right, search",
+      "flag_index": 213,
+      "map_id": 15,
+      "reward": "Mystic Acorns",
+      "submap": 0
+    }
+  ]
+}
