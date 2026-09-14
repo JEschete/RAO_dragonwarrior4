@@ -56,6 +56,23 @@ def test_real_documents_render_all_six_qt_workspaces(qtbot, tmp_path: Path) -> N
     assert archive._row_values[("evidence", "Live memory")].text() == "Unknown"
 
 
+def test_companion_uses_compact_navigation_at_single_screen_rail_width(
+    qtbot,
+    tmp_path: Path,
+) -> None:
+    window, _ = _window(qtbot, tmp_path)
+    window.resize(440, 700)
+    qtbot.wait(1)
+    window.select_workspace("encounters")
+    encounters = window.workspace_widget("encounters")
+
+    assert window.width() <= 440
+    assert window.sidebar.isHidden()
+    assert window.workspace_combo.isVisible()
+    assert isinstance(encounters, QtDashboardRecordsView)
+    assert encounters.splitter.orientation() == Qt.Orientation.Vertical
+
+
 def test_real_atlas_renders_player_feature_and_manual_completion(
     qtbot,
     tmp_path: Path,

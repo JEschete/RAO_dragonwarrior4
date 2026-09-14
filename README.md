@@ -19,6 +19,11 @@ The US RAM map documents map and submap IDs at `$0063/$0064`. The saved Japanese
 
 The plugin launches a separate PySide6 Cartographer's Companion by default. The plugin remains toolkit-neutral: it publishes versioned static, live, control, and presentation documents through an isolated JSON bridge, while the framework's generic Qt dashboard owns all widgets. The small `dashboard.py` entrypoint remains only as a compatibility launcher. The companion provides six workspaces:
 
+The shared companion host supports single-screen layouts down to 420 pixels
+wide. At narrow widths its workspace navigation moves into the draggable header
+and its map and record panes stack vertically. Its frame position is preserved
+and startup height is constrained to the available desktop.
+
 - **Atlas**: current generated map, centered live player marker, zoom and pan, player-relative feature ordering, persistent plugin-declared layer controls, learned floor transitions, observed dialogue locations, documented chest contents, manual completion controls, source/evidence details, and a synchronized popout map.
 - **Party**: active and reserve companions with HP, MP, level, conditions, experience, five base stats, named carried/equipped items, and learned battle/field spells.
 - **Journey**: chapter timeline, travel state, tactics, time, gold, casino coins, medals, treasure flags, Return network, Chapter 3 Lakanaba stock, and the complete 43-achievement RetroAchievements set with points.
@@ -74,7 +79,7 @@ $env:PYTHONPATH = "..\..\src;."
 ..\..\.venv\Scripts\python.exe tools\generate_knowledge.py --check
 ```
 
-The Qt migration acceptance suite currently passes 97 tests. The base suite
+The Qt migration acceptance suite currently passes 98 tests. The base suite
 passes 393 tests plus 32 subtests, with six waived native-only skips.
 
 Regenerating knowledge requires the ignored reviewed source captures under `resources`. Runtime use and the normal test suite require only the tracked generated artifact.

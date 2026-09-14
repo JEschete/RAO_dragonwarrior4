@@ -56,7 +56,7 @@ exception in the host architecture test.
   persistence, 50 ms encounter capture, coherent-frame opening, duplicate-frame
   collapse, checkpoint/resume, reward-edge reconstruction, combat analytics,
   US/JP evidence labels, and generated-knowledge verification remain covered.
-- The complete plugin suite passes with 97 tests and no warnings or skips.
+- The complete plugin suite passes with 98 tests and no warnings or skips.
 - `tools/generate_knowledge.py --check` passes.
 
 ## Host Evidence
