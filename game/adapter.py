@@ -24,7 +24,10 @@ from .achievements import ACHIEVEMENTS, TOTAL_POINTS
 from .battle import (
     BATTLE_MEMORY_ADDRESS,
     BATTLE_MEMORY_SIZE,
+    BATTLE_TEXT_ADDRESS,
+    BATTLE_TEXT_SIZE,
     BattleState,
+    observed_monster_names,
     read_battle_state,
 )
 from .combat_analytics import CombatAnalytics
@@ -65,6 +68,7 @@ class Adapter:
         self.encounter_log = EncounterLog(None)
         self.combat_analytics = CombatAnalytics(None)
         self.map_intelligence = MapIntelligence(None)
+        self._monster_names: dict[int, str] = {}
         self._last_ram: bytes | None = None
         self._dashboard_model = DashboardModel(
             assets,
@@ -96,6 +100,7 @@ class Adapter:
         self.encounter_log = EncounterLog(None)
         self.combat_analytics = CombatAnalytics(None)
         self.map_intelligence = MapIntelligence(None)
+        self._monster_names.clear()
         self._last_ram = None
 
     def supports(self, status: RetroArchStatus, content_hash: str | None = None) -> bool:
@@ -119,13 +124,14 @@ class Adapter:
         state = self._select_world_location(state, world_map_key)
         self._last_ram = bytes(ram)
         self._select_playthrough(state)
+        self._monster_names.update(observed_monster_names(ram))
 
         try:
             battle_memory = memory.read_memory(
                 BATTLE_MEMORY_ADDRESS,
                 BATTLE_MEMORY_SIZE,
             )
-            battle = read_battle_state(ram, battle_memory)
+            battle = read_battle_state(ram, battle_memory, self._monster_names.get)
         except (RetroArchError, RuntimeError, OSError, ValueError) as error:
             battle = BattleState.unavailable(str(error))
 
@@ -224,12 +230,19 @@ class Adapter:
             )
             wram = memory.read_memory(WRAM_ADDRESS, WRAM_SIZE)
             monster_ids = memory.read_memory(0x0440, 2)
+            battle_text = memory.read_memory(BATTLE_TEXT_ADDRESS, BATTLE_TEXT_SIZE)
             ram = bytearray(self._last_ram)
             ram[0x440:0x442] = monster_ids
+            ram[BATTLE_TEXT_ADDRESS:BATTLE_TEXT_ADDRESS + BATTLE_TEXT_SIZE] = battle_text
+            self._monster_names.update(observed_monster_names(ram))
             state = read_state(bytes(ram), wram, self.assets, self.submap_names)
             world_map_key = self._selected_world_map()
             state = self._select_world_location(state, world_map_key)
-            battle = read_battle_state(bytes(ram), battle_memory)
+            battle = read_battle_state(
+                bytes(ram),
+                battle_memory,
+                self._monster_names.get,
+            )
         except (RetroArchError, RuntimeError, OSError, ValueError):
             return
         encounter_entries = self.encounter_log.observe(battle, state)

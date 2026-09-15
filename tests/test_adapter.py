@@ -7,7 +7,7 @@ from retroarch_overlay.core.retroachievements import RAProgress
 from retroarch_overlay.models import RetroArchStatus
 
 from game.adapter import Adapter
-from game.battle import BATTLE_MEMORY_SIZE
+from game.battle import BATTLE_MEMORY_SIZE, BATTLE_TEXT_ADDRESS
 
 
 ROOT = Path(__file__).parents[1]
@@ -20,15 +20,28 @@ class FakeMemory:
         self.battle = battle
 
     def read_memory(self, address: int, size: int) -> bytes:
-        if address == 0:
-            return self.ram[:size]
+        if 0 <= address < len(self.ram):
+            return self.ram[address:address + size]
         if address == 0x6000:
             return self.wram[:size]
         if address == 0x7200 and self.battle is not None:
             return self.battle[:size]
-        if address == 0x0440:
-            return self.ram[address:address + size]
         raise RuntimeError(f"Unexpected read at {address:#x}")
+
+
+def encoded_text(value: str) -> bytes:
+    return bytes(
+        0
+        if character == " "
+        else ord(character) - ord("a") + 0x0B
+        if character.islower()
+        else ord(character) - ord("A") + 0x25
+        if character.isupper()
+        else 0x78
+        if character == "."
+        else 0x6E
+        for character in value
+    )
 
 
 def memory() -> FakeMemory:
@@ -212,6 +225,27 @@ def test_adapter_checkpoints_combat_after_one_coherent_sample(tmp_path: Path) ->
     assert "Highest observed ATK" in snapshot.sections[0].actions[0].rows[0].text
 
 
+def test_snapshot_resolves_monster_name_from_battle_introduction(tmp_path: Path) -> None:
+    context = GameContext(
+        settings={"dashboard": False},
+        repository_root=ROOT,
+        state_directory=tmp_path,
+    )
+    game_memory = memory()
+    ram = bytearray(game_memory.ram)
+    ram[0x440:0x442] = bytes((0x03, 0xFF))
+    introduction = encoded_text("Giant Worm appears.")
+    ram[BATTLE_TEXT_ADDRESS:BATTLE_TEXT_ADDRESS + len(introduction)] = introduction
+    game_memory.ram = bytes(ram)
+    battle = bytearray(BATTLE_MEMORY_SIZE)
+    battle[0x74:0x82] = bytes((8, 14, 0, 11, 0, 0, 2, 0, 0, 0, 45, 0, 6, 1))
+    game_memory.battle = bytes(battle)
+
+    snapshot = Adapter(context).snapshot(game_memory)
+
+    assert snapshot.sections[0].rows[0].text.startswith("Giant Worm · HP 45")
+
+
 def test_persistence_is_scoped_by_configured_save_path(tmp_path: Path) -> None:
     first = Adapter(
         GameContext(
@@ -250,6 +284,11 @@ def test_high_frequency_capture_records_flow_between_snapshots(tmp_path: Path) -
     battle = bytearray(BATTLE_MEMORY_SIZE)
     battle[0x74:0x82] = bytes((8, 14, 0, 11, 0, 0, 2, 0, 0, 0, 45, 0, 6, 1))
     game_memory.battle = bytes(battle)
+    ram = bytearray(game_memory.ram)
+    ram[0x440:0x442] = bytes((0x03, 0xFF))
+    introduction = encoded_text("Giant Worm appears.")
+    ram[BATTLE_TEXT_ADDRESS:BATTLE_TEXT_ADDRESS + len(introduction)] = introduction
+    game_memory.ram = bytes(ram)
 
     adapter.capture(game_memory)
     battle[0x7E:0x80] = (30).to_bytes(2, "little")
@@ -258,6 +297,7 @@ def test_high_frequency_capture_records_flow_between_snapshots(tmp_path: Path) -
 
     timeline = adapter.encounter_log.active_document["timeline"]
     assert [frame["enemies"][0]["hp"] for frame in timeline] == [45, 30]
+    assert adapter.encounter_log.active_document["enemies"][0]["label"] == "Giant Worm"
 
 
 def test_memory_failure_returns_actionable_snapshot(tmp_path: Path) -> None:

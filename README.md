@@ -42,7 +42,7 @@ Live coordinates, dialogue, party vitals, currency, time, treasure status, and j
 - The saved references do not identify a reliable RAM discriminator for the main world, Gottside, and underworld. The companion therefore persists an explicit world selection and labels that evidence instead of guessing.
 - Learned connections record observed map transitions. They can include scripted movement, Return, or other teleport-like transitions and are not presented as canonical exit destinations.
 - Dialogue markers show where text was observed; they do not claim a stable NPC identity or position.
-- The available monster-table research is incomplete. Battle and analytics views retain stable hexadecimal monster IDs and observed live stats rather than attaching unverified names, resistances, or drops.
+- The available monster-table research is incomplete. Battle and analytics views learn canonical names from the game's decoded battle-introduction text and retain stable IDs internally. Until a complete introduction is observed, they use a neutral enemy-group label rather than exposing a raw ID or attaching an unverified name, resistance, or drop.
 - Save-specific persistence uses the configured save-file path when available. Without one, it falls back to ROM identity plus hero name; separate saves with the same hero name can therefore share a profile.
 - Legacy unscoped journal and encounter files are left in place. New records are written only below the active playthrough directory.
 
