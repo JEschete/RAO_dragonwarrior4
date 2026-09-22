@@ -20,6 +20,7 @@ from .rom_assets import area_key
 
 
 RAM_SIZE = 0x0800
+US_TILESET_ADDRESS = 0x0028
 WRAM_ADDRESS = 0x6000
 WRAM_SIZE = 0x0300
 
@@ -220,11 +221,28 @@ def _location(
         0,
         "RetroAchievements JP code note ($0028; submap unavailable)",
     )
-    candidates = (
-        (jp_candidate, us_candidate)
-        if memory_region == "Japan"
-        else (us_candidate, jp_candidate)
-    )
+    if memory_region == "US":
+        # US $0028 holds the loaded tileset (verified live: Burland $0A,
+        # Burland Castle $0D, overworld $00). Indoor maps use tilesets 1-50, and
+        # $0063/$0064 keep a stale town ID while walking the overworld.
+        if ram[US_TILESET_ADDRESS] == 0:
+            return LocationState(
+                "Main World",
+                "World",
+                ram[0x63],
+                ram[0x64],
+                ram[0x42],
+                ram[0x43],
+                True,
+                -1,
+                memory_region,
+                "Overworld: loaded tileset $0028 is $00",
+            )
+        candidates = (us_candidate,)
+    elif memory_region == "Japan":
+        candidates = (jp_candidate, us_candidate)
+    else:
+        candidates = (us_candidate, jp_candidate)
     for map_id, submap, evidence in candidates:
         if assets is not None and assets.has_area(map_id, submap):
             return LocationState(

@@ -9,13 +9,14 @@ from game.rom_assets import (
     AreaGraphics,
     AreaMapDescriptor,
     DragonWarrior4RomAssets,
+    HiddenTreasure,
     MdecDecoder,
     WORLD_MAP_SPECS,
     _rom_region,
     area_key,
     decode_world_row,
 )
-from game.reference_data import TreasureRecord
+from game.reference_data import ITEM_NAMES, TreasureRecord
 from map_renderer import NES_PALETTE, render_area_map, render_world_map
 
 
@@ -57,8 +58,8 @@ def discard_area_renderer(
 
 def discard_world_renderer(
     tiles: tuple[tuple[int, ...], ...],
+    graphics: AreaGraphics,
     output: Path,
-    tile_pixels: int,
 ) -> None:
     return None
 
@@ -304,6 +305,7 @@ class RomAtlasTests(unittest.TestCase):
         assets = DragonWarrior4RomAssets.__new__(DragonWarrior4RomAssets)
         descriptor = AreaMapDescriptor(2, 1, 0, 1, 1, 9, 0)
         assets._descriptor_by_key = {descriptor.key: descriptor}
+        assets._hidden_treasures = ()
         graphics = AreaGraphics(
             ((0, 0, 0, 0),),
             (0,),
@@ -328,6 +330,7 @@ class RomAtlasTests(unittest.TestCase):
         assets = DragonWarrior4RomAssets.__new__(DragonWarrior4RomAssets)
         descriptor = AreaMapDescriptor(3, 2, 0, 2, 1, 9, 0)
         assets._descriptor_by_key = {descriptor.key: descriptor}
+        assets._hidden_treasures = ()
         graphics = AreaGraphics(
             ((0, 0, 0, 0),),
             (0,),
@@ -350,10 +353,96 @@ class RomAtlasTests(unittest.TestCase):
         self.assertTrue(all("Small Medal" in point.detail for point in overlay.waypoints))
         self.assertTrue(all("Aeolus' Shield" in point.detail for point in overlay.waypoints))
 
+    def test_hidden_tables_give_exact_drawer_search_and_scripted_positions(self) -> None:
+        data = synthetic_rom()
+        furniture = cpu_offset(0x1E, 0xBCED)
+        data[furniture:furniture + 8] = bytes(
+            (0x02, 0x00, 29, 26, ITEM_NAMES.index("Medical Herb"), 0x01, 0x40, 0xFF)
+        )
+        search = cpu_offset(0x1E, 0xBF59)
+        data[search:search + 11] = bytes(
+            (0x0D, 0x00, 8, 20, 0xA3, 0x20, 0x00, 4, 6, 0xE7, 0xFF)
+        )
+        items = cpu_offset(0x1E, 0xBDB3)
+        data[items + 3] = ITEM_NAMES.index("Small Medal")
+        records = (
+            TreasureRecord(190, 0x02, 0x00, "Burland - drawer #4", "Medical Herb"),
+            TreasureRecord(168, 0x0D, 0x00, "Mintos - left of well, search", "Small Medal"),
+            TreasureRecord(210, 0x20, 0x00, "Woodsman's Shack - left pot", "Leather Armor"),
+            TreasureRecord(5, 0x02, 0x00, "Burland - left chest", "Copper Sword"),
+        )
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "dw4.nes"
+            path.write_bytes(data)
+            with patch("game.rom_assets._rom_region", return_value="US"):
+                assets = DragonWarrior4RomAssets(
+                    path,
+                    Path(directory),
+                    discard_area_renderer,
+                    discard_world_renderer,
+                )
+
+            hidden = assets.hidden_treasures(records)
+
+        self.assertEqual(
+            tuple(
+                (item.map_id, item.x, item.y, item.flag_index, item.reward, item.description)
+                for item in hidden
+            ),
+            (
+                (0x02, 29, 26, 190, "Medical Herb", "Burland - drawer #4"),
+                (0x0D, 8, 20, 172, "Small Medal", "Mintos - left of well, search"),
+                (0x20, 4, 6, 210, "Leather Armor", "Woodsman's Shack - left pot"),
+            ),
+        )
+
+    def test_hidden_tables_are_ignored_for_non_us_layouts(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "dw4.nes"
+            path.write_bytes(synthetic_rom())
+            with patch("game.rom_assets._rom_region", return_value="Japan"):
+                assets = DragonWarrior4RomAssets(
+                    path,
+                    Path(directory),
+                    discard_area_renderer,
+                    discard_world_renderer,
+                )
+
+            self.assertEqual(assets.hidden_treasures(), ())
+
+    def test_hidden_item_marker_reports_container_and_looted_state(self) -> None:
+        assets = DragonWarrior4RomAssets.__new__(DragonWarrior4RomAssets)
+        descriptor = AreaMapDescriptor(2, 1, 0, 1, 1, 9, 0)
+        assets._descriptor_by_key = {descriptor.key: descriptor}
+        assets._hidden_treasures = (
+            HiddenTreasure(2, 1, 0, 0, 190, "Medical Herb", "Burland - drawer #4"),
+        )
+        graphics = AreaGraphics(
+            ((0, 0, 0, 0),),
+            (0,),
+            (bytes(16),),
+            (0,) * 12,
+            (0xAB,),
+            (0,),
+        )
+        assets._area_layout = Mock(return_value=(((0,),), graphics))
+        flags = bytearray(27)
+
+        available = assets.feature_overlay(2, 1, (), bytes(flags))
+        flags[23] = 0x40
+        looted = assets.feature_overlay(2, 1, (), bytes(flags))
+
+        point = available.waypoints[0]
+        self.assertEqual((point.title, point.kind, point.marker), ("Medical Herb", "collectibles", "item"))
+        self.assertTrue(point.detail.startswith("In a drawer · Available"))
+        self.assertFalse(point.completed)
+        self.assertTrue(looted.waypoints[0].completed)
+
     def test_feature_overlay_distinguishes_entrances_services_and_locks(self) -> None:
         assets = DragonWarrior4RomAssets.__new__(DragonWarrior4RomAssets)
         descriptor = AreaMapDescriptor(3, 1, 0, 3, 1, 9, 0)
         assets._descriptor_by_key = {descriptor.key: descriptor}
+        assets._hidden_treasures = ()
         graphics = AreaGraphics(
             ((0, 0, 0, 0),),
             (0,),
@@ -394,13 +483,18 @@ class RomAtlasTests(unittest.TestCase):
                 discard_area_renderer,
                 renderer,
             )
+            overworld_graphics = object()
+            assets._area_graphics = Mock(return_value=overworld_graphics)
 
             assets.render_world_map("gottside")
 
-            rows, _, tile_pixels = renderer.call_args.args
+            rows, graphics, _ = renderer.call_args.args
             self.assertEqual(len(rows), 64)
             self.assertEqual(rows[0], (0,) * 64)
-            self.assertEqual(tile_pixels, 6)
+            self.assertIs(graphics, overworld_graphics)
+            descriptor = assets._area_graphics.call_args.args[0]
+            self.assertEqual(descriptor.tileset, 0)
+            self.assertEqual(WORLD_MAP_SPECS["gottside"][6], 16)
 
 
 class RendererTests(unittest.TestCase):
@@ -426,17 +520,27 @@ class RendererTests(unittest.TestCase):
                 self.assertEqual(image.getpixel((0, 0)), NES_PALETTE[0x30])
                 self.assertEqual(image.getpixel((1, 0)), NES_PALETTE[0x17])
 
-    def test_world_renderer_creates_stable_cartographic_pixels(self) -> None:
+    def test_world_renderer_draws_overworld_tileset_graphics(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             output = Path(directory) / "world.png"
+            water = bytes((0xFF,) * 8 + (0,) * 8)
+            grass = bytes((0,) * 8 + (0xFF,) * 8)
+            graphics = AreaGraphics(
+                ((0, 0, 0, 0), (1, 1, 1, 1)),
+                (0, 0),
+                (water, grass),
+                (0x21, 0x2A, 0x10) * 4,
+                (0x83, 0x00),
+                (0, 0),
+            )
 
-            render_world_map(((0, 5), (3, 4)), output, 4)
-
-            from PIL import Image
+            render_world_map(((0, 1), (1, 0)), graphics, output)
 
             with Image.open(output) as image:
-                self.assertEqual(image.size, (8, 8))
-                self.assertNotEqual(image.getpixel((0, 0)), image.getpixel((4, 0)))
+                self.assertEqual(image.size, (32, 32))
+                self.assertEqual(image.getpixel((0, 0)), NES_PALETTE[0x21])
+                self.assertEqual(image.getpixel((16, 0)), NES_PALETTE[0x2A])
+                self.assertEqual(image.getpixel((0, 16)), NES_PALETTE[0x2A])
 
     def test_failed_map_write_does_not_leave_a_cached_image(self) -> None:
         with tempfile.TemporaryDirectory() as directory:

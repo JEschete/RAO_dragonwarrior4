@@ -6,14 +6,15 @@ Started: 2026-09-13
 
 ## Architecture
 
-Dragon Warrior IV remains toolkit-neutral. The plugin publishes versioned static,
-live, control, and generic presentation documents through an isolated sidecar
-bridge. The base application owns all PySide6 widgets and contains no Dragon
-Warrior IV identifiers, map rules, feature IDs, progression rules, or labels.
+Update 2026-09-14: the sidecar companion was removed. Its Atlas, Party, Journey,
+Journal, Combat Log, and Archive features are now keyed overlay sections and
+the shared map window; the dashboard bridge, its JSON documents, and the
+`dashboard.py` launcher no longer exist. The history below describes the
+migration as it stood before that change.
 
-The former plugin-owned Tk dashboard is now a compatibility launcher for the
-generic Qt dashboard module. Dragon Warrior IV no longer requires a GUI-toolkit
-exception in the host architecture test.
+Dragon Warrior IV remains toolkit-neutral. The base application owns all
+PySide6 widgets and contains no Dragon Warrior IV identifiers, map rules,
+feature IDs, progression rules, or labels.
 
 ## Completed
 
@@ -50,7 +51,7 @@ exception in the host architecture test.
   plugin switches and shutdown.
 - Adapter activation and deactivation reset playthrough-bound runtime services,
   close the sidecar, and re-enable it only for a new content session.
-- Generated area and cartographic world PNGs use same-directory atomic
+- Generated area and world PNGs use same-directory atomic
   replacement so interrupted renders cannot become valid cache entries.
 - Dialogue debounce, duplicate normalization, replay suppression, journal
   persistence, 50 ms encounter capture, coherent-frame opening, duplicate-frame

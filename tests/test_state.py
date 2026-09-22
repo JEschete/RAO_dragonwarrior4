@@ -14,6 +14,7 @@ class FakeAssets:
 def test_reads_us_location_party_and_persistent_progress() -> None:
     ram = bytearray(0x800)
     ram[0x58F] = 0x10
+    ram[0x28] = 0x0E
     ram[0x63:0x65] = bytes((0x04, 0x06))
     ram[0x44:0x46] = bytes((12, 9))
     wram = bytearray(0x300)
@@ -107,9 +108,39 @@ def test_uses_japanese_code_note_location_when_region_marker_is_jp() -> None:
     assert "JP code note" in state.location.evidence
 
 
+def test_us_overworld_is_detected_from_empty_tileset_despite_stale_town_id() -> None:
+    ram = bytearray(0x800)
+    ram[0x58F] = 0x10
+    ram[0x28] = 0x00
+    ram[0x63:0x65] = bytes((0x12, 0x00))
+    ram[0x42:0x44] = bytes((154, 23))
+    ram[0x44:0x46] = bytes((28, 8))
+
+    state = read_state(bytes(ram), bytes(0x300), FakeAssets({(0x12, 0x00)}))
+
+    assert state.location.is_world
+    assert state.location.title == "Main World"
+    assert (state.location.x, state.location.y) == (154, 23)
+    assert "tileset" in state.location.evidence
+
+
+def test_us_indoor_location_never_uses_japanese_map_id_note() -> None:
+    ram = bytearray(0x800)
+    ram[0x58F] = 0x10
+    ram[0x28] = 0x0D
+    ram[0x63:0x65] = bytes((0x02, 0x01))
+    ram[0x44:0x46] = bytes((23, 25))
+
+    state = read_state(bytes(ram), bytes(0x300), FakeAssets({(0x02, 0x01), (0x0D, 0x00)}))
+
+    assert (state.location.map_id, state.location.submap) == (0x02, 0x01)
+    assert not state.location.is_world
+
+
 def test_falls_back_to_world_coordinates_without_matching_area() -> None:
     ram = bytearray(0x800)
     ram[0x58F] = 0x10
+    ram[0x28] = 0x0B
     ram[0x63:0x65] = bytes((0xFF, 0xFF))
     ram[0x42:0x44] = bytes((201, 99))
 

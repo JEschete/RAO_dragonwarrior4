@@ -4,7 +4,7 @@ import os
 from pathlib import Path
 from typing import Any, TYPE_CHECKING
 
-from PIL import Image, ImageDraw
+from PIL import Image
 
 if TYPE_CHECKING:
     from game.rom_assets import AreaGraphics
@@ -29,86 +29,50 @@ NES_PALETTE = (
     (160, 214, 228), (160, 162, 160), (0, 0, 0), (0, 0, 0),
 )
 
-WORLD_COLORS = (
-    (85, 151, 83),
-    (198, 176, 94),
-    (151, 132, 84),
-    (104, 111, 116),
-    (42, 104, 66),
-    (45, 102, 159),
-    (93, 72, 117),
-    (185, 193, 183),
-    (206, 121, 73),
-    (102, 167, 157),
-    (205, 203, 163),
-    (118, 89, 66),
-    (150, 168, 184),
-    (75, 75, 82),
-    (217, 184, 88),
-    (183, 78, 71),
-)
-
-
 def render_area_map(
     tiles: tuple[tuple[int, ...], ...],
     graphics: AreaGraphics,
     output: Path,
 ) -> None:
     image = Image.new("RGB", (len(tiles[0]) * 16, len(tiles) * 16))
-    pixels = image.load()
-    assert pixels is not None
+    tile_images: dict[int, Image.Image] = {}
     for map_y, row in enumerate(tiles):
         for map_x, encoded_tile in enumerate(row):
             tile = encoded_tile & 0x1F
-            if tile >= len(graphics.metatiles):
-                raise ValueError(f"DW4 map references unavailable tile ${tile:02X}")
-            colors = (0x0F,) + graphics.palette[
-                graphics.attributes[tile] * 3:graphics.attributes[tile] * 3 + 3
-            ]
-            for quadrant, pattern_id in enumerate(graphics.metatiles[tile]):
-                _draw_pattern(
-                    pixels,
-                    map_x * 16 + (quadrant & 1) * 8,
-                    map_y * 16 + (quadrant >> 1) * 8,
-                    graphics.patterns[pattern_id],
-                    colors,
-                )
+            tile_image = tile_images.get(tile)
+            if tile_image is None:
+                tile_image = tile_images[tile] = _tile_image(tile, graphics)
+            image.paste(tile_image, (map_x * 16, map_y * 16))
     _save_png(image, output)
 
 
 def render_world_map(
     tiles: tuple[tuple[int, ...], ...],
+    graphics: AreaGraphics,
     output: Path,
-    tile_pixels: int = 4,
 ) -> None:
-    image = Image.new(
-        "RGB",
-        (len(tiles[0]) * tile_pixels, len(tiles) * tile_pixels),
-        WORLD_COLORS[5],
-    )
-    draw = ImageDraw.Draw(image)
-    for y, row in enumerate(tiles):
-        for x, tile in enumerate(row):
-            left = x * tile_pixels
-            top = y * tile_pixels
-            color = WORLD_COLORS[tile % len(WORLD_COLORS)]
-            draw.rectangle(
-                (left, top, left + tile_pixels - 1, top + tile_pixels - 1),
-                fill=color,
-            )
-            if tile in {2, 3} and tile_pixels >= 4:
-                draw.line(
-                    (left, top + tile_pixels - 1, left + tile_pixels // 2, top),
-                    fill=(220, 216, 194),
-                )
-            elif tile == 4 and tile_pixels >= 4:
-                draw.point((left + tile_pixels // 2, top + 1), fill=(24, 66, 44))
-            elif tile == 5 and (x + y) % 2 == 0:
-                draw.line(
-                    (left, top + tile_pixels - 1, left + tile_pixels - 1, top + tile_pixels - 1),
-                    fill=(73, 137, 188),
-                )
-    _save_png(image, output)
+    """Outdoor layers draw with the overworld tileset, just like area maps."""
+    render_area_map(tiles, graphics, output)
+
+
+def _tile_image(tile: int, graphics: AreaGraphics) -> Image.Image:
+    if tile >= len(graphics.metatiles):
+        raise ValueError(f"DW4 map references unavailable tile ${tile:02X}")
+    image = Image.new("RGB", (16, 16))
+    pixels = image.load()
+    assert pixels is not None
+    colors = (0x0F,) + graphics.palette[
+        graphics.attributes[tile] * 3:graphics.attributes[tile] * 3 + 3
+    ]
+    for quadrant, pattern_id in enumerate(graphics.metatiles[tile]):
+        _draw_pattern(
+            pixels,
+            (quadrant & 1) * 8,
+            (quadrant >> 1) * 8,
+            graphics.patterns[pattern_id],
+            colors,
+        )
+    return image
 
 
 def _save_png(image: Image.Image, output: Path) -> None:

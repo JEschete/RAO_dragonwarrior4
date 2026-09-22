@@ -10,7 +10,7 @@ from typing import Callable
 
 from retroarch_overlay.models import MapLayer, MapOverlay, MapWaypoint
 
-from .reference_data import TILE_BEHAVIORS, TreasureRecord, map_title
+from .reference_data import TILE_BEHAVIORS, TreasureRecord, item_name, map_title
 
 
 MAX_MAP_DIMENSION = 128
@@ -37,10 +37,26 @@ GRAPHICS_BASES = {
     1: (0x0D, 0x7F01),
     2: (0x0D, 0x9E14),
 }
+# Verified live: US $0028 reads 0 on the overworld, and tileset 0 holds its
+# water, grass, forest, mountain, town, and castle metatiles.
+WORLD_TILESET = 0
+NO_PALETTE_OVERRIDE_MAP = 0xFF
+# Bank 1E search data (US layout). Furniture records are map, submap, x, y,
+# item, flag byte relative to $6273, and flag bit mask. Search records are map,
+# submap, x, y, and a handler value; values $A0-$AA are item searches whose low
+# nibble selects a flag bit from $6272 and an item from the table at $BDB3.
+HIDDEN_TABLE_BANK = 0x1E
+FURNITURE_TABLE_ADDRESS = 0xBCED
+SEARCH_TABLE_ADDRESS = 0xBF59
+SEARCH_ITEM_TABLE_ADDRESS = 0xBDB3
+FURNITURE_FLAG_BYTE = 22
+SEARCH_FLAG_BYTE = 21
+HIDDEN_TABLE_LIMIT = 64
+POSITION_WORDS = ("left", "middle", "right")
 WORLD_MAP_SPECS = {
-    "world": ("Main World", "World", 0x0B, 0xA590, 256, 256, 4),
-    "gottside": ("Gottside", "Gottside", 0x0B, 0xAB65, 64, 64, 6),
-    "underworld": ("Underworld", "Underworld", 0x0B, 0xAE89, 64, 54, 6),
+    "world": ("Main World", "World", 0x0B, 0xA590, 256, 256, 16),
+    "gottside": ("Gottside", "Gottside", 0x0B, 0xAB65, 64, 64, 16),
+    "underworld": ("Underworld", "Underworld", 0x0B, 0xAE89, 64, 54, 16),
 }
 
 
@@ -253,6 +269,69 @@ class MdecDecoder:
                 self.tiles[target_y][target_x] = tile
 
 
+def _hidden_reward(item_id: int) -> str:
+    name = item_name(item_id)
+    return "Hidden item" if name.startswith("Item $") else name
+
+
+def _scripted_hidden(
+    documented: tuple[TreasureRecord, ...],
+    found: list[HiddenTreasure],
+    spots: list[tuple[int, int, int, int]],
+) -> tuple[HiddenTreasure, ...]:
+    """Pairs scripted search spots with the documented items left on each floor.
+
+    Scripted handlers do not expose their item or flag in a table, so a floor is
+    resolved only when its unclaimed documented items match the spot count and,
+    for several spots, their left/middle/right wording orders them by column.
+    """
+    resolved = []
+    for floor in dict.fromkeys((map_id, submap) for map_id, submap, _, _ in spots):
+        positions = sorted(
+            (x, y) for map_id, submap, x, y in spots if (map_id, submap) == floor
+        )
+        claimed = {
+            treasure.reward
+            for treasure in found
+            if (treasure.map_id, treasure.submap) == floor
+        }
+        records = [
+            record
+            for record in documented
+            if (record.map_id, record.submap) == floor and record.reward not in claimed
+        ]
+        if not records or len(records) != len(positions):
+            continue
+        if len(records) > 1:
+            ranks = [
+                next(
+                    (
+                        rank
+                        for rank, word in enumerate(POSITION_WORDS)
+                        if f"{word} " in record.description.casefold()
+                    ),
+                    None,
+                )
+                for record in records
+            ]
+            if None in ranks or len(set(ranks)) != len(ranks):
+                continue
+            records = [record for _, record in sorted(zip(ranks, records))]
+        resolved.extend(
+            HiddenTreasure(
+                floor[0],
+                floor[1],
+                x,
+                y,
+                record.flag_index,
+                record.reward,
+                record.description,
+            )
+            for (x, y), record in zip(positions, records)
+        )
+    return tuple(resolved)
+
+
 def decode_world_row(data: bytes, offset: int, width: int) -> tuple[int, ...]:
     tiles = []
     while len(tiles) < width:
@@ -269,13 +348,30 @@ def decode_world_row(data: bytes, offset: int, width: int) -> tuple[int, ...]:
     return tuple(tiles)
 
 
+@dataclass(frozen=True, slots=True)
+class HiddenTreasure:
+    map_id: int
+    submap: int
+    x: int
+    y: int
+    flag_index: int
+    reward: str
+    description: str
+
+    def is_open(self, treasure_flags: bytes) -> bool:
+        byte_index, bit = divmod(self.flag_index, 8)
+        return byte_index < len(treasure_flags) and bool(
+            treasure_flags[byte_index] & (1 << bit)
+        )
+
+
 class DragonWarrior4RomAssets:
     def __init__(
         self,
         rom_path: Path,
         state_directory: Path,
         area_renderer: Callable[[tuple[tuple[int, ...], ...], AreaGraphics, Path], None],
-        world_renderer: Callable[[tuple[tuple[int, ...], ...], Path, int], None],
+        world_renderer: Callable[[tuple[tuple[int, ...], ...], AreaGraphics, Path], None],
         submap_names: dict[tuple[int, int], str] | None = None,
     ) -> None:
         data = rom_path.read_bytes()
@@ -303,6 +399,7 @@ class DragonWarrior4RomAssets:
         self._descriptors = self._index_area_maps()
         self._descriptor_by_key = {item.key: item for item in self._descriptors}
         self._area_cache: dict[int, tuple[tuple[tuple[int, ...], ...], AreaGraphics]] = {}
+        self._hidden_treasures: tuple[HiddenTreasure, ...] | None = None
 
     @property
     def area_maps(self) -> tuple[AreaMapDescriptor, ...]:
@@ -353,7 +450,7 @@ class DragonWarrior4RomAssets:
                     "https://datacrystal.tcrf.net/wiki/"
                     "Dragon_Warrior_IV_(NES)/ROM_map#Overworld_Map_Data_and_Pointers"
                 ),
-                credit="Cartographic rendering generated locally from ROM terrain data",
+                credit="Generated locally from the configured ROM",
                 tile_width=tile_pixels,
                 tile_height=tile_pixels,
                 wrap_width=width,
@@ -383,7 +480,7 @@ class DragonWarrior4RomAssets:
 
     def render_world_map(self, key: str) -> Path:
         try:
-            _, _, bank, pointer_table, width, height, tile_pixels = WORLD_MAP_SPECS[key]
+            _, _, bank, pointer_table, width, height, _ = WORLD_MAP_SPECS[key]
         except KeyError as error:
             raise ValueError(f"Unknown DW4 world map: {key}") from error
         output = self.cache_directory / "maps" / f"{key}.png"
@@ -403,7 +500,18 @@ class DragonWarrior4RomAssets:
                     width,
                 )
             )
-        self._world_renderer(tuple(rows), output, tile_pixels)
+        graphics = self._area_graphics(
+            AreaMapDescriptor(
+                NO_PALETTE_OVERRIDE_MAP,
+                NO_PALETTE_OVERRIDE_MAP,
+                WORLD_TILESET,
+                width,
+                height,
+                bank,
+                pointer_table,
+            )
+        )
+        self._world_renderer(tuple(rows), graphics, output)
         self._write_manifest()
         return output
 
@@ -422,6 +530,7 @@ class DragonWarrior4RomAssets:
             record
             for record in treasure_records
             if (record.map_id, record.submap) == (map_id, submap)
+            and record.container == "chest"
         )
         chest_positions = tuple(
             (x, y)
@@ -429,7 +538,11 @@ class DragonWarrior4RomAssets:
             for x, encoded_tile in enumerate(row)
             if graphics.behaviors[encoded_tile & 0x1F] == 0x04
         )
-        points = []
+        points = [
+            self._hidden_point(treasure, tiles, graphics, treasure_flags)
+            for treasure in self.hidden_treasures(treasure_records)
+            if (treasure.map_id, treasure.submap) == (map_id, submap)
+        ]
         for y, row in enumerate(tiles):
             for x, encoded_tile in enumerate(row):
                 tile = encoded_tile & 0x1F
@@ -499,6 +612,125 @@ class DragonWarrior4RomAssets:
         return MapOverlay(
             f"area-{map_id:02x}-{submap:02x}",
             tuple(points),
+        )
+
+    def hidden_treasures(
+        self,
+        treasure_records: tuple[TreasureRecord, ...] = (),
+    ) -> tuple[HiddenTreasure, ...]:
+        """Hidden drawer, pot, and search items with their exact ROM positions."""
+        if self._hidden_treasures is None:
+            try:
+                self._hidden_treasures = self._read_hidden_treasures(treasure_records)
+            except (IndexError, ValueError):
+                self._hidden_treasures = ()
+        return self._hidden_treasures
+
+    def _read_hidden_treasures(
+        self,
+        treasure_records: tuple[TreasureRecord, ...],
+    ) -> tuple[HiddenTreasure, ...]:
+        if self.region != "US":
+            return ()
+        documented = tuple(
+            record for record in treasure_records if record.container != "chest"
+        )
+        found: list[HiddenTreasure] = []
+        for map_id, submap, x, y, item_id, flag_byte, mask in self._hidden_rows(
+            FURNITURE_TABLE_ADDRESS, 7
+        ):
+            if mask.bit_count() != 1:
+                raise ValueError("Unexpected DW4 furniture flag mask")
+            flag = (FURNITURE_FLAG_BYTE + flag_byte) * 8 + mask.bit_length() - 1
+            found.append(
+                self._documented_hidden(
+                    documented, map_id, submap, x, y, flag, _hidden_reward(item_id)
+                )
+            )
+        special: list[tuple[int, int, int, int]] = []
+        for map_id, submap, x, y, value in self._hidden_rows(SEARCH_TABLE_ADDRESS, 5):
+            if 0xA0 <= value <= 0xAA:
+                index = value & 0x0F
+                flag = (SEARCH_FLAG_BYTE + (index >> 3)) * 8 + 7 - (index & 0x07)
+                item_id = self._cpu_byte(
+                    HIDDEN_TABLE_BANK, SEARCH_ITEM_TABLE_ADDRESS + index
+                )
+                found.append(
+                    self._documented_hidden(
+                        documented, map_id, submap, x, y, flag, _hidden_reward(item_id)
+                    )
+                )
+            else:
+                special.append((map_id, submap, x, y))
+        found.extend(_scripted_hidden(documented, found, special))
+        return tuple(found)
+
+    def _hidden_rows(self, address: int, width: int) -> tuple[bytes, ...]:
+        rows = []
+        while self._cpu_byte(HIDDEN_TABLE_BANK, address) != 0xFF:
+            if len(rows) >= HIDDEN_TABLE_LIMIT:
+                raise ValueError("DW4 hidden treasure table is unterminated")
+            start = self._prg_offset + HIDDEN_TABLE_BANK * 0x4000 + address - 0x8000
+            row = self._data[start:start + width]
+            if len(row) != width or not self.has_area(row[0], row[1]):
+                raise ValueError("DW4 hidden treasure table does not match this ROM")
+            rows.append(row)
+            address += width
+        return tuple(rows)
+
+    def _cpu_byte(self, bank: int, address: int) -> int:
+        return self._data[self._prg_offset + bank * 0x4000 + address - 0x8000]
+
+    def _documented_hidden(
+        self,
+        documented: tuple[TreasureRecord, ...],
+        map_id: int,
+        submap: int,
+        x: int,
+        y: int,
+        flag: int,
+        reward: str,
+    ) -> HiddenTreasure:
+        # The saved table has a few wrong flags and submaps, so match on the item
+        # and floor, letting an identical flag break ties or excuse a submap typo.
+        candidates = [
+            record
+            for record in documented
+            if record.map_id == map_id
+            and record.reward == reward
+            and (record.submap == submap or record.flag_index == flag)
+        ]
+        same_flag = [record for record in candidates if record.flag_index == flag]
+        candidates = same_flag or candidates
+        description = (
+            candidates[0].description
+            if len(candidates) == 1
+            else f"{map_title(map_id, submap, self._submap_names)} ({x},{y})"
+        )
+        return HiddenTreasure(map_id, submap, x, y, flag, reward, description)
+
+    @staticmethod
+    def _hidden_point(
+        treasure: HiddenTreasure,
+        tiles: tuple[tuple[int, ...], ...],
+        graphics: AreaGraphics,
+        treasure_flags: bytes,
+    ) -> MapWaypoint:
+        behavior = (
+            graphics.behaviors[tiles[treasure.y][treasure.x] & 0x1F]
+            if 0 <= treasure.y < len(tiles) and 0 <= treasure.x < len(tiles[treasure.y])
+            else None
+        )
+        place = {0xAA: "In a pot", 0xAB: "In a drawer"}.get(behavior, "Search here")
+        opened = treasure.is_open(treasure_flags)
+        return MapWaypoint(
+            treasure.x,
+            treasure.y,
+            treasure.reward,
+            f"{place} · {'Looted' if opened else 'Available'}\n{treasure.description}",
+            "collectibles",
+            opened,
+            marker="item",
         )
 
     def _area_layout(

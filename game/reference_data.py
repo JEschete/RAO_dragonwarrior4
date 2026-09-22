@@ -34,6 +34,20 @@ class TreasureRecord:
             treasure_flags[byte_index] & (1 << bit)
         )
 
+    @property
+    def container(self) -> str:
+        """Where the reward sits: chest, drawer, pot, or a search spot."""
+        text = self.description.casefold()
+        if "chest" in text:
+            return "chest"
+        if "drawer" in text:
+            return "drawer"
+        if re.search(r"\bpot\b", text):
+            return "pot"
+        if any(word in text for word in ("search", "tombstone", "broken tile")):
+            return "search"
+        return "chest"
+
 
 @dataclass(frozen=True, slots=True)
 class SpellDefinition:
@@ -538,6 +552,7 @@ TILE_BEHAVIORS = {
     0xA7: "Desk",
     0xA8: "Sign",
     0xA9: "Bookshelf",
+    0xAA: "Pot",
     0xAB: "Chest of drawers",
 }
 

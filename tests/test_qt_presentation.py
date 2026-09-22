@@ -11,7 +11,7 @@ from test_adapter import FakeMemory, ROOT, memory
 def _adapter(tmp_path: Path) -> Adapter:
     return Adapter(
         GameContext(
-            settings={"dashboard": False},
+            settings={},
             repository_root=ROOT,
             state_directory=tmp_path,
         )
@@ -35,13 +35,13 @@ def test_overworld_snapshot_preserves_qt_party_details_across_live_values(
 
     assert {section.section.key for section in view.state.section_views} == {
         "party",
-        "resources",
     }
     party = next(
         section for section in view.state.section_views if section.section.key == "party"
     )
     party_widget = view.section_widget(party.identity)
     assert party_widget is not None
+    party_widget.header_button.click()
     action_widget = party_widget.action_widget(party.actions[0].identity)
     assert action_widget is not None
     action_widget.toggle_button.click()
@@ -59,6 +59,7 @@ def test_overworld_snapshot_preserves_qt_party_details_across_live_values(
 
     assert update == PanelDocumentUpdate.VALUES
     assert view.section_widget(updated_party.identity) is party_widget
+    assert updated_party.open
     assert updated_party.actions[0].expanded
     assert "HP 25/50" in updated_party.rows[0].text
 
@@ -79,6 +80,8 @@ def test_battle_snapshot_renders_keyed_urgent_section(qtbot, tmp_path: Path) -> 
     assert [section.section.key for section in view.state.section_views] == [
         "battle",
         "atlas-confidence",
+        "nearby-features",
+        "dialogue-journal",
     ]
     battle_view = next(
         section

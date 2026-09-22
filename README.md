@@ -7,39 +7,30 @@ Standalone Dragon Warrior IV integration for RetroArch Overlay. The plugin reads
 Configure a Dragon Warrior IV ROM in Plugin Manager to enable the atlas. The plugin reads the retail MMC1 layout directly and does not require a decompilation project.
 
 - Town and dungeon maps use the documented DW4 bitstream command format, Bank 17 map directory, native tilesets, NES patterns, attributes, palettes, tile behaviors, and wall smoothing.
-- The main world, Gottside, and underworld use the documented row pointers and run-length terrain stream. Because the saved references do not document either their metatile graphics or a reliable live outdoor-layer discriminator, these layers use a clearly labeled cartographic terrain rendering and an explicit persisted world selector rather than invented art or guessed state.
+- The main world, Gottside, and underworld use the documented row pointers and run-length terrain stream, drawn with the game's own overworld tileset 0 (the tileset US `$0028` reports while outdoors) at native 16-pixel tiles. The main world matches the game; Gottside and the underworld use the same tiles and day palette, which may differ from their in-game colors.
 - Images are generated only when needed and cached below the framework's local plugin-state directory. PNGs use atomic replacement, so an interrupted render cannot be accepted as a valid cache entry. ROM bytes and generated images are never written into this repository.
 - Map feature markers come from documented tile behavior values for treasure, stairs, exits, travel doors, healing tiles, and keyed doors.
-- Hover a chest marker or its feature row to see documented contents and live/manual completion state. Single-chest floors with a matching Data Crystal record show an exact reward. Multi-chest or mismatched floors show the complete documented floor inventory without guessing which reward belongs to which coordinate.
-- Chest and objective markers can be marked complete from the feature row or detail panel. Manual state is stored in the companion controls file; game-detected looted flags take precedence and are labeled separately.
+- Hover a chest marker to see documented contents and game-detected looted state. Single-chest floors with a matching Data Crystal record show an exact reward. Multi-chest or mismatched floors show the complete documented floor inventory without guessing which reward belongs to which coordinate.
+- Hidden items in drawers, pots, and search spots are placed at exact coordinates read from the US ROM's search tables in bank `$1E` (`$BCED` furniture records and `$BF59` search records), including their live looted flags. Scripted search spots whose handlers do not expose an item are paired with documented rewards on the same floor only when the floor's left/middle/right wording orders them unambiguously.
 
-The US RAM map documents map and submap IDs at `$0063/$0064`. The saved Japanese RetroAchievements notes independently document a provisional map ID at `$0028` and player coordinates at `$0042-$0045`. The companion shows the selected evidence source and ROM region so a regional mismatch is never presented as exact.
+The US RAM map documents map and submap IDs at `$0063/$0064`. The saved Japanese RetroAchievements notes independently document a provisional map ID at `$0028` and player coordinates at `$0042-$0045`. The Atlas & memory section shows the selected evidence source and ROM region so a regional mismatch is never presented as exact.
 
-## Companion
+## Overlay sections
 
-The plugin launches a separate PySide6 Cartographer's Companion by default. The plugin remains toolkit-neutral: it publishes versioned static, live, control, and presentation documents through an isolated JSON bridge, while the framework's generic Qt dashboard owns all widgets. The small `dashboard.py` entrypoint remains only as a compatibility launcher. The companion provides six workspaces:
+Everything appears in the standard RetroArch Overlay rail and map window; there is no separate companion window. Sections are collapsible and remember whether they are open through battles and map changes.
 
-The shared companion host supports single-screen layouts down to 420 pixels
-wide. At narrow widths its workspace navigation moves into the draggable header
-and its map and record panes stack vertically. Its frame position is preserved
-and startup height is constrained to the available desktop.
-
-- **Atlas**: current generated map, centered live player marker, zoom and pan, player-relative feature ordering, persistent plugin-declared layer controls, learned floor transitions, observed dialogue locations, documented chest contents, manual completion controls, source/evidence details, and a synchronized popout map.
-- **Party**: active and reserve companions with HP, MP, level, conditions, experience, five base stats, named carried/equipped items, and learned battle/field spells.
-- **Journey**: chapter timeline, travel state, tactics, time, gold, casino coins, medals, treasure flags, Return network, Chapter 3 Lakanaba stock, and the complete 43-achievement RetroAchievements set with points.
-- **Journal**: searchable and sortable dialogue history with location, first/last read times, and repeat counts. Typewriter fragments are debounced and replaced by the completed line; normalized duplicates are merged on load, and rapid clear/replay or restart echoes are suppressed. Entries persist under the plugin state directory even when the companion window is closed.
-- **Combat Log**: active fast-capture status, factual enemy-stat observations, per-playthrough lifetime/session analytics, and searchable/sortable completed encounters. Selecting a combat lazily loads its full party, enemy, reward, result-evidence, and distinct-state timeline from disk.
-- **Archive**: live memory/ROM confidence, all saved research sources, and the tile behavior legend.
-
-Closing the companion suppresses relaunching it for the rest of that plugin session. The standard RetroArch Overlay map window and information rail continue to work independently.
-
-Switching to another game closes the companion and resets its session-bound observers. Switching back creates a fresh content session and permits the companion to open again. Workspace, search, sort, layer visibility, zoom, splitter, and window-size preferences are stored under a separate `ui` control namespace and do not alter per-playthrough game progress.
-
-Live coordinates, dialogue, party vitals, currency, time, treasure status, and journal entries update retained widgets in place. Full workspace reconstruction is reserved for structural changes such as moving to another map, changing the active party roster, or advancing chapters.
+- **Battle**: live enemy slots with observed HP, MP, attack, defense, agility, and status, plus reward counters.
+- **Journey**: chapter, time of day, tactics, travel unlocks, gold, casino coins, Small Medals, treasure flags, the Return network, and Chapter 3 Lakanaba stock.
+- **Party**: active party vitals; details list every recruited companion's stats, equipment, pack, battle/field spells, and experience, marking reserve members.
+- **Nearby features**: this floor's documented map features and learned transitions sorted by distance and direction from the player, with looted chests marked.
+- **Combat log**: per-playthrough lifetime/session battle counts, win rate, rewards, frequent locations and monsters, and a list of recent completed combats.
+- **RetroAchievements**: unlock and point totals with the complete 43-achievement set.
+- **Dialogue journal**: the dialogue currently on screen and a searchable history with location, first/last read times, and repeat counts. Typewriter fragments are debounced and replaced by the completed line; normalized duplicates are merged on load, and rapid clear/replay or restart echoes are suppressed.
+- **Atlas & memory**: ROM atlas status, live memory layout, location evidence, playthrough identity, saved research sources, and the tile behavior legend.
 
 ## Accuracy boundaries
 
-- The saved references do not identify a reliable RAM discriminator for the main world, Gottside, and underworld. The companion therefore persists an explicit world selection and labels that evidence instead of guessing.
+- On US memory, `$0028` holds the loaded tileset: indoor maps use tilesets 1-50 and the overworld reads `$00` (verified live in Burland, Burland Castle, and the overworld). `$0063/$0064` keep the last town ID outdoors, so they are only trusted when a tileset is loaded. Gottside and the underworld have not been verified yet, so outdoor locations use the Main World layer.
 - Learned connections record observed map transitions. They can include scripted movement, Return, or other teleport-like transitions and are not presented as canonical exit destinations.
 - Dialogue markers show where text was observed; they do not claim a stable NPC identity or position.
 - The available monster-table research is incomplete. Battle and analytics views learn canonical names from the game's decoded battle-introduction text and retain stable IDs internally. Until a complete introduction is observed, they use a neutral enemy-group label rather than exposing a raw ID or attaching an unverified name, resistance, or drop.

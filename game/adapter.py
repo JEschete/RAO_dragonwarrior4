@@ -1,7 +1,7 @@
 from __future__ import annotations
 
+from datetime import datetime
 import hashlib
-from dataclasses import replace
 from pathlib import Path
 import re
 
@@ -31,18 +31,32 @@ from .battle import (
     read_battle_state,
 )
 from .combat_analytics import CombatAnalytics
-from .dashboard_bridge import DashboardBridge
-from .dashboard_model import DashboardModel
-from .dialogue_journal import DialogueJournal
+from .dialogue_journal import DialogueEntry, DialogueJournal
 from .encounter_log import EncounterLog
 from .map_intelligence import MapIntelligence
-from .reference_data import load_submap_names, load_treasure_records, reference_sources
-from .rom_assets import WORLD_MAP_SPECS, DragonWarrior4RomAssets
-from .state import RAM_SIZE, WRAM_ADDRESS, WRAM_SIZE, DragonWarrior4State, read_state
+from .reference_data import (
+    TILE_BEHAVIORS,
+    load_submap_names,
+    load_treasure_records,
+    reference_sources,
+)
+from .rom_assets import DragonWarrior4RomAssets
+from .state import (
+    RAM_SIZE,
+    WRAM_ADDRESS,
+    WRAM_SIZE,
+    CharacterState,
+    DragonWarrior4State,
+    read_state,
+)
 
 
 RA_GAME_ID = 4612
 DISPLAY_SPEC = GameDisplaySpec("nes-4-3", 4, 3)
+WORLD_MAP_KEY = "world"
+JOURNAL_DETAIL_LIMIT = 300
+# Dialogue markers are listed in the journal; they stay on the map only.
+NEARBY_EXCLUDED_KINDS = frozenset({"npcs"})
 
 
 class Adapter:
@@ -70,28 +84,11 @@ class Adapter:
         self.map_intelligence = MapIntelligence(None)
         self._monster_names: dict[int, str] = {}
         self._last_ram: bytes | None = None
-        self._dashboard_model = DashboardModel(
-            assets,
-            self.sources,
-            self.progress,
-            asset_error,
-        )
-        dashboard_enabled = context.settings.get("dashboard", True) is not False
-        dashboard_launch = context.settings.get("dashboard_launch", True) is not False
-        self._dashboard = DashboardBridge(
-            context.state_directory,
-            context.repository_root,
-            self._dashboard_model.static_document(),
-            enabled=dashboard_enabled,
-            launch=dashboard_launch,
-        )
 
     def activate(self, _content_key: tuple[str, str, str]) -> None:
         self._reset_session()
-        self._dashboard.activate()
 
     def deactivate(self) -> None:
-        self._dashboard.close()
         self._reset_session()
 
     def _reset_session(self) -> None:
@@ -120,8 +117,6 @@ class Adapter:
             state = read_state(ram, wram, self.assets, self.submap_names)
         except (RetroArchError, RuntimeError, OSError, ValueError) as error:
             return self._memory_unavailable(str(error))
-        world_map_key = self._selected_world_map()
-        state = self._select_world_location(state, world_map_key)
         self._last_ram = bytes(ram)
         self._select_playthrough(state)
         self._monster_names.update(observed_monster_names(ram))
@@ -135,11 +130,7 @@ class Adapter:
         except (RetroArchError, RuntimeError, OSError, ValueError) as error:
             battle = BattleState.unavailable(str(error))
 
-        map_key = (
-            world_map_key
-            if state.location.is_world
-            else f"area-{state.location.map_id:02x}-{state.location.submap:02x}"
-        )
+        map_key = _map_key(state)
         feature_overlay = None
         if self.assets is not None and not state.location.is_world:
             try:
@@ -170,18 +161,6 @@ class Adapter:
             for value in (feature_overlay, learned_overlay)
             if value is not None
         )
-        dashboard_overlay = (
-            MapOverlay(
-                map_key,
-                tuple(
-                    waypoint
-                    for value in overlays
-                    for waypoint in value.waypoints
-                ),
-            )
-            if overlays
-            else None
-        )
         encounter_entries = self.encounter_log.observe(battle, state)
         self.combat_analytics.observe(encounter_entries)
         self.map_intelligence.observe_encounter(
@@ -190,24 +169,10 @@ class Adapter:
             state.location.x,
             state.location.y,
         )
-        self._dashboard.publish(
-            self._dashboard_model.dynamic_document(
-                state,
-                dashboard_overlay,
-                journal_entries,
-                battle,
-                self.encounter_log.active_summary,
-                encounter_entries,
-                self.encounter_log.root,
-                self.playthrough_id,
-                self.combat_analytics.document,
-                world_map_key,
-            )
-        )
         return OverlaySnapshot(
             self.name,
             f"{state.location.title} · ({state.location.x},{state.location.y})",
-            self._sections(state, battle),
+            self._sections(state, battle, overlays, journal_entries),
             MapPosition(
                 state.location.area,
                 state.location.layer_id,
@@ -236,8 +201,6 @@ class Adapter:
             ram[BATTLE_TEXT_ADDRESS:BATTLE_TEXT_ADDRESS + BATTLE_TEXT_SIZE] = battle_text
             self._monster_names.update(observed_monster_names(ram))
             state = read_state(bytes(ram), wram, self.assets, self.submap_names)
-            world_map_key = self._selected_world_map()
-            state = self._select_world_location(state, world_map_key)
             battle = read_battle_state(
                 bytes(ram),
                 battle_memory,
@@ -247,14 +210,9 @@ class Adapter:
             return
         encounter_entries = self.encounter_log.observe(battle, state)
         self.combat_analytics.observe(encounter_entries)
-        map_key = (
-            world_map_key
-            if state.location.is_world
-            else f"area-{state.location.map_id:02x}-{state.location.submap:02x}"
-        )
         self.map_intelligence.observe_encounter(
             self.encounter_log.active_summary,
-            map_key,
+            _map_key(state),
             state.location.x,
             state.location.y,
         )
@@ -263,29 +221,25 @@ class Adapter:
         self,
         state: DragonWarrior4State,
         battle: BattleState | None = None,
+        overlays: tuple[MapOverlay, ...] = (),
+        journal_entries: tuple[DialogueEntry, ...] = (),
     ) -> tuple[PanelSection, ...]:
-        active = tuple(character for character in state.characters if character.active)
-        party_rows = []
-        for character in active:
-            conditions = []
-            if not character.alive:
-                conditions.append("down")
-            if character.poisoned:
-                conditions.append("poisoned")
-            if character.paralyzed:
-                conditions.append("paralyzed")
-            suffix = f" · {', '.join(conditions)}" if conditions else ""
-            party_rows.append(
-                PanelRow(
-                    f"{character.name} · Lv {character.level} · "
-                    f"HP {character.hp}/{character.max_hp} · "
-                    f"MP {character.mp}/{character.max_mp}{suffix}",
-                    not conditions,
-                )
-            )
-        if not party_rows:
-            party_rows.append(PanelRow("No active party slots detected"))
+        sections = [
+            self._journey_section(state),
+            self._party_section(state),
+            self._nearby_section(state, overlays),
+            self._combat_section(),
+            self._achievement_section(),
+            self._journal_section(state, journal_entries),
+            self._atlas_section(state),
+        ]
+        battle_section = self._battle_section(battle)
+        if battle_section is not None:
+            sections.insert(0, battle_section)
+        return tuple(sections)
 
+    @staticmethod
+    def _journey_section(state: DragonWarrior4State) -> PanelSection:
         if state.has_boat or state.has_balloon:
             travel = " · ".join(
                 value
@@ -297,19 +251,19 @@ class Adapter:
             )
         else:
             travel = "On foot"
-        journey_rows = (
+        rows = (
             PanelRow(state.chapter_name),
             PanelRow(f"{state.time_name} · Tactics: {state.tactics_name}"),
             PanelRow(f"Travel: {travel}"),
-        )
-        resource_rows = (
-            PanelRow(f"Gold {state.gold:,} · Casino coins {state.casino_coins:,}"),
-            PanelRow(f"Small Medals turned in: {state.small_medals}"),
+            PanelRow(
+                f"Gold {state.gold:,} · Casino coins {state.casino_coins:,} · "
+                f"Small Medals {state.small_medals}"
+            ),
             PanelRow(
                 f"Treasure flags: {state.treasure_opened}/{state.treasure_total} opened"
             ),
         )
-        resource_actions = [
+        actions = [
             PanelAction(
                 "OPEN RETURN LIST",
                 "Return Destinations",
@@ -319,7 +273,7 @@ class Adapter:
             ),
         ]
         if state.chapter == 2 or any(count for _, count in state.taloon_shop_stock):
-            resource_actions.append(
+            actions.append(
                 PanelAction(
                     "OPEN TALOON STOCK",
                     "Lakanaba Shop Stock",
@@ -330,65 +284,211 @@ class Adapter:
                     key="taloon-stock",
                 )
             )
-        atlas_status = (
-            f"ROM atlas: {self.assets.region} · {len(self.assets.area_maps)} floors"
-            if self.assets is not None
-            else f"ROM atlas unavailable: {self.asset_error or 'configure a ROM path'}"
+        return PanelSection(
+            "Journey",
+            rows,
+            actions=tuple(actions),
+            priority=5,
+            role="goals",
+            compact_rows=(PanelRow(f"{state.chapter_name} · Gold {state.gold:,}"),),
+            key="journey",
         )
-        reference_rows = (
-            PanelRow(atlas_status, self.assets is not None),
-            PanelRow(f"Live layout: {state.location.memory_region}"),
-            PanelRow(state.location.evidence),
-            PanelRow(
-                f"Saved references available: "
-                f"{sum(source.available for source in self.sources)}/{len(self.sources)}"
-            ),
-        )
-        sections = [
-            PanelSection(
-                "Journey",
-                journey_rows,
-                priority=5,
-                role="goals",
-                key="journey",
-            ),
-            PanelSection(
-                "Party",
-                tuple(party_rows),
-                actions=(
-                    PanelAction(
-                        "OPEN PARTY DETAILS",
-                        "Party Equipment, Stats, and Spells",
-                        self._party_detail_rows(state),
-                        key="party-details",
+
+    def _party_section(self, state: DragonWarrior4State) -> PanelSection:
+        active = tuple(character for character in state.characters if character.active)
+        rows = []
+        for character in active:
+            conditions = _conditions(character)
+            suffix = f" · {', '.join(conditions)}" if conditions else ""
+            rows.append(
+                PanelRow(
+                    f"{character.name} · Lv {character.level} · "
+                    f"HP {character.hp}/{character.max_hp} · "
+                    f"MP {character.mp}/{character.max_mp}{suffix}",
+                    not conditions,
+                    progress=(
+                        character.hp / character.max_hp if character.max_hp else None
                     ),
+                )
+            )
+        if not rows:
+            rows.append(PanelRow("No active party slots detected"))
+        summary = (
+            " · ".join(
+                f"{character.name} {character.hp}/{character.max_hp}"
+                for character in active
+            )
+            or rows[0].text
+        )
+        return PanelSection(
+            "Party",
+            tuple(rows),
+            actions=(
+                PanelAction(
+                    "OPEN PARTY DETAILS",
+                    "Party Equipment, Stats, and Spells",
+                    self._party_detail_rows(state),
+                    key="party-details",
                 ),
-                priority=10,
-                role="party",
-                key="party",
             ),
-            PanelSection(
-                "Resources",
-                resource_rows,
-                actions=tuple(resource_actions),
-                priority=20,
-                role="party",
-                key="resources",
+            priority=10,
+            role="party",
+            compact_rows=(PanelRow(summary),),
+            key="party",
+        )
+
+    @staticmethod
+    def _nearby_section(
+        state: DragonWarrior4State,
+        overlays: tuple[MapOverlay, ...],
+    ) -> PanelSection:
+        points = sorted(
+            (
+                (
+                    abs(point.x - state.location.x) + abs(point.y - state.location.y),
+                    point,
+                )
+                for overlay in overlays
+                for point in overlay.waypoints
+                if point.kind not in NEARBY_EXCLUDED_KINDS
             ),
-            self._achievement_section(),
-            PanelSection(
-                "Atlas confidence",
-                reference_rows,
-                alert=self.assets is None or state.location.memory_region == "Unknown",
-                priority=30,
-                role="area",
-                key="atlas-confidence",
+            key=lambda entry: (entry[0], entry[1].kind, entry[1].title),
+        )
+        rows = tuple(
+            PanelRow(
+                f"{point.title} · ({point.x},{point.y}) · "
+                f"{_direction(point.x - state.location.x, point.y - state.location.y, distance)}",
+                True if point.completed else None,
+                point.detail,
+            )
+            for distance, point in points
+        )
+        if not rows:
+            rows = (
+                PanelRow(
+                    "Outdoor features are not mapped"
+                    if state.location.is_world
+                    else "No mapped features on this floor"
+                ),
+            )
+        return PanelSection(
+            "Nearby features",
+            rows,
+            preview_limit=8,
+            priority=15,
+            role="area",
+            compact_rows=(
+                PanelRow(f"{len(points)} features · nearest: {rows[0].text}")
+                if points
+                else rows[0],
             ),
-        ]
-        battle_section = self._battle_section(battle)
-        if battle_section is not None:
-            sections.insert(0, battle_section)
-        return tuple(sections)
+            key="nearby-features",
+        )
+
+    def _combat_section(self) -> PanelSection:
+        analytics = self.combat_analytics.document
+        total = int(analytics.get("total_encounters", 0))
+        win_rate = float(analytics.get("win_rate", 0.0))
+        rows = (
+            PanelRow(
+                f"{total} lifetime · {int(analytics.get('session_encounters', 0))} "
+                f"this session · {win_rate:.0%} victories"
+            ),
+            PanelRow(
+                f"Rewards: {int(analytics.get('reward_experience', 0)):,} XP · "
+                f"{int(analytics.get('reward_gold', 0)):,} gold"
+            ),
+            PanelRow(
+                "Locations: "
+                + (
+                    " · ".join(
+                        f"{value.get('name', 'Unknown')} ({int(value.get('encounters', 0))})"
+                        for value in analytics.get("locations", [])[:4]
+                    )
+                    or "none recorded"
+                )
+            ),
+            PanelRow(
+                "Monsters: "
+                + (
+                    " · ".join(
+                        f"{value.get('label', 'Unknown')} ({int(value.get('encounters', 0))})"
+                        for value in analytics.get("enemies", [])[:6]
+                    )
+                    or "none recorded"
+                )
+            ),
+        )
+        records = tuple(
+            PanelRow(
+                f"{record.outcome.replace('_', ' ').upper()} · {record.end_location} · "
+                f"{', '.join(enemy.label for enemy in record.enemies) or 'Unknown enemies'} · "
+                f"{record.reward_experience:,} XP / {record.reward_gold:,} gold",
+                tooltip=(
+                    f"{_local_time(record.ended_at)} · "
+                    f"{record.duration_seconds:.2f}s · "
+                    f"{record.sample_count} distinct frames"
+                ),
+            )
+            for record in self.encounter_log.recent
+        ) or (PanelRow("Completed combat records will appear here"),)
+        return PanelSection(
+            "Combat log",
+            rows,
+            actions=(
+                PanelAction(
+                    "OPEN RECENT COMBATS",
+                    "Recent Combats",
+                    records,
+                    key="recent-combats",
+                ),
+            ),
+            priority=30,
+            role="goals",
+            compact_rows=(
+                PanelRow(f"{total} battles · {win_rate:.0%} victories"),
+            ),
+            key="combat-log",
+        )
+
+    @staticmethod
+    def _journal_section(
+        state: DragonWarrior4State,
+        entries: tuple[DialogueEntry, ...],
+    ) -> PanelSection:
+        current = " ".join(state.dialogue.split())
+        rows = (
+            PanelRow(current or "No dialogue on screen"),
+            PanelRow(f"{len(entries)} lines recorded this playthrough"),
+        )
+        details = tuple(
+            PanelRow(
+                f"{entry.location}: {entry.text}",
+                tooltip=(
+                    f"First read {_local_time(entry.first_seen)} · "
+                    f"Last read {_local_time(entry.last_seen)} · "
+                    f"Seen {entry.seen_count} "
+                    f"{'time' if entry.seen_count == 1 else 'times'}"
+                ),
+            )
+            for entry in reversed(entries[-JOURNAL_DETAIL_LIMIT:])
+        ) or (PanelRow("Dialogue appears here after it finishes drawing in game"),)
+        return PanelSection(
+            "Dialogue journal",
+            rows,
+            actions=(
+                PanelAction(
+                    "OPEN DIALOGUE JOURNAL",
+                    "Dialogue Journal",
+                    details,
+                    key="dialogue-journal",
+                ),
+            ),
+            priority=40,
+            role="area",
+            compact_rows=(rows[0] if current else rows[1],),
+            key="dialogue-journal",
+        )
 
     def _achievement_section(self) -> PanelSection:
         unlocked_ids = self.progress.unlocked_ids if self.progress else frozenset()
@@ -432,6 +532,52 @@ class Adapter:
             priority=25,
             role="goals",
             key="retroachievements",
+        )
+
+    def _atlas_section(self, state: DragonWarrior4State) -> PanelSection:
+        atlas_status = (
+            f"ROM atlas: {self.assets.region} · {len(self.assets.area_maps)} floors"
+            if self.assets is not None
+            else f"ROM atlas unavailable: {self.asset_error or 'configure a ROM path'}"
+        )
+        rows = (
+            PanelRow(atlas_status, self.assets is not None),
+            PanelRow(f"Live layout: {state.location.memory_region}"),
+            PanelRow(state.location.evidence),
+            PanelRow(f"Playthrough: {self.playthrough_id or 'unidentified'}"),
+        )
+        research = (
+            PanelRow(
+                f"Saved references available: "
+                f"{sum(source.available for source in self.sources)}/{len(self.sources)}",
+                emphasis="heading",
+            ),
+            *(
+                PanelRow(source.title, source.available, source.purpose)
+                for source in self.sources
+            ),
+            PanelRow("Tile behaviors", emphasis="heading"),
+            *(
+                PanelRow(f"${value:02X} · {name}")
+                for value, name in sorted(TILE_BEHAVIORS.items())
+            ),
+        )
+        return PanelSection(
+            "Atlas & memory",
+            rows,
+            alert=self.assets is None or state.location.memory_region == "Unknown",
+            actions=(
+                PanelAction(
+                    "OPEN RESEARCH SOURCES",
+                    "Research Sources and Tile Legend",
+                    research,
+                    key="research-sources",
+                ),
+            ),
+            priority=60,
+            role="area",
+            compact_rows=(rows[0],),
+            key="atlas-confidence",
         )
 
     @staticmethod
@@ -509,19 +655,20 @@ class Adapter:
                         f"{character.name} · Lv {character.level} · "
                         f"STR {character.strength} · AGI {character.agility} · "
                         f"VIT {character.vitality} · INT {character.intelligence} · "
-                        f"LUCK {character.luck}",
+                        f"LUCK {character.luck}"
+                        f"{'' if character.active else ' · reserve'}",
                         emphasis="heading",
                     ),
                     PanelRow(f"Equipped: {equipped}"),
                     PanelRow(f"Carried: {carried}"),
                     PanelRow(f"Battle spells: {battle_spells}"),
                     PanelRow(f"Field spells: {field_spells}"),
+                    PanelRow(f"Experience: {character.experience:,}"),
                 )
             )
         return tuple(rows) or (PanelRow("No recruited party members detected"),)
 
     def _memory_unavailable(self, detail: str) -> OverlaySnapshot:
-        self._dashboard.publish(self._dashboard_model.waiting_document(detail))
         return OverlaySnapshot(
             self.name,
             "Memory unavailable",
@@ -584,32 +731,46 @@ class Adapter:
         digest = hashlib.sha256(f"{rom_identity}|{source}".encode("utf-8")).hexdigest()
         return f"{safe_label or 'playthrough'}-{digest[:10]}"
 
-    def _selected_world_map(self) -> str:
-        value = str(self._dashboard.controls().get("world_map", "world"))
-        return value if value in WORLD_MAP_SPECS else "world"
-
-    @staticmethod
-    def _select_world_location(
-        state: DragonWarrior4State,
-        world_map_key: str,
-    ) -> DragonWarrior4State:
-        if not state.location.is_world:
-            return state
-        title, area = WORLD_MAP_SPECS[world_map_key][:2]
-        return replace(
-            state,
-            location=replace(
-                state.location,
-                title=title,
-                area=area,
-                evidence=(
-                    f"{state.location.evidence}; outdoor layer selected in companion"
-                ),
-            ),
-        )
-
     @staticmethod
     def _progress(context: GameContext) -> RAProgress | None:
         if context.ra_progress_provider is None:
             return None
         return context.ra_progress_provider(RA_GAME_ID)
+
+
+def _map_key(state: DragonWarrior4State) -> str:
+    if state.location.is_world:
+        return WORLD_MAP_KEY
+    return f"area-{state.location.map_id:02x}-{state.location.submap:02x}"
+
+
+def _conditions(character: CharacterState) -> list[str]:
+    conditions = []
+    if not character.alive:
+        conditions.append("down")
+    if character.poisoned:
+        conditions.append("poisoned")
+    if character.paralyzed:
+        conditions.append("paralyzed")
+    return conditions
+
+
+def _direction(delta_x: int, delta_y: int, distance: int) -> str:
+    if delta_x == delta_y == 0:
+        return "here"
+    horizontal = "east" if delta_x > 0 else "west"
+    vertical = "south" if delta_y > 0 else "north"
+    if delta_x == 0:
+        heading = vertical
+    elif delta_y == 0:
+        heading = horizontal
+    else:
+        heading = f"{vertical}-{horizontal}"
+    return f"{distance} {heading}"
+
+
+def _local_time(value: str) -> str:
+    try:
+        return datetime.fromisoformat(value).astimezone().strftime("%Y-%m-%d %H:%M")
+    except ValueError:
+        return value or "unknown"
