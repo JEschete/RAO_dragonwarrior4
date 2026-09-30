@@ -13,10 +13,11 @@ from game.rom_assets import (
     MdecDecoder,
     WORLD_MAP_SPECS,
     _rom_region,
+    _world_destination_marker,
     area_key,
     decode_world_row,
 )
-from game.reference_data import ITEM_NAMES, TreasureRecord
+from game.reference_data import ITEM_NAMES
 from map_renderer import NES_PALETTE, render_area_map, render_world_map
 
 
@@ -45,6 +46,9 @@ def synthetic_rom() -> bytearray:
         information_address += count * 3 + 1
     for bank in (0x09, 0x0A, 0x0B):
         data[cpu_offset(bank, 0x8000):cpu_offset(bank, 0x8000) + 3] = bytes((1, 1, 0))
+    data[cpu_offset(0x08, 0xB7F9)] = 0xFF
+    data[cpu_offset(0x0E, 0xBE0B)] = 0xFF
+    data[cpu_offset(0x1E, 0xBDC2)] = 0xFF
     return data
 
 
@@ -163,6 +167,18 @@ class WorldMapDecoderTests(unittest.TestCase):
         self.assertEqual(WORLD_MAP_SPECS["world"][4:6], (256, 256))
         self.assertEqual(WORLD_MAP_SPECS["gottside"][4:6], (64, 64))
         self.assertEqual(WORLD_MAP_SPECS["underworld"][4:6], (64, 54))
+        self.assertEqual(
+            tuple(spec[7] for spec in WORLD_MAP_SPECS.values()),
+            (0, 1, 3),
+        )
+
+    def test_world_destination_markers_follow_rom_tile_classes(self) -> None:
+        self.assertEqual(_world_destination_marker("world", 0x10), "town")
+        self.assertEqual(_world_destination_marker("world", 0x12), "castle")
+        self.assertEqual(_world_destination_marker("world", 0x0B), "cave")
+        self.assertEqual(_world_destination_marker("gottside", 0x11), "tower")
+        self.assertEqual(_world_destination_marker("underworld", 0x07), "palace")
+        self.assertEqual(_world_destination_marker("underworld", 0x1D), "lair")
 
 
 class RomAtlasTests(unittest.TestCase):
@@ -219,6 +235,49 @@ class RomAtlasTests(unittest.TestCase):
             self.assertIsNotNone(layers[3].image_loader)
             area_renderer.assert_not_called()
             world_renderer.assert_not_called()
+
+    def test_world_destination_records_choose_exact_layers_and_coordinates(self) -> None:
+        assets = DragonWarrior4RomAssets.__new__(DragonWarrior4RomAssets)
+        assets._prg_offset = PRG_OFFSET
+        assets._data = synthetic_rom()
+        assets._submap_names = {}
+        routes = cpu_offset(0x08, 0xB7F9)
+        assets._data[routes:routes + 15] = bytes(
+            (0x02, 0x00, 4, 5, 0, 0x1A, 0x20, 6, 7, 0, 0x26, 0x60, 8, 9, 0)
+        )
+        assets._data[routes + 15] = 0xFF
+        positions = cpu_offset(0x0E, 0xBE0B)
+        assets._data[positions:positions + 12] = bytes(
+            (0x02, 10, 11, 0x1A, 12, 13, 0x26, 14, 15, 0x02, 16, 17)
+        )
+        assets._data[positions + 12] = 0xFF
+        rows = {
+            "world": [[0] * 20 for _ in range(20)],
+            "gottside": [[0] * 20 for _ in range(20)],
+            "underworld": [[0] * 20 for _ in range(20)],
+        }
+        rows["world"][11][10] = 0x10
+        rows["world"][17][16] = 0x12
+        rows["gottside"][13][12] = 0x11
+        rows["underworld"][15][14] = 0x07
+        assets._world_rows = Mock(
+            side_effect=lambda key: tuple(tuple(row) for row in rows[key])
+        )
+
+        points = assets._world_destination_waypoints()
+
+        self.assertEqual(
+            tuple((point.x, point.y, point.marker) for point in points["world"]),
+            ((10, 11, "town"), (16, 17, "castle")),
+        )
+        self.assertEqual(
+            (points["gottside"][0].x, points["gottside"][0].y),
+            (12, 13),
+        )
+        self.assertEqual(
+            (points["underworld"][0].x, points["underworld"][0].y),
+            (14, 15),
+        )
 
     def test_area_stream_uses_documented_cross_bank_continuations(self) -> None:
         assets = DragonWarrior4RomAssets.__new__(DragonWarrior4RomAssets)
@@ -301,8 +360,10 @@ class RomAtlasTests(unittest.TestCase):
 
         self.assertEqual(result, ((1,), (2,)))
 
-    def test_single_chest_marker_has_exact_reward_and_live_status(self) -> None:
+    def test_chest_marker_uses_rom_value_and_msb_collected_flag(self) -> None:
         assets = DragonWarrior4RomAssets.__new__(DragonWarrior4RomAssets)
+        assets._prg_offset = PRG_OFFSET
+        assets._data = synthetic_rom()
         descriptor = AreaMapDescriptor(2, 1, 0, 1, 1, 9, 0)
         assets._descriptor_by_key = {descriptor.key: descriptor}
         assets._hidden_treasures = ()
@@ -315,20 +376,31 @@ class RomAtlasTests(unittest.TestCase):
             (0,),
         )
         assets._area_layout = Mock(return_value=(((0,),), graphics))
-        record = TreasureRecord(0, 2, 1, "Left chest", "Agility Seed")
+        directory = cpu_offset(0x1E, 0xBDC2)
+        assets._data[directory:directory + 4] = bytes((2, 1, 1, 0xFF))
+        assets._data[cpu_offset(0x1E, 0xBEB9)] = ITEM_NAMES.index("Agility Seed")
+        overlay = assets.feature_overlay(2, 1, bytes((0x80,)) + bytes(26))
 
-        available = assets.feature_overlay(2, 1, (record,), bytes(27))
-        looted = assets.feature_overlay(2, 1, (record,), bytes((1,)) + bytes(26))
+        self.assertIsNotNone(overlay)
+        self.assertEqual(overlay.waypoints[0].title, "Agility Seed")
+        self.assertEqual(overlay.waypoints[0].detail, "ROM chest index 0 · Looted")
+        self.assertTrue(overlay.waypoints[0].completed)
 
-        self.assertIsNotNone(available)
-        self.assertEqual(available.waypoints[0].title, "Agility Seed")
-        self.assertIn("Available", available.waypoints[0].detail)
-        self.assertFalse(available.waypoints[0].completed)
-        self.assertTrue(looted.waypoints[0].completed)
-
-    def test_ambiguous_chests_show_all_floor_rewards_without_pairing(self) -> None:
+    def test_negative_chest_value_stays_neutral(self) -> None:
         assets = DragonWarrior4RomAssets.__new__(DragonWarrior4RomAssets)
-        descriptor = AreaMapDescriptor(3, 2, 0, 2, 1, 9, 0)
+        assets._prg_offset = PRG_OFFSET
+        assets._data = synthetic_rom()
+        directory = cpu_offset(0x1E, 0xBDC2)
+        assets._data[directory:directory + 4] = bytes((3, 2, 1, 0xFF))
+        assets._data[cpu_offset(0x1E, 0xBEB9)] = 0xFE
+
+        self.assertEqual(assets._chest_records(3, 2), ((0, 0xFE),))
+
+    def test_non_special_high_chest_value_decodes_gold_amount(self) -> None:
+        assets = DragonWarrior4RomAssets.__new__(DragonWarrior4RomAssets)
+        assets._prg_offset = PRG_OFFSET
+        assets._data = synthetic_rom()
+        descriptor = AreaMapDescriptor(3, 2, 0, 1, 1, 9, 0)
         assets._descriptor_by_key = {descriptor.key: descriptor}
         assets._hidden_treasures = ()
         graphics = AreaGraphics(
@@ -339,21 +411,35 @@ class RomAtlasTests(unittest.TestCase):
             (0x04,),
             (0,),
         )
-        assets._area_layout = Mock(return_value=(((0, 0),), graphics))
-        records = (
-            TreasureRecord(1, 3, 2, "Top chest", "Small Medal"),
-            TreasureRecord(2, 3, 2, "Bottom chest", "Aeolus' Shield"),
-        )
+        assets._area_layout = Mock(return_value=(((0,),), graphics))
+        directory = cpu_offset(0x1E, 0xBDC2)
+        assets._data[directory:directory + 4] = bytes((3, 2, 1, 0xFF))
+        assets._data[cpu_offset(0x1E, 0xBEB9)] = 0x82
 
-        overlay = assets.feature_overlay(3, 2, records, bytes(27))
+        overlay = assets.feature_overlay(3, 2)
 
-        self.assertIsNotNone(overlay)
-        self.assertEqual(len(overlay.waypoints), 2)
-        self.assertTrue(all("exact chest positions are not mapped" in point.detail for point in overlay.waypoints))
-        self.assertTrue(all("Small Medal" in point.detail for point in overlay.waypoints))
-        self.assertTrue(all("Aeolus' Shield" in point.detail for point in overlay.waypoints))
+        self.assertEqual(overlay.waypoints[0].title, "80 Gold")
 
-    def test_hidden_tables_give_exact_drawer_search_and_scripted_positions(self) -> None:
+    def test_chest_records_aliases_the_next_state_variant(self) -> None:
+        assets = DragonWarrior4RomAssets.__new__(DragonWarrior4RomAssets)
+        assets._prg_offset = PRG_OFFSET
+        assets._data = synthetic_rom()
+        directory = cpu_offset(0x1E, 0xBDC2)
+        assets._data[directory:directory + 4] = bytes((3, 2, 1, 0xFF))
+        assets._data[cpu_offset(0x1E, 0xBEB9)] = 0xFE
+
+        self.assertEqual(assets._chest_records(3, 1), ((0, 0xFE),))
+
+    def test_chest_records_returns_empty_after_fixed_directory(self) -> None:
+        assets = DragonWarrior4RomAssets.__new__(DragonWarrior4RomAssets)
+        assets._prg_offset = PRG_OFFSET
+        assets._data = synthetic_rom()
+        directory = cpu_offset(0x1E, 0xBDC2)
+        assets._data[directory:directory + 82 * 3] = bytes(82 * 3)
+
+        self.assertEqual(assets._chest_records(7, 7), ())
+
+    def test_hidden_tables_keep_only_direct_furniture_and_search_items(self) -> None:
         data = synthetic_rom()
         furniture = cpu_offset(0x1E, 0xBCED)
         data[furniture:furniture + 8] = bytes(
@@ -365,12 +451,6 @@ class RomAtlasTests(unittest.TestCase):
         )
         items = cpu_offset(0x1E, 0xBDB3)
         data[items + 3] = ITEM_NAMES.index("Small Medal")
-        records = (
-            TreasureRecord(190, 0x02, 0x00, "Burland - drawer #4", "Medical Herb"),
-            TreasureRecord(168, 0x0D, 0x00, "Mintos - left of well, search", "Small Medal"),
-            TreasureRecord(210, 0x20, 0x00, "Woodsman's Shack - left pot", "Leather Armor"),
-            TreasureRecord(5, 0x02, 0x00, "Burland - left chest", "Copper Sword"),
-        )
         with tempfile.TemporaryDirectory() as directory:
             path = Path(directory) / "dw4.nes"
             path.write_bytes(data)
@@ -382,7 +462,7 @@ class RomAtlasTests(unittest.TestCase):
                     discard_world_renderer,
                 )
 
-            hidden = assets.hidden_treasures(records)
+            hidden = assets.hidden_treasures()
 
         self.assertEqual(
             tuple(
@@ -390,11 +470,31 @@ class RomAtlasTests(unittest.TestCase):
                 for item in hidden
             ),
             (
-                (0x02, 29, 26, 190, "Medical Herb", "Burland - drawer #4"),
-                (0x0D, 8, 20, 172, "Small Medal", "Mintos - left of well, search"),
-                (0x20, 4, 6, 210, "Leather Armor", "Woodsman's Shack - left pot"),
+                (0x02, 29, 26, 190, "Medical Herb", "ROM furniture record at (29,26)"),
+                (0x0D, 8, 20, 172, "Small Medal", "ROM search record at (8,20)"),
             ),
         )
+
+    def test_search_table_decodes_high_bit_amount_as_gold(self) -> None:
+        data = synthetic_rom()
+        data[cpu_offset(0x1E, 0xBCED)] = 0xFF
+        search = cpu_offset(0x1E, 0xBF59)
+        data[search:search + 6] = bytes((0x0D, 0x00, 8, 20, 0xA7, 0xFF))
+        data[cpu_offset(0x1E, 0xBDB3) + 7] = 0x82
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "dw4.nes"
+            path.write_bytes(data)
+            with patch("game.rom_assets._rom_region", return_value="US"):
+                assets = DragonWarrior4RomAssets(
+                    path,
+                    Path(directory),
+                    discard_area_renderer,
+                    discard_world_renderer,
+                )
+
+            hidden = assets.hidden_treasures()
+
+        self.assertEqual(hidden[0].reward, "80 Gold")
 
     def test_hidden_tables_are_ignored_for_non_us_layouts(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
@@ -428,19 +528,21 @@ class RomAtlasTests(unittest.TestCase):
         assets._area_layout = Mock(return_value=(((0,),), graphics))
         flags = bytearray(27)
 
-        available = assets.feature_overlay(2, 1, (), bytes(flags))
+        available = assets.feature_overlay(2, 1, bytes(flags))
         flags[23] = 0x40
-        looted = assets.feature_overlay(2, 1, (), bytes(flags))
+        looted = assets.feature_overlay(2, 1, bytes(flags))
 
         point = available.waypoints[0]
-        self.assertEqual((point.title, point.kind, point.marker), ("Medical Herb", "collectibles", "item"))
+        self.assertEqual((point.title, point.kind, point.marker), ("Medical Herb", "collectibles", "drawer"))
         self.assertTrue(point.detail.startswith("In a drawer · Available"))
         self.assertFalse(point.completed)
         self.assertTrue(looted.waypoints[0].completed)
 
-    def test_feature_overlay_distinguishes_entrances_services_and_locks(self) -> None:
+    def test_feature_overlay_distinguishes_entrances_and_locks(self) -> None:
         assets = DragonWarrior4RomAssets.__new__(DragonWarrior4RomAssets)
-        descriptor = AreaMapDescriptor(3, 1, 0, 3, 1, 9, 0)
+        assets._prg_offset = PRG_OFFSET
+        assets._data = synthetic_rom()
+        descriptor = AreaMapDescriptor(3, 1, 0, 10, 1, 9, 0)
         assets._descriptor_by_key = {descriptor.key: descriptor}
         assets._hidden_treasures = ()
         graphics = AreaGraphics(
@@ -448,10 +550,12 @@ class RomAtlasTests(unittest.TestCase):
             (0,),
             (bytes(16),),
             (0,) * 12,
-            (0x06, 0x31, 0x95),
+            (0x04, 0x06, 0x07, 0x08, 0x09, 0x0A, 0x0C, 0x31, 0x95, 0x96),
             (0,),
         )
-        assets._area_layout = Mock(return_value=(((0, 1, 2),), graphics))
+        assets._area_layout = Mock(
+            return_value=(((0, 1, 2, 3, 4, 5, 6, 7, 8, 9),), graphics)
+        )
 
         overlay = assets.feature_overlay(3, 1)
 
@@ -459,9 +563,15 @@ class RomAtlasTests(unittest.TestCase):
         self.assertEqual(
             tuple((point.kind, point.marker) for point in overlay.waypoints),
             (
-                ("entrance", "entrance"),
-                ("services", "service"),
-                ("locks", "lock"),
+                ("collectibles", "chest"),
+                ("entrance", "exit"),
+                ("entrance", "exit"),
+                ("entrance", "stairs-up"),
+                ("entrance", "stairs-down"),
+                ("entrance", "travel-door"),
+                ("entrance", "exit"),
+                ("locks", "thief-door"),
+                ("locks", "magic-door"),
             ),
         )
 
@@ -474,6 +584,11 @@ class RomAtlasTests(unittest.TestCase):
             table = cpu_offset(0x0B, 0xAB65)
             for row in range(64):
                 data[table + row * 4:table + row * 4 + 4] = bytes((0x00, 0x80, 2, 2))
+            underworld_table = cpu_offset(0x0B, 0xAE89)
+            for row in range(54):
+                data[
+                    underworld_table + row * 4:underworld_table + row * 4 + 4
+                ] = bytes((0x00, 0x80, 2, 2))
             rom = root / "dw4.nes"
             rom.write_bytes(data)
             renderer = Mock()
@@ -484,17 +599,33 @@ class RomAtlasTests(unittest.TestCase):
                 renderer,
             )
             overworld_graphics = object()
+            overworld_graphics = AreaGraphics(
+                ((0, 0, 0, 0),),
+                (0,),
+                (bytes(16),),
+                (0,) * 12,
+                (0,),
+                (0,),
+            )
             assets._area_graphics = Mock(return_value=overworld_graphics)
+            assets._data = bytearray(assets._data)
+            palette = cpu_offset(0x1E, 0xA2E3)
+            assets._data[palette:palette + 12] = bytes(range(12))
+            assets._data[palette + 8 * 12:palette + 9 * 12] = bytes(range(12, 24))
 
             assets.render_world_map("gottside")
 
             rows, graphics, _ = renderer.call_args.args
             self.assertEqual(len(rows), 64)
             self.assertEqual(rows[0], (0,) * 64)
-            self.assertIs(graphics, overworld_graphics)
+            self.assertEqual(graphics.palette, tuple(range(12)))
             descriptor = assets._area_graphics.call_args.args[0]
             self.assertEqual(descriptor.tileset, 0)
             self.assertEqual(WORLD_MAP_SPECS["gottside"][6], 16)
+
+            assets.render_world_map("underworld")
+            underworld_graphics = renderer.call_args.args[1]
+            self.assertEqual(underworld_graphics.palette, tuple(range(12, 24)))
 
 
 class RendererTests(unittest.TestCase):

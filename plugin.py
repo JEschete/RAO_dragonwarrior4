@@ -24,9 +24,7 @@ class Plugin:
                     "entrance",
                     "services",
                     "locks",
-                    "connections",
-                    "npcs",
-                    "encounters",
+                    "entities",
                 ),
             )
             if assets is not None

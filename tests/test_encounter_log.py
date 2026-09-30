@@ -14,7 +14,7 @@ def game_state(*, hp: int = 40, gold: int = 100, experience: int = 200):
     ram[0x58F] = 0x10
     ram[0x63] = 4
     wram = bytearray(0x300)
-    wram[0x16A] = 0
+    wram[0x16A] = 0x80
     wram[1] = 0x80 if hp else 0
     wram[2:4] = hp.to_bytes(2, "little")
     wram[6] = 8

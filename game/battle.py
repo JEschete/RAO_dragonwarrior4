@@ -8,10 +8,10 @@ from .reference_data import decode_text
 
 
 BATTLE_MEMORY_ADDRESS = 0x7200
-BATTLE_MEMORY_SIZE = 0xA0
+BATTLE_MEMORY_SIZE = 0xE4
 BATTLE_TEXT_ADDRESS = 0x06AA
 BATTLE_TEXT_SIZE = 0xC2
-ENEMY_RECORD_OFFSETS = (0x74, 0x82, 0x90)
+ENEMY_RECORD_OFFSETS = tuple(range(0x74, BATTLE_MEMORY_SIZE, 0x0E))
 _APPEARANCE_PATTERN = re.compile(r"([A-Z][A-Za-z' -]*?) appears[.!]")
 
 
@@ -32,7 +32,7 @@ class BattleEnemyState:
     def label(self) -> str:
         if self.name:
             return self.name
-        return f"Enemy group {self.slot + 1}"
+        return f"Enemy slot {self.slot + 1}"
 
     @property
     def coherent(self) -> bool:
@@ -86,16 +86,17 @@ def read_battle_state(
         raise ValueError("DW4 system RAM is incomplete for battle decoding")
     if len(battle_memory) < BATTLE_MEMORY_SIZE:
         raise ValueError("DW4 battle memory snapshot is incomplete")
-    monster_ids: tuple[int | None, ...] = (
-        None if ram[0x440] == 0xFF else ram[0x440],
-        None if ram[0x441] == 0xFF else ram[0x441],
-        None,
-    )
-    enemies = tuple(
-        BattleEnemyState(
+    monster_groups = battle_memory[0x06:0x0A]
+    enemies = []
+    for slot, offset in enumerate(ENEMY_RECORD_OFFSETS):
+        group_code = battle_memory[offset + 0x0D]
+        raw_monster_id = monster_groups[group_code & 0x03]
+        monster_id = None if raw_monster_id == 0xFF else raw_monster_id
+        enemies.append(
+            BattleEnemyState(
             slot,
-            monster_ids[slot],
-            battle_memory[offset + 0x0D],
+            monster_id,
+            group_code,
             int.from_bytes(battle_memory[offset + 0x0A:offset + 0x0C], "little"),
             battle_memory[offset + 0x0C],
             battle_memory[offset],
@@ -103,22 +104,22 @@ def read_battle_state(
             battle_memory[offset + 3],
             battle_memory[offset + 6],
             (
-                monster_name(monster_ids[slot])
-                if monster_name is not None and monster_ids[slot] is not None
+                monster_name(monster_id)
+                if monster_name is not None and monster_id is not None
                 else None
             ),
+            )
         )
-        for slot, offset in enumerate(ENEMY_RECORD_OFFSETS)
-    )
-    active = any(enemy.coherent for enemy in enemies)
+    enemy_states = tuple(enemies)
+    active = any(enemy.coherent for enemy in enemy_states)
     return BattleState(
         True,
         active,
         int.from_bytes(battle_memory[1:3], "little"),
         int.from_bytes(battle_memory[3:6], "little"),
-        enemies,
+        enemy_states,
         (
-            "Conservative detector: at least one documented enemy slot has "
+            "Conservative detector: at least one verified enemy record has "
             "positive HP and nonzero combat stats"
         ),
     )

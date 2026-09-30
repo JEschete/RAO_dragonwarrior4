@@ -27,9 +27,11 @@ def test_decodes_documented_enemy_slots_and_rewards() -> None:
     ram = bytearray(0x800)
     ram[0x440:0x442] = bytes((0x12, 0x34))
     battle = bytearray(BATTLE_MEMORY_SIZE)
+    battle[6:10] = bytes((0x12, 0x34, 0xFF, 0xFF))
     battle[1:3] = (25).to_bytes(2, "little")
     battle[3:6] = (300).to_bytes(3, "little")
-    battle[0x74:0x82] = bytes((8, 14, 0, 11, 0, 0, 2, 0, 0, 0, 45, 0, 6, 1))
+    battle[0x74:0x82] = bytes((8, 14, 0, 11, 0, 0, 2, 0, 0, 0, 45, 0, 6, 0))
+    battle[0x82:0x90] = bytes((9, 15, 0, 12, 0, 0, 2, 0, 0, 0, 46, 0, 7, 1))
 
     state = read_battle_state(
         bytes(ram),
@@ -41,12 +43,15 @@ def test_decodes_documented_enemy_slots_and_rewards() -> None:
     assert state.active
     assert state.reward_gold == 25
     assert state.reward_experience == 300
+    assert len(state.enemies) == 8
     assert state.enemies[0].monster_id == 0x12
     assert state.enemies[0].label == "Slime"
     assert state.enemies[0].hp == 45
     assert state.enemies[0].mp == 6
     assert state.enemies[0].attack == 14
     assert state.enemies[0].defense == 11
+    assert state.enemies[1].monster_id == 0x34
+    assert state.enemies[1].group_code == 1
 
 
 def test_observes_monster_names_from_complete_battle_introduction() -> None:
@@ -83,18 +88,20 @@ def test_unresolved_monster_id_is_not_shown_as_hex() -> None:
     ram = bytearray(0x800)
     ram[0x440] = 0x03
     battle = bytearray(BATTLE_MEMORY_SIZE)
+    battle[6:10] = bytes((0x03, 0xFF, 0xFF, 0xFF))
     battle[0x74:0x82] = bytes((8, 14, 0, 11, 0, 0, 2, 0, 0, 0, 45, 0, 6, 1))
 
     state = read_battle_state(bytes(ram), bytes(battle))
 
-    assert state.enemies[0].label == "Enemy group 1"
+    assert state.enemies[0].label == "Enemy slot 1"
 
 
 def test_zero_is_a_valid_monster_id() -> None:
     ram = bytearray(0x800)
     ram[0x440:0x442] = bytes((0x00, 0xFF))
     battle = bytearray(BATTLE_MEMORY_SIZE)
-    battle[0x74:0x82] = bytes((8, 14, 0, 11, 0, 0, 2, 0, 0, 0, 8, 0, 0, 1))
+    battle[6:10] = bytes((0x00, 0xFF, 0xFF, 0xFF))
+    battle[0x74:0x82] = bytes((8, 14, 0, 11, 0, 0, 2, 0, 0, 0, 8, 0, 0, 0))
 
     state = read_battle_state(
         bytes(ram),

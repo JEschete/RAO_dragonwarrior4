@@ -3,7 +3,7 @@ from pathlib import Path
 
 from retroarch_overlay.core.contracts import GameContext
 from retroarch_overlay.core.retroachievements import RAProgress
-from retroarch_overlay.models import MapOverlay, MapWaypoint, RetroArchStatus
+from retroarch_overlay.models import RetroArchStatus
 
 from game.adapter import Adapter
 from game.battle import BATTLE_MEMORY_SIZE, BATTLE_TEXT_ADDRESS
@@ -14,10 +14,17 @@ ROOT = Path(__file__).parents[1]
 
 
 class FakeMemory:
-    def __init__(self, ram: bytes, wram: bytes, battle: bytes | None = None) -> None:
+    def __init__(
+        self,
+        ram: bytes,
+        wram: bytes,
+        battle: bytes | None = None,
+        entities: bytes | None = None,
+    ) -> None:
         self.ram = ram
         self.wram = wram
         self.battle = battle
+        self.entities = entities
 
     def read_memory(self, address: int, size: int) -> bytes:
         if 0 <= address < len(self.ram):
@@ -26,6 +33,8 @@ class FakeMemory:
             return self.wram[:size]
         if address == 0x7200 and self.battle is not None:
             return self.battle[:size]
+        if address == 0x6F60 and self.entities is not None:
+            return self.entities[:size]
         raise RuntimeError(f"Unexpected read at {address:#x}")
 
 
@@ -52,7 +61,7 @@ def memory() -> FakeMemory:
     ram[0x44:0x46] = bytes((12, 9))
     wram = bytearray(0x300)
     wram[0x15A:0x15C] = bytes((4, 2))
-    wram[0x16A:0x16E] = bytes((0, 7, 1, 7))
+    wram[0x16A:0x16E] = bytes((0x80, 0x87, 0x81, 0))
     wram[1] = 0x80
     wram[2:4] = (40).to_bytes(2, "little")
     wram[13:15] = (50).to_bytes(2, "little")
@@ -98,11 +107,8 @@ def test_snapshot_has_unique_shared_qt_roles_and_identities(tmp_path: Path) -> N
     assert {section.key: section.role for section in snapshot.sections} == {
         "journey": "goals",
         "party": "party",
-        "nearby-features": "area",
         "combat-log": "goals",
         "retroachievements": "goals",
-        "dialogue-journal": "area",
-        "atlas-confidence": "area",
     }
     assert all(section.compact_rows or section.rows for section in snapshot.sections)
 
@@ -120,7 +126,6 @@ def test_content_lifecycle_resets_session_services(tmp_path: Path) -> None:
     adapter.deactivate()
     assert adapter.playthrough_id == ""
     assert adapter._last_ram is None
-    assert adapter.dialogue_journal.path is None
 
     adapter.activate(("nes", "Dragon Warrior IV", "rom-hash"))
     adapter.snapshot(memory())
@@ -145,15 +150,12 @@ def test_snapshot_composes_live_floor_party_and_reference_sections(tmp_path: Pat
     assert tuple(section.title for section in snapshot.sections) == (
         "Journey",
         "Party",
-        "Nearby features",
         "Combat log",
         "RetroAchievements",
-        "Dialogue journal",
-        "Atlas & memory",
     )
     journey = snapshot.sections[0]
     assert any(row.text.startswith("Gold 0 · Casino coins 0") for row in journey.rows)
-    assert [action.key for action in journey.actions] == ["return-list"]
+    assert journey.actions == ()
     assert "Lv" in snapshot.sections[1].rows[0].text
     party_action = snapshot.sections[1].actions[0]
     assert party_action.title == "Party Equipment, Stats, and Spells"
@@ -184,34 +186,6 @@ def test_snapshot_presents_retroachievements_progress(tmp_path: Path) -> None:
     assert section.actions[0].rows[0].caught is True
 
 
-def test_dialogue_journal_records_and_appears_in_overlay(tmp_path: Path) -> None:
-    context = GameContext(
-        settings={},
-        repository_root=ROOT,
-        state_directory=tmp_path,
-    )
-    game_memory = memory()
-    ram = bytearray(game_memory.ram)
-    ram[0x6AA:0x6AF] = bytes((0x2C, 0x0F, 0x16, 0x16, 0x19))
-    game_memory.ram = bytes(ram)
-    adapter = Adapter(context)
-
-    on_screen = adapter.snapshot(game_memory)
-    ram[0x6AA:0x6AF] = bytes(5)
-    game_memory.ram = bytes(ram)
-    after = adapter.snapshot(game_memory)
-
-    assert adapter.dialogue_journal.entries[0].text == "Hello"
-    assert adapter.dialogue_journal.path is not None
-    assert adapter.dialogue_journal.path.is_file()
-    assert adapter.dialogue_journal.path.parent.parent == tmp_path / "playthroughs"
-    journal = {section.key: section for section in on_screen.sections}["dialogue-journal"]
-    assert journal.rows[0].text == "Hello"
-    journal = {section.key: section for section in after.sections}["dialogue-journal"]
-    assert journal.rows[0].text == "No dialogue on screen"
-    assert journal.actions[0].rows[0].text.endswith(": Hello")
-
-
 def test_adapter_checkpoints_combat_after_one_coherent_sample(tmp_path: Path) -> None:
     context = GameContext(
         settings={},
@@ -219,6 +193,7 @@ def test_adapter_checkpoints_combat_after_one_coherent_sample(tmp_path: Path) ->
         state_directory=tmp_path,
     )
     battle = bytearray(BATTLE_MEMORY_SIZE)
+    battle[7] = 0x03
     battle[0x74:0x82] = bytes((8, 14, 0, 11, 0, 0, 2, 0, 0, 0, 45, 0, 6, 1))
     game_memory = memory()
     game_memory.battle = bytes(battle)
@@ -247,6 +222,7 @@ def test_snapshot_resolves_monster_name_from_battle_introduction(tmp_path: Path)
     ram[BATTLE_TEXT_ADDRESS:BATTLE_TEXT_ADDRESS + len(introduction)] = introduction
     game_memory.ram = bytes(ram)
     battle = bytearray(BATTLE_MEMORY_SIZE)
+    battle[7] = 0x03
     battle[0x74:0x82] = bytes((8, 14, 0, 11, 0, 0, 2, 0, 0, 0, 45, 0, 6, 1))
     game_memory.battle = bytes(battle)
 
@@ -291,6 +267,7 @@ def test_high_frequency_capture_records_flow_between_snapshots(tmp_path: Path) -
     adapter = Adapter(context)
     adapter.snapshot(game_memory)
     battle = bytearray(BATTLE_MEMORY_SIZE)
+    battle[7] = 0x03
     battle[0x74:0x82] = bytes((8, 14, 0, 11, 0, 0, 2, 0, 0, 0, 45, 0, 6, 1))
     game_memory.battle = bytes(battle)
     ram = bytearray(game_memory.ram)
@@ -355,32 +332,36 @@ def test_outdoor_location_uses_main_world_layer(tmp_path: Path) -> None:
     assert snapshot.map_position is not None
     assert snapshot.map_position.area == "World"
     assert snapshot.map_position.is_world
-    nearby = {section.key: section for section in snapshot.sections}["nearby-features"]
-    assert nearby.rows[0].text == "Outdoor features are not mapped"
 
 
-def test_nearby_features_are_sorted_by_distance_with_direction() -> None:
-    adapter = Adapter(GameContext(settings={}, repository_root=ROOT))
-    state = read_state(memory().ram, memory().wram)
-    overlay = MapOverlay(
-        "area-04-06",
-        (
-            MapWaypoint(20, 9, "Far chest", "Available", "collectibles"),
-            MapWaypoint(12, 7, "Stairs", "ROM tile behavior $08", "entrance"),
-            MapWaypoint(13, 9, "Villager", "Observed dialogue", "npcs"),
-            MapWaypoint(11, 10, "Looted chest", "Looted", "collectibles", True),
-        ),
+def test_snapshot_maps_only_visible_live_entities(tmp_path: Path) -> None:
+    context = GameContext(settings={}, repository_root=ROOT, state_directory=tmp_path)
+    game_memory = memory()
+    entities = bytearray(0x1A0)
+    entities[0xC6:0xE0] = bytes((0xFF,)) * 26
+    entities[0xC6] = 0x12
+    entities[0xC8] = 0x83
+    entities[6] = 11
+    entities[8] = 22
+    entities[0x26] = 7
+    entities[0x28] = 9
+    entities[0x86] = 0x2A
+    entities[0xE6] = 0x11
+    entities[0x186] = 0x40
+    game_memory.entities = bytes(entities)
+
+    snapshot = Adapter(context).snapshot(game_memory)
+
+    entity_overlay = next(
+        overlay for overlay in snapshot.map_overlays if overlay.layer_key == "area-04-06"
     )
-
-    section = adapter._nearby_section(state, (overlay,))
-
-    assert [row.text for row in section.rows] == [
-        "Looted chest · (11,10) · 2 south-west",
-        "Stairs · (12,7) · 2 north",
-        "Far chest · (20,9) · 8 east",
-    ]
-    assert section.rows[0].caught is True
-    assert section.compact_rows[0].text.startswith("3 features · nearest: Looted chest")
+    entity = next(point for point in entity_overlay.waypoints if point.kind == "entities")
+    assert (entity.x, entity.y, entity.marker) == (11, 7, "map-entity:1")
+    assert "facing $2A" in entity.detail
+    assert {(point.x, point.y) for point in entity_overlay.waypoints} == {
+        (11, 7),
+        (22, 9),
+    }
 
 
 def test_combat_log_section_summarizes_recorded_battles(tmp_path: Path) -> None:

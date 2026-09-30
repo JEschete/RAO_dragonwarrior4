@@ -21,14 +21,12 @@ def test_reads_us_location_party_and_persistent_progress() -> None:
     wram[0x157:0x15A] = (12345).to_bytes(3, "little")
     wram[0x15A:0x15C] = bytes((4, 2))
     wram[0x15D:0x165] = bytes((0x2E, 0x1F, 0x0E, 0x0F, 0xFF, 0, 0, 0))
-    wram[0x16A:0x16E] = bytes((0, 7, 1, 7))
-    wram[0x165] = 0b00000011
+    wram[0x16A:0x16E] = bytes((0x80, 0x87, 0x81, 0x06))
     wram[0x25D] = 0b10110000
     wram[0x28E] = 0b00000011
     wram[0x2A2] = 17
     wram[0x2AD:0x2B0] = (54321).to_bytes(3, "little")
     wram[0x2ED] = 0x84
-    wram[0x2E7:0x2EA] = bytes((3, 2, 1))
     hero = 1
     wram[hero] = 0xA0
     wram[hero + 1:hero + 3] = (51).to_bytes(2, "little")
@@ -57,16 +55,10 @@ def test_reads_us_location_party_and_persistent_progress() -> None:
     assert state.gold == 12345
     assert state.casino_coins == 54321
     assert state.time_name == "Night"
-    assert state.return_locations == ("Branca", "Endor")
     assert state.treasure_flags[0] == 0b10110000
     assert state.treasure_opened == 3
     assert state.has_boat and state.has_balloon
     assert state.small_medals == 17
-    assert state.taloon_shop_stock == (
-        ("Boomerang", 3),
-        ("Chain Sickle", 2),
-        ("Sword of Malice", 1),
-    )
     assert tuple(character.character_id for character in state.characters if character.active) == (0, 1, 7)
     assert state.characters[0].name == "Jude"
     assert state.characters[0].hp == 51
@@ -121,7 +113,27 @@ def test_us_overworld_is_detected_from_empty_tileset_despite_stale_town_id() -> 
     assert state.location.is_world
     assert state.location.title == "Main World"
     assert (state.location.x, state.location.y) == (154, 23)
-    assert "tileset" in state.location.evidence
+    assert "selector" in state.location.evidence
+
+
+def test_us_world_selector_chooses_gottside_and_underworld_layers() -> None:
+    ram = bytearray(0x800)
+    ram[0x58F] = 0x10
+    ram[0x28] = 0
+
+    ram[0x65] = 1
+    gottside = read_state(bytes(ram), bytes(0x300))
+    ram[0x65] = 3
+    underworld = read_state(bytes(ram), bytes(0x300))
+
+    assert (gottside.location.title, gottside.location.area) == (
+        "Gottside",
+        "Gottside",
+    )
+    assert (underworld.location.title, underworld.location.area) == (
+        "Underworld",
+        "Underworld",
+    )
 
 
 def test_us_indoor_location_never_uses_japanese_map_id_note() -> None:

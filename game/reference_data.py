@@ -542,7 +542,7 @@ TILE_BEHAVIORS = {
     0x12: "Down arrow",
     0x13: "Left arrow",
     0x24: "Opened big door",
-    0x31: "Healing tile",
+    0x31: "Movement-effect tile",
     0x80: "Wall",
     0x83: "Water",
     0x94: "Unlocked door",

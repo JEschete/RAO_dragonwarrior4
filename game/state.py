@@ -6,7 +6,6 @@ from typing import Protocol
 from .reference_data import (
     CHAPTERS,
     PARTY_NAMES,
-    RETURN_LOCATIONS,
     SpellDefinition,
     TACTICS,
     decode_text,
@@ -23,6 +22,11 @@ RAM_SIZE = 0x0800
 US_TILESET_ADDRESS = 0x0028
 WRAM_ADDRESS = 0x6000
 WRAM_SIZE = 0x0300
+WORLD_LOCATIONS = {
+    0: ("Main World", "World"),
+    1: ("Gottside", "Gottside"),
+    3: ("Underworld", "Underworld"),
+}
 
 
 class AreaCatalog(Protocol):
@@ -88,15 +92,12 @@ class DragonWarrior4State:
     time_value: int
     time_name: str
     characters: tuple[CharacterState, ...]
-    return_locations: tuple[str, ...]
     treasure_flags: bytes
     treasure_opened: int
     treasure_total: int
     has_boat: bool
     has_balloon: bool
     small_medals: int
-    taloon_shop_stock: tuple[tuple[str, int], ...]
-    dialogue: str
 
 
 def read_state(
@@ -120,7 +121,6 @@ def read_state(
     tactics = wram[0x15B]
     treasure = wram[0x25D:0x278]
     time_value = wram[0x2ED]
-    return_flags = int.from_bytes(wram[0x165:0x168], "little")
     return DragonWarrior4State(
         _location(ram, assets, submap_names),
         chapter,
@@ -132,30 +132,21 @@ def read_state(
         time_value,
         time_of_day(time_value),
         characters,
-        tuple(
-            name
-            for index, name in enumerate(RETURN_LOCATIONS)
-            if return_flags & (1 << index)
-        ),
         bytes(treasure),
         sum(value.bit_count() for value in treasure),
         len(treasure) * 8,
         bool(wram[0x28E] & 0x01),
         bool(wram[0x28E] & 0x02),
         wram[0x2A2],
-        (
-            ("Boomerang", wram[0x2E7]),
-            ("Chain Sickle", wram[0x2E8]),
-            ("Sword of Malice", wram[0x2E9]),
-        ),
-        decode_text(ram[0x6AA:0x76C]),
     )
 
 
 def _party_ids(wram: bytes) -> tuple[int, ...]:
     result = []
     for value in wram[0x16A:0x16E]:
-        character_id = value & 0x7F
+        if not value & 0x80:
+            continue
+        character_id = value & 0x1F
         if character_id < len(PARTY_NAMES) and character_id not in result:
             result.append(character_id)
     return tuple(result)
@@ -226,9 +217,14 @@ def _location(
         # Burland Castle $0D, overworld $00). Indoor maps use tilesets 1-50, and
         # $0063/$0064 keep a stale town ID while walking the overworld.
         if ram[US_TILESET_ADDRESS] == 0:
+            world_selector = ram[0x65]
+            title, area = WORLD_LOCATIONS.get(
+                world_selector,
+                WORLD_LOCATIONS[0],
+            )
             return LocationState(
-                "Main World",
-                "World",
+                title,
+                area,
                 ram[0x63],
                 ram[0x64],
                 ram[0x42],
@@ -236,7 +232,7 @@ def _location(
                 True,
                 -1,
                 memory_region,
-                "Overworld: loaded tileset $0028 is $00",
+                f"Overworld selector $0065 is ${world_selector:02X}",
             )
         candidates = (us_candidate,)
     elif memory_region == "Japan":

@@ -15,7 +15,7 @@ def _state(*, hp: int = 40, gold: int = 100, experience: int = 200):
     ram[0x58F] = 0x10
     ram[0x63] = 4
     wram = bytearray(0x300)
-    wram[0x16A] = 0
+    wram[0x16A] = 0x80
     wram[1] = 0x80 if hp else 0
     wram[2:4] = hp.to_bytes(2, "little")
     wram[6] = 8
@@ -72,7 +72,7 @@ def test_tracks_outcomes_and_unidentified_groups(tmp_path) -> None:
         _state(hp=0),
         now=NOW + timedelta(seconds=1),
     )[0]
-    unknown_enemy = replace(defeated.enemies[0], monster_id=None, label="Enemy group 1")
+    unknown_enemy = replace(defeated.enemies[0], monster_id=None, label="Enemy slot 1")
     escaped = replace(
         defeated,
         encounter_id="second",

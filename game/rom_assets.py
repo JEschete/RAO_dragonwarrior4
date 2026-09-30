@@ -10,7 +10,7 @@ from typing import Callable
 
 from retroarch_overlay.models import MapLayer, MapOverlay, MapWaypoint
 
-from .reference_data import TILE_BEHAVIORS, TreasureRecord, item_name, map_title
+from .reference_data import TILE_BEHAVIORS, item_name, map_title
 
 
 MAX_MAP_DIMENSION = 128
@@ -18,6 +18,11 @@ MAX_DECODE_OPERATIONS = 1_000_000
 MAP_COUNT = 0x49
 MAP_INFO_POINTER_BANK = 0x17
 MAP_INFO_POINTER_ADDRESS = 0xB08D
+MAP_ROUTING_BANK = 0x08
+MAP_ROUTING_ADDRESS = 0xB7F9
+WORLD_POSITION_BANK = 0x0E
+WORLD_POSITION_ADDRESS = 0xBE0B
+WORLD_POSITION_LIMIT = 100
 TILESET_BANK = 0x08
 TILESET_ADDRESS = 0x8ADB
 TILESET_COUNT = 51
@@ -49,14 +54,38 @@ HIDDEN_TABLE_BANK = 0x1E
 FURNITURE_TABLE_ADDRESS = 0xBCED
 SEARCH_TABLE_ADDRESS = 0xBF59
 SEARCH_ITEM_TABLE_ADDRESS = 0xBDB3
+CHEST_DIRECTORY_ADDRESS = 0xBDC2
+CHEST_VALUE_ADDRESS = 0xBEB9
+CHEST_DIRECTORY_LIMIT = 82
+SPECIAL_CHEST_VALUES = frozenset((0xFF, 0xFE, 0xFD, 0xEF, 0xEE, 0xE3, 0xE2, 0xE0))
 FURNITURE_FLAG_BYTE = 22
 SEARCH_FLAG_BYTE = 21
 HIDDEN_TABLE_LIMIT = 64
-POSITION_WORDS = ("left", "middle", "right")
+WORLD_PALETTE_BANK = 0x1E
+WORLD_PALETTE_ADDRESS = 0xA2E3
+WORLD_PALETTE_SIZE = 12
 WORLD_MAP_SPECS = {
-    "world": ("Main World", "World", 0x0B, 0xA590, 256, 256, 16),
-    "gottside": ("Gottside", "Gottside", 0x0B, 0xAB65, 64, 64, 16),
-    "underworld": ("Underworld", "Underworld", 0x0B, 0xAE89, 64, 54, 16),
+    "world": ("Main World", "World", 0x0B, 0xA590, 256, 256, 16, 0),
+    "gottside": ("Gottside", "Gottside", 0x0B, 0xAB65, 64, 64, 16, 1),
+    "underworld": ("Underworld", "Underworld", 0x0B, 0xAE89, 64, 54, 16, 3),
+}
+WORLD_KEY_BY_SELECTOR = {0: "world", 1: "gottside", 3: "underworld"}
+WORLD_MARKER_BY_TILE = {
+    0x00: "water-location",
+    0x03: "settlement",
+    0x04: "special-location",
+    0x08: "tunnel",
+    0x0B: "cave",
+    0x0C: "shrine",
+    0x10: "town",
+    0x11: "tower",
+    0x12: "castle",
+}
+WORLD_MARKER_OVERRIDES = {
+    ("underworld", 0x07): "palace",
+    ("underworld", 0x12): "palace",
+    ("underworld", 0x1D): "lair",
+    ("underworld", 0x1E): "lair",
 }
 
 
@@ -92,6 +121,13 @@ def _extractor_version(*renderers: object) -> str:
 
 def area_key(map_id: int, submap: int) -> int:
     return (map_id << 8) | submap
+
+
+def _world_destination_marker(key: str, tile: int) -> str:
+    return WORLD_MARKER_OVERRIDES.get(
+        (key, tile),
+        WORLD_MARKER_BY_TILE.get(tile, "location"),
+    )
 
 
 @dataclass(frozen=True, slots=True)
@@ -274,62 +310,21 @@ def _hidden_reward(item_id: int) -> str:
     return "Hidden item" if name.startswith("Item $") else name
 
 
-def _scripted_hidden(
-    documented: tuple[TreasureRecord, ...],
-    found: list[HiddenTreasure],
-    spots: list[tuple[int, int, int, int]],
-) -> tuple[HiddenTreasure, ...]:
-    """Pairs scripted search spots with the documented items left on each floor.
+def _gold_reward(value: int) -> str:
+    return f"{(value & 0x7F) * 40:,} Gold"
 
-    Scripted handlers do not expose their item or flag in a table, so a floor is
-    resolved only when its unclaimed documented items match the spot count and,
-    for several spots, their left/middle/right wording orders them by column.
-    """
-    resolved = []
-    for floor in dict.fromkeys((map_id, submap) for map_id, submap, _, _ in spots):
-        positions = sorted(
-            (x, y) for map_id, submap, x, y in spots if (map_id, submap) == floor
-        )
-        claimed = {
-            treasure.reward
-            for treasure in found
-            if (treasure.map_id, treasure.submap) == floor
-        }
-        records = [
-            record
-            for record in documented
-            if (record.map_id, record.submap) == floor and record.reward not in claimed
-        ]
-        if not records or len(records) != len(positions):
-            continue
-        if len(records) > 1:
-            ranks = [
-                next(
-                    (
-                        rank
-                        for rank, word in enumerate(POSITION_WORDS)
-                        if f"{word} " in record.description.casefold()
-                    ),
-                    None,
-                )
-                for record in records
-            ]
-            if None in ranks or len(set(ranks)) != len(ranks):
-                continue
-            records = [record for _, record in sorted(zip(ranks, records))]
-        resolved.extend(
-            HiddenTreasure(
-                floor[0],
-                floor[1],
-                x,
-                y,
-                record.flag_index,
-                record.reward,
-                record.description,
-            )
-            for (x, y), record in zip(positions, records)
-        )
-    return tuple(resolved)
+
+def _chest_reward(value: int) -> tuple[str, str]:
+    if value < 0x80:
+        return item_name(value), ""
+    if value not in SPECIAL_CHEST_VALUES:
+        return _gold_reward(value), ""
+    return "Treasure chest", f" · ROM value ${value:02X}"
+
+
+def _msb_flag(flags: bytes, index: int) -> bool:
+    byte_index, bit = divmod(index, 8)
+    return byte_index < len(flags) and bool(flags[byte_index] & (0x80 >> bit))
 
 
 def decode_world_row(data: bytes, offset: int, width: int) -> tuple[int, ...]:
@@ -440,6 +435,7 @@ class DragonWarrior4RomAssets:
         return tuple(layers)
 
     def world_layers(self) -> tuple[MapLayer, ...]:
+        waypoints = self._world_destination_waypoints()
         return tuple(
             MapLayer(
                 key,
@@ -457,10 +453,67 @@ class DragonWarrior4RomAssets:
                 wrap_height=height,
                 anchor_x=tile_pixels // 2,
                 anchor_y=tile_pixels // 2,
+                waypoints=waypoints[key],
                 image_loader=lambda map_key=key: self.render_world_map(map_key),
             )
-            for key, (title, area, _, _, width, height, tile_pixels) in WORLD_MAP_SPECS.items()
+            for key, (
+                title,
+                area,
+                _,
+                _,
+                width,
+                height,
+                tile_pixels,
+                _,
+            ) in WORLD_MAP_SPECS.items()
         )
+
+    def _world_destination_waypoints(self) -> dict[str, tuple[MapWaypoint, ...]]:
+        routes = {}
+        address = MAP_ROUTING_ADDRESS
+        for _ in range(MAP_COUNT):
+            record = self._cpu_bytes(MAP_ROUTING_BANK, address, 5)
+            if record[0] == 0xFF:
+                break
+            routes[record[0]] = record
+            address += 5
+
+        points: dict[str, list[MapWaypoint]] = {
+            key: [] for key in WORLD_MAP_SPECS
+        }
+        rows: dict[str, tuple[tuple[int, ...], ...]] = {}
+        address = WORLD_POSITION_ADDRESS
+        for _ in range(WORLD_POSITION_LIMIT):
+            record = self._cpu_bytes(WORLD_POSITION_BANK, address, 3)
+            if record[0] == 0xFF:
+                break
+            map_id, x, y = record
+            route = routes.get(map_id)
+            if route is not None:
+                selector = (route[1] & 0x60) >> 5
+                key = WORLD_KEY_BY_SELECTOR.get(selector)
+                if key is not None:
+                    submap = route[1] & 0x1F
+                    if key not in rows:
+                        rows[key] = self._world_rows(key)
+                    tile = rows[key][y][x] & 0x1F
+                    points[key].append(
+                        MapWaypoint(
+                            x,
+                            y,
+                            map_title(map_id, submap, self._submap_names),
+                            (
+                                f"ROM world tile ${tile:02X} for map ${map_id:02X}; "
+                                f"local entry ({route[2]},{route[3]})"
+                            ),
+                            "entrance",
+                            marker=_world_destination_marker(key, tile),
+                        )
+                    )
+            address += 3
+        else:
+            raise ValueError("DW4 world destination table is unterminated")
+        return {key: tuple(values) for key, values in points.items()}
 
     def render_area_map(self, key: int) -> Path:
         descriptor = self._descriptor_by_key.get(key)
@@ -480,12 +533,45 @@ class DragonWarrior4RomAssets:
 
     def render_world_map(self, key: str) -> Path:
         try:
-            _, _, bank, pointer_table, width, height, _ = WORLD_MAP_SPECS[key]
+            _, _, bank, pointer_table, width, height, _, selector = WORLD_MAP_SPECS[key]
         except KeyError as error:
             raise ValueError(f"Unknown DW4 world map: {key}") from error
         output = self.cache_directory / "maps" / f"{key}.png"
         if output.is_file():
             return output
+        rows = self._world_rows(key)
+        base_graphics = self._area_graphics(
+            AreaMapDescriptor(
+                NO_PALETTE_OVERRIDE_MAP,
+                NO_PALETTE_OVERRIDE_MAP,
+                WORLD_TILESET,
+                width,
+                height,
+                bank,
+                pointer_table,
+            )
+        )
+        palette_offset = self._cpu_address(
+            WORLD_PALETTE_BANK,
+            WORLD_PALETTE_ADDRESS + (8 if selector == 3 else 0) * WORLD_PALETTE_SIZE,
+        )
+        graphics = AreaGraphics(
+            base_graphics.metatiles,
+            base_graphics.attributes,
+            base_graphics.patterns,
+            tuple(self._data[palette_offset:palette_offset + WORLD_PALETTE_SIZE]),
+            base_graphics.behaviors,
+            base_graphics.smoothing,
+        )
+        self._world_renderer(rows, graphics, output)
+        self._write_manifest()
+        return output
+
+    def _world_rows(self, key: str) -> tuple[tuple[int, ...], ...]:
+        try:
+            _, _, bank, pointer_table, width, height, _, _ = WORLD_MAP_SPECS[key]
+        except KeyError as error:
+            raise ValueError(f"Unknown DW4 world map: {key}") from error
         table = self._cpu_address(bank, pointer_table)
         rows = []
         for row in range(height):
@@ -500,47 +586,30 @@ class DragonWarrior4RomAssets:
                     width,
                 )
             )
-        graphics = self._area_graphics(
-            AreaMapDescriptor(
-                NO_PALETTE_OVERRIDE_MAP,
-                NO_PALETTE_OVERRIDE_MAP,
-                WORLD_TILESET,
-                width,
-                height,
-                bank,
-                pointer_table,
-            )
-        )
-        self._world_renderer(tuple(rows), graphics, output)
-        self._write_manifest()
-        return output
+        return tuple(rows)
 
     def feature_overlay(
         self,
         map_id: int,
         submap: int,
-        treasure_records: tuple[TreasureRecord, ...] = (),
         treasure_flags: bytes = b"",
     ) -> MapOverlay | None:
         descriptor = self.descriptor(map_id, submap)
         if descriptor is None:
             return None
         tiles, graphics = self._area_layout(descriptor)
-        floor_treasures = tuple(
-            record
-            for record in treasure_records
-            if (record.map_id, record.submap) == (map_id, submap)
-            and record.container == "chest"
-        )
         chest_positions = tuple(
             (x, y)
             for y, row in enumerate(tiles)
             for x, encoded_tile in enumerate(row)
             if graphics.behaviors[encoded_tile & 0x1F] == 0x04
         )
+        chest_records = self._chest_records(map_id, submap) if chest_positions else ()
+        exact_chests = len(chest_positions) == len(chest_records)
+        chest_index = 0
         points = [
             self._hidden_point(treasure, tiles, graphics, treasure_flags)
-            for treasure in self.hidden_treasures(treasure_records)
+            for treasure in self.hidden_treasures()
             if (treasure.map_id, treasure.submap) == (map_id, submap)
         ]
         for y, row in enumerate(tiles):
@@ -553,45 +622,37 @@ class DragonWarrior4RomAssets:
                 if title is None:
                     continue
                 if behavior == 0x04:
-                    kind, marker = "collectibles", "treasure"
-                    exact = (
-                        floor_treasures[0]
-                        if len(floor_treasures) == len(chest_positions) == 1
-                        else None
-                    )
-                    if exact is not None:
-                        opened = exact.is_open(treasure_flags)
-                        title = exact.reward
+                    kind, marker = "collectibles", "chest"
+                    if exact_chests:
+                        flag_index, value = chest_records[chest_index]
+                        completed = _msb_flag(treasure_flags, flag_index)
+                        title, value_detail = _chest_reward(value)
                         detail = (
-                            f"{'Looted' if opened else 'Available'}\n"
-                            f"{exact.description}"
+                            f"ROM chest index {flag_index}{value_detail} · "
+                            f"{'Looted' if completed else 'Available'}"
                         )
-                        completed = opened
-                    elif floor_treasures:
-                        detail = (
-                            "Documented rewards on this floor; exact chest positions "
-                            "are not mapped:\n"
-                            + "\n".join(
-                                f"{'Looted' if record.is_open(treasure_flags) else 'Available'}: "
-                                f"{record.reward} — {record.description}"
-                                for record in floor_treasures
-                            )
-                        )
-                        completed = False
                     else:
-                        detail = "Contents are not documented in the saved treasure table"
+                        detail = "Chest position decoded; ROM chest count did not match"
                         completed = False
-                elif behavior in {0x06, 0x07, 0x08, 0x09, 0x0A, 0x0C}:
+                    chest_index += 1
+                elif behavior in {0x06, 0x07, 0x0C}:
                     kind = "entrance"
-                    marker = "stairs" if behavior in {0x08, 0x09} else "entrance"
+                    marker = "exit"
                     detail = f"ROM tile behavior ${behavior:02X}"
                     completed = False
-                elif behavior == 0x31:
-                    kind, marker = "services", "service"
+                elif behavior in {0x08, 0x09}:
+                    kind = "entrance"
+                    marker = "stairs-up" if behavior == 0x08 else "stairs-down"
+                    detail = f"ROM tile behavior ${behavior:02X}"
+                    completed = False
+                elif behavior == 0x0A:
+                    kind = "entrance"
+                    marker = "travel-door"
                     detail = f"ROM tile behavior ${behavior:02X}"
                     completed = False
                 elif behavior in {0x95, 0x96}:
-                    kind, marker = "locks", "lock"
+                    kind = "locks"
+                    marker = "thief-door" if behavior == 0x95 else "magic-door"
                     detail = f"ROM tile behavior ${behavior:02X}"
                     completed = False
                 else:
@@ -614,27 +675,49 @@ class DragonWarrior4RomAssets:
             tuple(points),
         )
 
+    def _chest_records(
+        self,
+        map_id: int,
+        submap: int,
+    ) -> tuple[tuple[int, int], ...]:
+        address = CHEST_DIRECTORY_ADDRESS
+        value_offset = 0
+        target = map_id, submap
+        for _ in range(CHEST_DIRECTORY_LIMIT):
+            record = self._cpu_bytes(HIDDEN_TABLE_BANK, address, 3)
+            if record[0] == 0xFF:
+                return ()
+            record_map, record_submap, count = record
+            if (record_map, record_submap) >= target:
+                values = self._cpu_bytes(
+                    HIDDEN_TABLE_BANK,
+                    CHEST_VALUE_ADDRESS + value_offset,
+                    count,
+                )
+                return tuple(
+                    (value_offset + index, value)
+                    for index, value in enumerate(values)
+                )
+            value_offset += count
+            address += 3
+        return ()
+
     def hidden_treasures(
         self,
-        treasure_records: tuple[TreasureRecord, ...] = (),
     ) -> tuple[HiddenTreasure, ...]:
         """Hidden drawer, pot, and search items with their exact ROM positions."""
         if self._hidden_treasures is None:
             try:
-                self._hidden_treasures = self._read_hidden_treasures(treasure_records)
+                self._hidden_treasures = self._read_hidden_treasures()
             except (IndexError, ValueError):
                 self._hidden_treasures = ()
         return self._hidden_treasures
 
     def _read_hidden_treasures(
         self,
-        treasure_records: tuple[TreasureRecord, ...],
     ) -> tuple[HiddenTreasure, ...]:
         if self.region != "US":
             return ()
-        documented = tuple(
-            record for record in treasure_records if record.container != "chest"
-        )
         found: list[HiddenTreasure] = []
         for map_id, submap, x, y, item_id, flag_byte, mask in self._hidden_rows(
             FURNITURE_TABLE_ADDRESS, 7
@@ -643,11 +726,16 @@ class DragonWarrior4RomAssets:
                 raise ValueError("Unexpected DW4 furniture flag mask")
             flag = (FURNITURE_FLAG_BYTE + flag_byte) * 8 + mask.bit_length() - 1
             found.append(
-                self._documented_hidden(
-                    documented, map_id, submap, x, y, flag, _hidden_reward(item_id)
+                HiddenTreasure(
+                    map_id,
+                    submap,
+                    x,
+                    y,
+                    flag,
+                    _hidden_reward(item_id),
+                    f"ROM furniture record at ({x},{y})",
                 )
             )
-        special: list[tuple[int, int, int, int]] = []
         for map_id, submap, x, y, value in self._hidden_rows(SEARCH_TABLE_ADDRESS, 5):
             if 0xA0 <= value <= 0xAA:
                 index = value & 0x0F
@@ -655,14 +743,22 @@ class DragonWarrior4RomAssets:
                 item_id = self._cpu_byte(
                     HIDDEN_TABLE_BANK, SEARCH_ITEM_TABLE_ADDRESS + index
                 )
+                reward = (
+                    _gold_reward(item_id)
+                    if item_id & 0x80
+                    else _hidden_reward(item_id)
+                )
                 found.append(
-                    self._documented_hidden(
-                        documented, map_id, submap, x, y, flag, _hidden_reward(item_id)
+                    HiddenTreasure(
+                        map_id,
+                        submap,
+                        x,
+                        y,
+                        flag,
+                        reward,
+                        f"ROM search record at ({x},{y})",
                     )
                 )
-            else:
-                special.append((map_id, submap, x, y))
-        found.extend(_scripted_hidden(documented, found, special))
         return tuple(found)
 
     def _hidden_rows(self, address: int, width: int) -> tuple[bytes, ...]:
@@ -681,33 +777,12 @@ class DragonWarrior4RomAssets:
     def _cpu_byte(self, bank: int, address: int) -> int:
         return self._data[self._prg_offset + bank * 0x4000 + address - 0x8000]
 
-    def _documented_hidden(
-        self,
-        documented: tuple[TreasureRecord, ...],
-        map_id: int,
-        submap: int,
-        x: int,
-        y: int,
-        flag: int,
-        reward: str,
-    ) -> HiddenTreasure:
-        # The saved table has a few wrong flags and submaps, so match on the item
-        # and floor, letting an identical flag break ties or excuse a submap typo.
-        candidates = [
-            record
-            for record in documented
-            if record.map_id == map_id
-            and record.reward == reward
-            and (record.submap == submap or record.flag_index == flag)
-        ]
-        same_flag = [record for record in candidates if record.flag_index == flag]
-        candidates = same_flag or candidates
-        description = (
-            candidates[0].description
-            if len(candidates) == 1
-            else f"{map_title(map_id, submap, self._submap_names)} ({x},{y})"
-        )
-        return HiddenTreasure(map_id, submap, x, y, flag, reward, description)
+    def _cpu_bytes(self, bank: int, address: int, size: int) -> bytes:
+        start = self._cpu_address(bank, address)
+        result = bytes(self._data[start:start + size])
+        if len(result) != size:
+            raise ValueError("DW4 ROM table is truncated")
+        return result
 
     @staticmethod
     def _hidden_point(
@@ -721,7 +796,10 @@ class DragonWarrior4RomAssets:
             if 0 <= treasure.y < len(tiles) and 0 <= treasure.x < len(tiles[treasure.y])
             else None
         )
-        place = {0xAA: "In a pot", 0xAB: "In a drawer"}.get(behavior, "Search here")
+        place, marker = {
+            0xAA: ("In a pot", "pot"),
+            0xAB: ("In a drawer", "drawer"),
+        }.get(behavior, ("Search here", "search"))
         opened = treasure.is_open(treasure_flags)
         return MapWaypoint(
             treasure.x,
@@ -730,7 +808,7 @@ class DragonWarrior4RomAssets:
             f"{place} · {'Looted' if opened else 'Available'}\n{treasure.description}",
             "collectibles",
             opened,
-            marker="item",
+            marker=marker,
         )
 
     def _area_layout(

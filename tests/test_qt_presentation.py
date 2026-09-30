@@ -77,12 +77,7 @@ def test_battle_snapshot_renders_keyed_urgent_section(qtbot, tmp_path: Path) -> 
     view.set_snapshot(snapshot, content_scope="dw4-battle")
     view.set_active_role("urgent")
 
-    assert [section.section.key for section in view.state.section_views] == [
-        "battle",
-        "atlas-confidence",
-        "nearby-features",
-        "dialogue-journal",
-    ]
+    assert [section.section.key for section in view.state.section_views] == ["battle"]
     battle_view = next(
         section
         for section in view.state.section_views
