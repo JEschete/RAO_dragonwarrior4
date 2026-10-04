@@ -41,3 +41,11 @@ hashes = [
     "80d5683ac95537401f2f003a76379b8e",
     "d8a1d610c93b96ad98e55e09dfcc7533",
 ]
+
+[[sources]]
+id = "dw4_disassembly"
+kind = "git-submodule"
+path = "decomp_reference/DW4_Disassembly"
+required = false
+url = "https://github.com/JEschete/DW4_Disassembly"
+required_files = []

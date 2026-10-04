@@ -548,6 +548,7 @@ TILE_BEHAVIORS = {
     0x94: "Unlocked door",
     0x95: "Thief's Key door",
     0x96: "Magic Key door",
+    0x97: "Final Key door",
     0xA0: "Big door",
     0xA7: "Desk",
     0xA8: "Sign",

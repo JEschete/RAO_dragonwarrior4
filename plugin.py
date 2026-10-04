@@ -14,22 +14,18 @@ class Plugin:
         if context.repository_root is None:
             raise ValueError("Dragon Warrior IV plugin repository root is required")
         assets, error = self._rom_assets(context)
-        document = (
-            MapDocument(
-                "Dragon Warrior IV Atlas",
-                assets.map_layers(),
-                (
-                    "objective",
-                    "collectibles",
-                    "entrance",
-                    "services",
-                    "locks",
-                    "entities",
-                ),
+        try:
+            document = (
+                MapDocument(
+                    "Dragon Warrior IV Atlas",
+                    assets.map_layers(),
+                    ("collectibles", "entrance", "services", "locks", "hazards", "entities", "encounter-zone"),
+                )
+                if assets is not None
+                else None
             )
-            if assets is not None
-            else None
-        )
+        except (OSError, ValueError, IndexError) as failure:
+            assets, document, error = None, None, f"Atlas unavailable: {failure}"
         return Adapter(context, assets, document, error)
 
     @staticmethod
@@ -44,17 +40,17 @@ class Plugin:
         if context.state_directory is None:
             return None, "Plugin state directory is unavailable"
         try:
-            return (
-                DragonWarrior4RomAssets(
-                    rom_path,
-                    context.state_directory,
-                    render_area_map,
-                    render_world_map,
-                    load_submap_names(context.repository_root),
-                ),
-                "",
+            assets = DragonWarrior4RomAssets(
+                rom_path.expanduser(),
+                context.state_directory,
+                render_area_map,
+                render_world_map,
+                load_submap_names(context.repository_root),
             )
-        except (OSError, ValueError) as error:
+            if assets.region != "US":
+                return None, f"This ROM version ({assets.region}) is not supported; maps and item data need the US version"
+            return assets, ""
+        except (OSError, ValueError, IndexError) as error:
             return None, str(error)
 
 

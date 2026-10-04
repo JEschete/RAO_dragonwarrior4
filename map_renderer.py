@@ -33,12 +33,16 @@ def render_area_map(
     tiles: tuple[tuple[int, ...], ...],
     graphics: AreaGraphics,
     output: Path,
+    room_class: int | None = None,
+    reveal_tile: int | None = None,
 ) -> None:
     image = Image.new("RGB", (len(tiles[0]) * 16, len(tiles) * 16))
     tile_images: dict[int, Image.Image] = {}
     for map_y, row in enumerate(tiles):
         for map_x, encoded_tile in enumerate(row):
             tile = encoded_tile & 0x1F
+            if room_class is not None and encoded_tile & 0xE0 != room_class and tile != reveal_tile:
+                tile = 0x20 if room_class == 0 else 0x21
             tile_image = tile_images.get(tile)
             if tile_image is None:
                 tile_image = tile_images[tile] = _tile_image(tile, graphics)

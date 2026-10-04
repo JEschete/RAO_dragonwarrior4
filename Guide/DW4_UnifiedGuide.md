@@ -1,9 +1,5 @@
 # Dragon Warrior IV Unified Walkthrough
 
-This guide is a section-by-section route for the North American NES release of Dragon Warrior IV in a RetroAchievements-focused playthrough. It uses the original NES localization, mechanics, maps, equipment, and five-chapter structure; remake-only names and content are outside its scope. The goal is to keep the main story path, chapter-specific objectives, optional treasures, party routing, and achievement timing in the same place so each achievement appears near the moment it can naturally be earned.
-
-The achievement names, descriptions, and points come from RetroAchievements game 4612, whose saved page is titled *Dragon Quest IV: Michibikareshi Monotachi* for NES/Famicom and whose saved code notes use Japanese-layout addresses. The walkthrough directions use North American NES names and gameplay data; the overlay reports ROM region and evidence source separately. This guide does not claim compatibility for translation patches or the PlayStation, Nintendo DS, iOS, or Android remakes.
-
 ## Table of Contents
 
 1. [Introduction](#introduction)

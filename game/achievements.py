@@ -1,4 +1,8 @@
 from dataclasses import dataclass
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from .state import DragonWarrior4State
 
 
 @dataclass(frozen=True, slots=True)
@@ -59,3 +63,26 @@ ACHIEVEMENTS_BY_ID = {
     achievement.achievement_id: achievement for achievement in ACHIEVEMENTS
 }
 TOTAL_POINTS = sum(achievement.points for achievement in ACHIEVEMENTS)
+
+
+def local_prerequisite(achievement_id: int, state: "DragonWarrior4State") -> str:
+    if achievement_id == 52346:
+        hero_present = any(character.character_id in {0, 8} for character in state.active_party)
+        return "Now: hero is in the party" if hero_present else "Now: hero is not in the party"
+    if achievement_id == 52347:
+        return f"Now: party of {len(state.active_party)}"
+    if achievement_id == 52348:
+        return f"Now: {state.casino_coins:,} of 10,000 coins"
+    if achievement_id == 52333:
+        return "Now: boat acquired" if state.has_boat else "Now: no boat yet"
+    if achievement_id == 52341:
+        return "Now: balloon acquired" if state.has_balloon else "Now: no balloon yet"
+    equipment = {
+        52337: "Zenithian Helm", 52338: "Zenithian Shield",
+        52339: "Zenithian Armor", 52342: "Zenithian Sword",
+    }.get(achievement_id)
+    if equipment:
+        holders = tuple(character.name for character in state.available_party
+                        if any(item.name == equipment for item in character.items))
+        return "Now: carried by " + ", ".join(holders) if holders else "Now: not carried"
+    return ""

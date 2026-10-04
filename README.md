@@ -1,64 +1,108 @@
-# Dragon Warrior IV Overlay Plugin
+The cc65 cross-compiler suite
+=============================
 
-Standalone Dragon Warrior IV integration for RetroArch Overlay. The plugin reads NES RAM and WRAM for live location, party, battle, progression, currency, travel, and treasure state. Configure a Dragon Warrior IV ROM in Plugin Manager to enable ROM-native maps and object overlays; no decompilation project is required at runtime.
+cc65 is a complete cross-development package for 65(C)02 systems,
+including a powerful macro assembler, a C compiler, linker, archiver,
+simulator and several other tools.  cc65 has C and runtime library
+support for many of the old 6502 machines.  For details look at
+the [cc65 web site](https://cc65.github.io):
 
-## Maps and markers
+| Company / People        | Machine / Environment               |
+|-------------------------|-------------------------------------|
+| Apple                   | Apple II                            |
+|                         | Apple IIe enhanced                  |
+| Atari                   | Atari 400/800                       |
+|                         | Atari 2600                          |
+|                         | Atari 5200                          |
+|                         | Atari 7800                          |
+|                         | Atari XL                            |
+|                         | Lynx                                |
+| Tangerine               | Oric Atmos                          |
+| Eureka                  | Oric Telestrat                      |
+| Acorn                   | BBC series                          |
+| Commodore               | C128                                |
+|                         | C16                                 |
+|                         | C64                                 |
+|                         | CBM 510/610                         |
+|                         | PET                                 |
+|                         | Plus/4                              |
+|                         | VIC-20                              |
+| VTech                   | CreatiVision                        |
+| Commander X16 Community | Commander X16                       |
+| Bit Corporation         | Gamate                              |
+| Berkeley Softworks      | GEOS (Apple/CBM)                    |
+| LUnix Team              | LUnix (C64)                         |
+| Nintendo                | Nintendo Entertainment System (NES) |
+| Ohio Scientific         | OSI C1P                             |
+| MOS Technology, Inc.    | KIM-1                               |
+| NEC                     | PC Engine (PCE)                     |
+| Rumbledethumps          | Picocomputer 6502 (RP6502)          |
+| Watara                  | Watara/QuickShot Supervision        |
+| Synertek                | SYM-1                               |
+| USSR                    | Agat-7/9                            |
 
-- The 279 town and dungeon floors come from the Bank `$17` map directory and the game's compressed map streams, native tilesets, patterns, attributes, palettes, behaviors, and wall smoothing.
-- The Main World is 256x256 tiles, Gottside is 64x64, and the Underworld is 64x54. All three use their native Bank `$0B` row tables and 16-pixel overworld tiles. The Underworld uses its dedicated world-palette row.
-- The 74 static world destinations come directly from the routing table at `$08:$B7F9` and the world-position table at `$0E:$BE0B`. Repeated entrances remain separate, and marker classes come from the destination's decoded world tile.
-- Indoor exits, stairs, travel doors, and keyed doors come from each decoded tile's native behavior. Behavior `$31` is not shown as a healing object because the game uses it only to alter movement timing.
-- Chest positions use row-major behavior-`$04` order. Contents and collected bits come from the native directory at `$1E:$BDC2`, value table at `$1E:$BEB9`, and MSB-first flags at `$625D`. Alternate cave-state submaps follow the game's sorted-table aliasing. Ordinary items and encoded gold amounts are named exactly; eight special dispatch values remain neutral.
-- The US ROM exposes 38 direct hidden rewards: furniture records at `$1E:$BCED` and item-search handlers `$A0-$AA` at `$1E:$BF59`. Their coordinates and live flags are used directly. Other scripted search handlers are omitted rather than paired with guide prose.
-- Live map entities use the game's expanded slots `$06-$1F`. Every active slot receives a distinct numbered icon. Coordinates are exact, while facing, descriptor, behavior state, and runtime flags remain neutral raw fields rather than guessed NPC names.
-- Images are generated lazily and cached below the framework's local plugin-state directory. ROM bytes and generated maps are never written into this repository.
+A generic configuration to adapt cc65 to new targets is also around.
 
-## Overlay sections
+## People
 
-Everything appears in the standard overlay rail and map window; there is no separate companion window.
+cc65 is originally based on the "Small C" compiler by Ron Cain and
+enhanced by James E. Hendrix.
 
-- **Battle**: up to eight live enemy records with HP, MP, attack, defense, agility, status, group identity, and reward counters.
-- **Journey**: chapter, time, tactics, travel unlocks, gold, casino coins, Small Medals, and packed treasure/story flag progress.
-- **Party**: active and reserve membership, vitals, conditions, attributes, equipment, inventory, spells, and experience.
-- **Combat log**: per-playthrough encounters, outcomes, rewards, frequent locations and enemies, and recent combat details.
-- **RetroAchievements**: account progress, unlock totals, points, and the complete achievement set.
+### Project founders
 
-## Accuracy boundaries
+* John R. Dunning: [original implementation](https://public.websites.umich.edu/~archive/atari/8bit/Languages/Cc65/)
+  of the C compiler and runtime library, Atari hosted.
+* Ullrich von Bassewitz:
+  * moved Dunning's code to modern systems,
+  * rewrote most parts of the compiler,
+  * rewrote all of the runtime library.
 
-- The exact map/object layout is the US retail ROM layout. Direct hidden-item tables are disabled for other detected regions.
-- On US memory, `$0028` is the loaded tileset. A zero tileset selects the outdoor layer through `$0065`: `0` Main World, `1` Gottside, and `3` Underworld. Indoor map/submap IDs use `$0063/$0064`; coordinates use `$0042/$0043`.
-- Static world markers represent canonical entrances, not inferred world items or NPC positions. Current NPCs, vehicles, and scripted actors appear only through live entity slots, without semantic identity guesses.
-- Special chest dispatch values `$FF/$FE/$FD/$EF/$EE/$E3/$E2/$E0` are shown with their raw ROM value until each handler's gameplay result is classified.
-- The available monster-name table is incomplete. Battle and analytics views learn names from decoded battle-introduction text and otherwise retain neutral enemy labels.
-- Save-specific persistence uses the configured save path when available. Without one, ROM identity plus hero name forms the playthrough identity, so separate saves with the same hero name can share an archive.
+### Core team members
 
-## Encounter archive
+* [Christian Groessler](https://github.com/groessler): Atari, Atari5200, and CreatiVision library Maintainer
+* [dqh](https://github.com/dqh-au): GHA help
+* [Greg King](https://github.com/greg-king5): all around hackery
+* [groepaz](https://github.com/mrdudz): CBM library, Project Maintainer
+* [Oliver Schmidt](https://github.com/oliverschmidt): Apple II library Maintainer
 
-The lightweight capture hook samples battles every 50 ms while RetroArch is playing. Distinct battle states record party HP/MP, enemy HP/status, and reward counters; identical high-frequency samples are collapsed.
+### External contributors
 
-```text
-plugin-state/org.jeschete.retroarch-overlay.dragonwarrior4/
-	playthroughs/<save-or-hero-identity>/
-		combat-analytics.json
-		encounters/
-			active.json
-			YYYY/MM/DD/<timestamp>-<id>.json
-```
+* [acqn](https://github.com/acqn): various compiler fixes
+* [jedeoric](https://github.com/jedeoric): Telestrat target
+* [jmr](https://github.com/jmr): compiler fixes
+* [karrika](https://github.com/karrika): Atari 7800 target
+* [Stephan Mühlstrasser](https://github.com/smuehlst): osic1p target
+* [Wayne Parham](https://github.com/WayneParham): Sym-1 target
+* [Dave Plummer](https://github.com/davepl): KIM-1 target
+* [Rumbledethumps](https://github.com/rumbledethumps): RP6502 target
 
-`active.json` checkpoints an in-progress fight. Reward edges can reconstruct a victory skipped by fast-forward; a fully skipped escape with no coherent enemy frame or reward evidence is not fabricated.
+*(The above list is incomplete, if you feel left out - please speak up or add yourself in a PR)*
 
-## Research inputs
+For a complete list look at the [full team list](https://github.com/orgs/cc65/teams)
+or the list of [all contributors](https://github.com/cc65/cc65/graphs/contributors).
 
-Saved reference pages under `resources` are local research material, not runtime dependencies. Reviewed submap, item, spell, and achievement facts live in `game/data/dw4_knowledge.json`. Runtime object placement and chest ordering come from the configured ROM rather than prose sources.
+# Contact
 
-## Development
+For general discussion, questions, etc subscribe to the
+[mailing list](https://cc65.github.io/mailing-lists.html)
+or use the [github discussions](https://github.com/cc65/cc65/discussions).
 
-Run the plugin tests from this repository with the framework source available:
+Some of us may also be around on IRC [#cc65](https://web.libera.chat/#cc65) on libera.chat.
 
-```powershell
-$env:PYTHONPATH = "..\..\src;."
-..\..\.venv\Scripts\python.exe -m pytest -q tests
-..\..\.venv\Scripts\python.exe tools\generate_knowledge.py --check
-```
+# Documentation
 
-Regenerating knowledge requires the ignored reviewed captures under `resources`. ROMs, generated maps, save data, and patches must not be committed.
+* The main [Documentation](https://cc65.github.io/doc) for users and
+  developers.
+* Info on [Contributing](Contributing.md) to the CC65 project. Please
+  read this before working on something you want to contribute, and
+  before reporting bugs.
+* The [Wiki](https://github.com/cc65/wiki/wiki) contains some extra info
+  that does not fit into the regular documentation.
+
+# Downloads
+
+* [Windows 64bit Snapshot](https://sourceforge.net/projects/cc65/files/cc65-snapshot-win64.zip)
+* [Windows 32bit Snapshot](https://sourceforge.net/projects/cc65/files/cc65-snapshot-win32.zip)
+* [Linux Snapshot DEB and RPM](https://software.opensuse.org/download.html?project=home%3Astrik&package=cc65)
+
+[![Snapshot Build](https://github.com/cc65/cc65/actions/workflows/snapshot-on-push-master.yml/badge.svg?branch=master)](https://github.com/cc65/cc65/actions/workflows/snapshot-on-push-master.yml)

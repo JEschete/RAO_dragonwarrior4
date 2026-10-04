@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html class="client-js" lang="en" dir="ltr"><head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<meta charset="UTF-8">
+<title>Dragon Warrior IV (NES)/Map Data Format - Data Crystal</title>
+<script>document.documentElement.className="client-js";RLCONF={"wgBreakFrames":false,"wgSeparatorTransformTable":["",""],"wgDigitTransformTable":["",""],"wgDefaultDateFormat":"dmy","wgMonthNames":["","January","February","March","April","May","June","July","August","September","October","November","December"],"wgRequestId":"edba2166633f0631853df6f0","wgCSPNonce":false,"wgCanonicalNamespace":"","wgCanonicalSpecialPageName":false,"wgNamespaceNumber":0,"wgPageName":"Dragon_Warrior_IV_(NES)/Map_Data_Format","wgTitle":"Dragon Warrior IV (NES)/Map Data Format","wgCurRevisionId":64557,"wgRevisionId":64557,"wgArticleId":8148,"wgIsArticle":true,"wgIsRedirect":false,"wgAction":"view","wgUserName":null,"wgUserGroups":["*"],"wgCategories":["Subpages"],"wgPageContentLanguage":"en","wgPageContentModel":"wikitext","wgRelevantPageName":"Dragon_Warrior_IV_(NES)/Map_Data_Format","wgRelevantArticleId":8148,"wgIsProbablyEditable":false,"wgRelevantPageIsProbablyEditable":false,"wgRestrictionEdit":[],
+"wgRestrictionMove":[],"simpleBatchUploadMaxFilesPerBatch":{"*":1000},"wgVector2022PreviewPages":[]};RLSTATE={"site.styles":"ready","user.styles":"ready","user":"ready","user.options":"loading","skins.vector.styles.legacy":"ready"};RLPAGEMODULES=["site","mediawiki.page.ready","mediawiki.toc","skins.vector.legacy.js"];</script>
+<script>(RLQ=window.RLQ||[]).push(function(){mw.loader.implement("user.options@12s5i",function($,jQuery,require,module){mw.user.tokens.set({"patrolToken":"+\\","watchToken":"+\\","csrfToken":"+\\"});});});</script>
+<link rel="stylesheet" href="Dragon%20Warrior%20IV%20(NES)_Map%20Data%20Format%20-%20Data%20Crystal_files/load_002_lRvb.css">
+<script async="" src="Dragon%20Warrior%20IV%20(NES)_Map%20Data%20Format%20-%20Data%20Crystal_files/load_lRvb.php"></script>
+<style>
+@media screen {
+	.toctoggle{-moz-user-select:none;-webkit-user-select:none;-ms-user-select:none;user-select:none;font-size:94%}}</style><meta name="ResourceLoaderDynamicStyles" content="">
+<link rel="stylesheet" href="Dragon%20Warrior%20IV%20(NES)_Map%20Data%20Format%20-%20Data%20Crystal_files/load_lRvb.css">
+<meta name="generator" content="MediaWiki 1.39.4">
+<meta name="format-detection" content="telephone=no">
+<meta name="viewport" content="width=1000">
+<link rel="icon" href="https://datacrystal.tcrf.net/favicon.ico">
+<link rel="search" type="application/opensearchdescription+xml" href="https://datacrystal.tcrf.net/w/opensearch_desc.php" title="Data Crystal (en)">
+<link rel="EditURI" type="application/rsd+xml" href="https://datacrystal.tcrf.net/w/api.php?action=rsd">
+<link rel="license" href="https://www.gnu.org/copyleft/fdl.html">
+<link rel="alternate" type="application/atom+xml" title="Data Crystal Atom feed" href="https://datacrystal.tcrf.net/w/index.php?title=Special:RecentChanges&amp;feed=atom">
+</head>
+<body class="mediawiki ltr sitedir-ltr mw-hide-empty-elt ns-0 ns-subject page-Dragon_Warrior_IV_NES_Map_Data_Format rootpage-Dragon_Warrior_IV_NES skin-vector action-view skin-vector-legacy vector-feature-language-in-header-enabled vector-feature-language-in-main-page-header-disabled vector-feature-language-alert-in-sidebar-disabled vector-feature-sticky-header-disabled vector-feature-sticky-header-edit-disabled vector-feature-table-of-contents-disabled vector-feature-visual-enhancement-next-disabled"><div id="mw-page-base" class="noprint"></div>
+<div id="mw-head-base" class="noprint"></div>
+<div id="content" class="mw-body" role="main">
+	<a id="top"></a>
+	<div id="siteNotice"><div id="localNotice"><div class="sitenotice" lang="en" dir="ltr"><div class="msgbox plainlinks" style="border: 1px solid #da4; background: #ffd; padding: 0.5em 1em 0.5em 1em; color: #117; text-align: center; margin-bottom: 0.5em; margin-top: 0.5em;">If you are still using the old URL (datacrystal.<b>romhacking</b>.net), <b>please update your bookmarks!</b> The old URL may stop working at any time.
+<br>The current URL is <tt><a rel="nofollow" class="external text" href="https://datacrystal.tcrf.net/wiki/"><b>datacrystal.tcrf.net</b></a></tt>.</div></div></div></div>
+	<div class="mw-indicators">
+	</div>
+	<h1 id="firstHeading" class="firstHeading mw-first-heading"><span class="mw-page-title-main">Dragon Warrior IV (NES)/Map Data Format</span></h1>
+	<div id="bodyContent" class="vector-body">
+		<div id="siteSub" class="noprint">From Data Crystal</div>
+		<div id="contentSub"><span class="subpages">&lt; <a href="https://datacrystal.tcrf.net/wiki/Dragon_Warrior_IV_(NES)" title="Dragon Warrior IV (NES)">Dragon Warrior IV (NES)</a></span></div>
+		<div id="contentSub2"></div>
+		
+		<div id="jump-to-nav"></div>
+		<a class="mw-jump-link" href="#mw-head">Jump to navigation</a>
+		<a class="mw-jump-link" href="#searchInput">Jump to search</a>
+		<div id="mw-content-text" class="mw-body-content mw-content-ltr" lang="en" dir="ltr"><div class="mw-parser-output"><blockquote><p><b>This is a sub-page of <i><a href="https://datacrystal.tcrf.net/wiki/Dragon_Warrior_IV_(NES)" title="Dragon Warrior IV (NES)">Dragon Warrior IV (NES)</a></i>.</b></p></blockquote>
+<p>This is the Map Data Format for <a href="https://datacrystal.tcrf.net/wiki/Dragon_Warrior_IV_(NES)" title="Dragon Warrior IV (NES)">Dragon Warrior IV</a> as used in Towns and Caves, and not the overworld.
+</p>
+<div id="toc" class="toc" role="navigation" aria-labelledby="mw-toc-heading"><input type="checkbox" role="button" id="toctogglecheckbox" class="toctogglecheckbox" style="display:none"><div class="toctitle" lang="en" dir="ltr"><h2 id="mw-toc-heading">Contents</h2><span class="toctogglespan"><label class="toctogglelabel" for="toctogglecheckbox"></label></span></div>
+<ul>
+<li class="toclevel-1 tocsection-1"><a href="#Getting_the_address_of_a_map"><span class="tocnumber">1</span> <span class="toctext">Getting the address of a map</span></a></li>
+<li class="toclevel-1 tocsection-2"><a href="#Header"><span class="tocnumber">2</span> <span class="toctext">Header</span></a></li>
+<li class="toclevel-1 tocsection-3"><a href="#Main_Map_Data"><span class="tocnumber">3</span> <span class="toctext">Main Map Data</span></a>
+<ul>
+<li class="toclevel-2 tocsection-4"><a href="#Reading_a_Tile_number"><span class="tocnumber">3.1</span> <span class="toctext">Reading a Tile number</span></a></li>
+<li class="toclevel-2 tocsection-5"><a href="#Reading_a_Map_Address"><span class="tocnumber">3.2</span> <span class="toctext">Reading a Map Address</span></a></li>
+<li class="toclevel-2 tocsection-6"><a href="#Clearing_the_Map"><span class="tocnumber">3.3</span> <span class="toctext">Clearing the Map</span></a></li>
+<li class="toclevel-2 tocsection-7"><a href="#Main_Loop"><span class="tocnumber">3.4</span> <span class="toctext">Main Loop</span></a></li>
+<li class="toclevel-2 tocsection-8"><a href="#Command_0_-_Set_Tile_Number"><span class="tocnumber">3.5</span> <span class="toctext">Command 0 - Set Tile Number</span></a></li>
+<li class="toclevel-2 tocsection-9"><a href="#Command_1_-_Draw_Box"><span class="tocnumber">3.6</span> <span class="toctext">Command 1 - Draw Box</span></a></li>
+<li class="toclevel-2 tocsection-10"><a href="#Command_2_-_Paint_Mode"><span class="tocnumber">3.7</span> <span class="toctext">Command 2 - Paint Mode</span></a></li>
+<li class="toclevel-2 tocsection-11"><a href="#Command_3_-_Plot_one_tile"><span class="tocnumber">3.8</span> <span class="toctext">Command 3 - Plot one tile</span></a>
+<ul>
+<li class="toclevel-3 tocsection-12"><a href="#Painting_the_Tile_on_the_Map"><span class="tocnumber">3.8.1</span> <span class="toctext">Painting the Tile on the Map</span></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toclevel-1 tocsection-13"><a href="#Roof_Tiles"><span class="tocnumber">4</span> <span class="toctext">Roof Tiles</span></a></li>
+<li class="toclevel-1 tocsection-14"><a href="#Smoothing_Tiles"><span class="tocnumber">5</span> <span class="toctext">Smoothing Tiles</span></a></li>
+</ul>
+</div>
+
+<h2><span class="mw-headline" id="Getting_the_address_of_a_map">Getting the address of a map</span></h2>
+<p>There are two variables that determine a map, the Map Number ($63) and the Submap Number ($64).
+</p><p>See <a href="https://datacrystal.tcrf.net/wiki/Dragon_Warrior_IV_(NES)/ROM_map#Bank_17:_(5C000)" title="Dragon Warrior IV (NES)/ROM map">ROM Map, Bank 17</a> for more information, or <a href="https://datacrystal.tcrf.net/wiki/Dragon_Warrior_IV_(NES)/ROM_map#Bank_09:_(24000)" title="Dragon Warrior IV (NES)/ROM map">ROM Map, Bank 09</a> for the map addresses.
+</p>
+<h2><span class="mw-headline" id="Header">Header</span></h2>
+<ul><li>Byte 0: Map Width</li>
+<li>Byte 1: Map Height</li>
+<li>Byte 2: tttTTTTT
+<ul><li>ttt = Number of bits per tile (0-7), usually 5</li>
+<li>TTTTT = Border Tile (00-1F)</li></ul></li></ul>
+<p>After reading Width and Height, calculate the number of bits required to store a map address.
+</p><p>Number of Bits Needed = Ceil(Log2(Width * Height))
+</p><p><br>
+</p>
+<h2><span class="mw-headline" id="Main_Map_Data">Main Map Data</span></h2>
+<p>The main map data is composed of strings of bits.  Most Significant Bit is first within a byte.
+</p>
+<h3><span class="mw-headline" id="Reading_a_Tile_number">Reading a Tile number</span></h3>
+<p>You read a number of bits, usually 5 bits (for tile numbers 00-1F), but the bit count is determined by the header, and is changed again after entering Roof Mode.
+</p>
+<h3><span class="mw-headline" id="Reading_a_Map_Address">Reading a Map Address</span></h3>
+<p>You read a number of bits based on the highest number that could fit into Map Width * Map Height.  Again, number of bits = Ceil(Log2(Width * Height))
+</p>
+<h3><span class="mw-headline" id="Clearing_the_Map">Clearing the Map</span></h3>
+<p>Before entering the Main Loop:
+</p>
+<ul><li>Read a tile number</li>
+<li>Set the entire map to this tile number.</li></ul>
+<h3><span class="mw-headline" id="Main_Loop">Main Loop</span></h3>
+<ul><li>Read 2 bits.
+<ul><li>Command 0 = Set Tile Number</li>
+<li>Command 1 = Draw Box</li>
+<li>Command 2 = Paint Mode</li>
+<li>Command 3 = Plot an individual tile</li></ul></li></ul>
+<h3><span class="mw-headline" id="Command_0_-_Set_Tile_Number">Command 0 - Set Tile Number</span></h3>
+<ul><li>Read a Tile Number, set Current Tile to this.</li>
+<li>Read 2 bits.</li>
+<li>If value is not zero, treat this as a command from the main loop, and proceed to that code.</li>
+<li>Otherwise:</li>
+<li>Read a bit</li>
+<li>If it is zero
+<ul><li>Set Large Tile Mode flag  (Painting will use 4 tiles instead of 1)</li>
+<li>Read three more tile numbers, return to Main Loop.</li></ul></li>
+<li>If it is 1, Exit the main loop.</li></ul>
+<h3><span class="mw-headline" id="Command_1_-_Draw_Box">Command 1 - Draw Box</span></h3>
+<ul><li>Read a Map Address  (Top-Left coordinate)</li>
+<li>Read a second Map Address  (Bottom-Right coordinate, Inclusive)</li>
+<li>Fill the box (Either single tile, or Large Tile mode)</li>
+<li>Return to Main Loop</li></ul>
+<h3><span class="mw-headline" id="Command_2_-_Paint_Mode">Command 2 - Paint Mode</span></h3>
+<p>Variables used:
+</p>
+<ul><li>Cursor (a map address)</li>
+<li>Paint Direction
+<ul><li>0 = Up</li>
+<li>1 = Right</li>
+<li>2 = Down</li>
+<li>3 = Left</li></ul></li>
+<li>A stack of 'cursor location' and 'direction'</li>
+<li>A stack pointer</li></ul>
+<p>Entering Paint Mode:
+</p>
+<ul><li>Read Map Address to Cursor</li>
+<li>Paint the tile on the map</li>
+<li>Read two bits to Paint Direction</li></ul>
+<p>Loop:
+</p>
+<ul><li>Read one bit
+<ul><li>If 0: goto Paint  (painting in same direction)</li>
+<li>If 1: Not same direction</li></ul></li>
+<li>Read two bits
+<ul><li>If 0: Inc Direction, then goto Paint</li>
+<li>If 1: Dec Direction, then goto Paint</li>
+<li>If 2:
+<ul><li>Push Cursor and Direction onto the stack</li>
+<li>Read one bit:
+<ul><li>If 0: Inc Direction, goto Paint</li>
+<li>If 1: Dec Direction, goto Paint</li></ul></li></ul></li>
+<li>If 3:
+<ul><li>Read one bit:
+<ul><li>If 0: Restart Paint Mode (picking a new map location)</li>
+<li>If 1: Pop Cursor and Direction from the stack, then goto Loop
+<ul><li>If stack is empty, instead exit and return to the Main Loop.</li></ul></li></ul></li></ul></li></ul></li></ul>
+<p>Paint:
+</p>
+<ul><li>Advance cursor in the current direction  (If in large tile mode, advance cursor by 2 instead)</li>
+<li>Paint tile on the map  (possibly a large tile)</li>
+<li>goto Loop</li></ul>
+<h3><span class="mw-headline" id="Command_3_-_Plot_one_tile">Command 3 - Plot one tile</span></h3>
+<ul><li>Read a map address</li>
+<li>Plot the tile on the map</li>
+<li>Return to the Main Loop</li></ul>
+<h4><span class="mw-headline" id="Painting_the_Tile_on_the_Map">Painting the Tile on the Map</span></h4>
+<p>When painting the tile, it's either a single tile, or a large tile (4 tiles).
+</p><p>This is also used for Roof Mode.  If you are in Roof Mode, instead of assigning the tile, set the top 3 bits to the current roof number.
+</p>
+<h2><span class="mw-headline" id="Roof_Tiles">Roof Tiles</span></h2>
+<p>After exiting out of the Main Loop for the first time:
+</p>
+<ul><li>Read 2 bits
+<ul><li>If 0, there are no roofs.</li>
+<li>Otherwise, store this value (1-3) as the number of bits per tile.</li>
+<li>Enter the Main Loop again, but we're painting on Roof Numbers instead of Tile Numbers</li></ul></li></ul>
+<p><br>
+</p>
+<h2><span class="mw-headline" id="Smoothing_Tiles">Smoothing Tiles</span></h2>
+<p>After the entire map has loaded, Smoothing Flags from the Tileset are used to change some tiles.
+</p><p>TODO: document this better
+</p><p>Three bits are are used for tile smoothing flags.  These three bits are stored as part of the tileset when it is loaded, they are not in the map data.
+</p>
+<ul><li>0 = No group</li>
+<li>1 = Group 1</li>
+<li>2 = Group 2</li>
+<li>3 = Group 3</li>
+<li>4 = not used</li>
+<li>5 = Front-Facing tile of Group 1</li>
+<li>6 = Front-Facing tile of Group 2</li>
+<li>7 = Front-Facing tile of Group 3</li></ul>
+<p>If a tile has a group, and the tile below it has NO group, then it is changed to the front-facing version of the tile.
+</p><p>Normally, this is used to change Wall Tiles into Front-Facing wall tiles.
+</p>
+<!-- 
+NewPP limit report
+Cached time: 20260908143348
+Cache expiry: 86400
+Reduced expiry: false
+Complications: [show‐toc]
+CPU time usage: 0.027 seconds
+Real time usage: 0.035 seconds
+Preprocessor visited node count: 74/1000000
+Post‐expand include size: 533/2097152 bytes
+Template argument size: 0/2097152 bytes
+Highest expansion depth: 7/100
+Expensive parser function count: 2/500
+Unstrip recursion depth: 0/20
+Unstrip post‐expand size: 0/5000000 bytes
+-->
+<!--
+Transclusion expansion time report (%,ms,calls,template)
+100.00%   10.601      1 Template:Subpage
+100.00%   10.601      1 -total
+ 23.68%    2.510      1 Template:TalkIndicator
+-->
+
+<!-- Saved in parser cache with key datacrystal-wiki_:pcache:idhash:8148-0!canonical and timestamp 20260908143348 and revision id 64557.
+ -->
+</div>
+<div class="printfooter" data-nosnippet="">Retrieved from "<a dir="ltr" href="https://datacrystal.tcrf.net/w/index.php?title=Dragon_Warrior_IV_(NES)/Map_Data_Format&amp;oldid=64557">https://datacrystal.tcrf.net/w/index.php?title=Dragon_Warrior_IV_(NES)/Map_Data_Format&amp;oldid=64557</a>"</div></div>
+		<div id="catlinks" class="catlinks" data-mw="interface"><div id="mw-normal-catlinks" class="mw-normal-catlinks"><a href="https://datacrystal.tcrf.net/wiki/Special:Categories" title="Special:Categories">Category</a>: <ul><li><a href="https://datacrystal.tcrf.net/wiki/Category:Subpages" title="Category:Subpages">Subpages</a></li></ul></div></div>
+	</div>
+</div>
+
+<div id="mw-navigation">
+	<h2>Navigation menu</h2>
+	<div id="mw-head">
+		
+
+<nav id="p-personal" class="vector-menu mw-portlet mw-portlet-personal vector-user-menu-legacy" aria-labelledby="p-personal-label" role="navigation">
+	<h3 id="p-personal-label" class="vector-menu-heading ">
+		<span class="vector-menu-heading-label">Personal tools</span>
+	</h3>
+	<div class="vector-menu-content">
+		
+		<ul class="vector-menu-content-list"><li id="pt-createaccount" class="mw-list-item"><a href="https://datacrystal.tcrf.net/w/index.php?title=Special:CreateAccount&amp;returnto=Dragon+Warrior+IV+%28NES%29%2FMap+Data+Format" title="You are encouraged to create an account and log in; however, it is not mandatory"><span>Create account</span></a></li><li id="pt-login" class="mw-list-item"><a href="https://datacrystal.tcrf.net/w/index.php?title=Special:UserLogin&amp;returnto=Dragon+Warrior+IV+%28NES%29%2FMap+Data+Format" title="You are encouraged to log in; however, it is not mandatory [Alt+Shift+o]" accesskey="o"><span>Log in</span></a></li></ul>
+		
+	</div>
+</nav>
+
+		<div id="left-navigation">
+			
+
+<nav id="p-namespaces" class="vector-menu mw-portlet mw-portlet-namespaces vector-menu-tabs vector-menu-tabs-legacy" aria-labelledby="p-namespaces-label" role="navigation">
+	<h3 id="p-namespaces-label" class="vector-menu-heading ">
+		<span class="vector-menu-heading-label">Namespaces</span>
+	</h3>
+	<div class="vector-menu-content">
+		
+		<ul class="vector-menu-content-list"><li id="ca-nstab-main" class="selected mw-list-item"><a href="https://datacrystal.tcrf.net/wiki/Dragon_Warrior_IV_(NES)/Map_Data_Format" title="View the content page [Alt+Shift+c]" accesskey="c"><span>Page</span></a></li><li id="ca-talk" class="new mw-list-item"><a href="https://datacrystal.tcrf.net/w/index.php?title=Talk:Dragon_Warrior_IV_(NES)/Map_Data_Format&amp;action=edit&amp;redlink=1" rel="discussion" title="Discussion about the content page (page does not exist) [Alt+Shift+t]" accesskey="t"><span>Discussion</span></a></li></ul>
+		
+	</div>
+</nav>
+
+			
+
+<nav id="p-variants" class="vector-menu mw-portlet mw-portlet-variants emptyPortlet vector-menu-dropdown" aria-labelledby="p-variants-label" role="navigation">
+	<input type="checkbox" id="p-variants-checkbox" role="button" aria-haspopup="true" data-event-name="ui.dropdown-p-variants" class="vector-menu-checkbox" aria-labelledby="p-variants-label">
+	<label id="p-variants-label" aria-label="Change language variant" class="vector-menu-heading ">
+		<span class="vector-menu-heading-label">English</span>
+	</label>
+	<div class="vector-menu-content">
+		
+		<ul class="vector-menu-content-list"></ul>
+		
+	</div>
+</nav>
+
+		</div>
+		<div id="right-navigation">
+			
+
+<nav id="p-views" class="vector-menu mw-portlet mw-portlet-views vector-menu-tabs vector-menu-tabs-legacy" aria-labelledby="p-views-label" role="navigation">
+	<h3 id="p-views-label" class="vector-menu-heading ">
+		<span class="vector-menu-heading-label">Views</span>
+	</h3>
+	<div class="vector-menu-content">
+		
+		<ul class="vector-menu-content-list"><li id="ca-view" class="selected mw-list-item collapsible"><a href="https://datacrystal.tcrf.net/wiki/Dragon_Warrior_IV_(NES)/Map_Data_Format"><span>Read</span></a></li><li id="ca-viewsource" class="mw-list-item collapsible"><a href="https://datacrystal.tcrf.net/w/index.php?title=Dragon_Warrior_IV_(NES)/Map_Data_Format&amp;action=edit" title="This page is protected.
+You can view its source [Alt+Shift+e]" accesskey="e"><span>View source</span></a></li><li id="ca-history" class="mw-list-item collapsible"><a href="https://datacrystal.tcrf.net/w/index.php?title=Dragon_Warrior_IV_(NES)/Map_Data_Format&amp;action=history" title="Past revisions of this page [Alt+Shift+h]" accesskey="h"><span>View history</span></a></li></ul>
+		
+	</div>
+</nav>
+
+			
+
+<nav id="p-cactions" class="vector-menu mw-portlet mw-portlet-cactions emptyPortlet vector-menu-dropdown" aria-labelledby="p-cactions-label" role="navigation" title="More options">
+	<input type="checkbox" id="p-cactions-checkbox" role="button" aria-haspopup="true" data-event-name="ui.dropdown-p-cactions" class="vector-menu-checkbox" aria-labelledby="p-cactions-label">
+	<label id="p-cactions-label" class="vector-menu-heading ">
+		<span class="vector-menu-heading-label">More</span>
+	</label>
+	<div class="vector-menu-content">
+		
+		<ul class="vector-menu-content-list"></ul>
+		
+	</div>
+</nav>
+
+			
+<div id="p-search" role="search" class="vector-search-box-vue  vector-search-box-show-thumbnail vector-search-box-auto-expand-width vector-search-box">
+	<div>
+			<h3>
+				<label for="searchInput">Search</label>
+			</h3>
+		<form action="/w/index.php" id="searchform" class="vector-search-box-form">
+			<div id="simpleSearch" class="vector-search-box-inner" data-search-loc="header-navigation">
+				<input class="vector-search-box-input" type="search" name="search" placeholder="Search Data Crystal" aria-label="Search Data Crystal" autocapitalize="sentences" title="Search Data Crystal [Alt+Shift+f]" accesskey="f" id="searchInput">
+				<input type="hidden" name="title" value="Special:Search">
+				<input id="mw-searchButton" class="searchButton mw-fallbackSearchButton" type="submit" name="fulltext" title="Search the pages for this text" value="Search">
+				<input id="searchButton" class="searchButton" type="submit" name="go" title="Go to a page with this exact name if it exists" value="Go">
+			</div>
+		</form>
+	</div>
+</div>
+
+		</div>
+	</div>
+	
+
+<div id="mw-panel">
+	<div id="p-logo" role="banner">
+		<a class="mw-wiki-logo" href="https://datacrystal.tcrf.net/wiki/Data_Crystal" title="Visit the main page"></a>
+	</div>
+	
+
+<nav id="p-Navigation" class="vector-menu mw-portlet mw-portlet-Navigation vector-menu-portal portal" aria-labelledby="p-Navigation-label" role="navigation">
+	<h3 id="p-Navigation-label" class="vector-menu-heading ">
+		<span class="vector-menu-heading-label">Navigation</span>
+	</h3>
+	<div class="vector-menu-content">
+		
+		<ul class="vector-menu-content-list"><li id="n-Main-Page" class="mw-list-item"><a href="https://datacrystal.tcrf.net/wiki/Data_Crystal"><span>Main Page</span></a></li><li id="n-recentchanges" class="mw-list-item"><a href="https://datacrystal.tcrf.net/wiki/Special:RecentChanges" title="A list of recent changes in the wiki [Alt+Shift+r]" accesskey="r"><span>Recent changes</span></a></li><li id="n-randompage" class="mw-list-item"><a href="https://datacrystal.tcrf.net/wiki/Special:Random" title="Load a random page [Alt+Shift+x]" accesskey="x"><span>Random page</span></a></li><li id="n-help" class="mw-list-item"><a href="https://datacrystal.tcrf.net/wiki/Help:Contents" title="The place to find out"><span>Help</span></a></li></ul>
+		
+	</div>
+</nav>
+
+	
+
+<nav id="p-Community" class="vector-menu mw-portlet mw-portlet-Community vector-menu-portal portal" aria-labelledby="p-Community-label" role="navigation">
+	<h3 id="p-Community-label" class="vector-menu-heading ">
+		<span class="vector-menu-heading-label">Community</span>
+	</h3>
+	<div class="vector-menu-content">
+		
+		<ul class="vector-menu-content-list"><li id="n-ROMhack.ing" class="mw-list-item"><a href="https://www.romhack.ing/" rel="nofollow"><span>ROMhack.ing</span></a></li><li id="n-TCRF" class="mw-list-item"><a href="https://tcrf.net/" rel="nofollow"><span>TCRF</span></a></li><li id="n-Discord-(RHDI)" class="mw-list-item"><a href="https://discord.com/invite/uAufcgz" rel="nofollow"><span>Discord (RHDI)</span></a></li><li id="n-Discord-(TCRF)" class="mw-list-item"><a href="https://discord.com/invite/SGeE8dcWR6" rel="nofollow"><span>Discord (TCRF)</span></a></li><li id="n-Fan-Translation-Community-History" class="mw-list-item"><a href="https://datacrystal.tcrf.net/wiki/Fan_Translation_Community_History"><span>Fan Translation Community History</span></a></li></ul>
+		
+	</div>
+</nav>
+
+
+<nav id="p-Games" class="vector-menu mw-portlet mw-portlet-Games vector-menu-portal portal" aria-labelledby="p-Games-label" role="navigation">
+	<h3 id="p-Games-label" class="vector-menu-heading ">
+		<span class="vector-menu-heading-label">Games</span>
+	</h3>
+	<div class="vector-menu-content">
+		
+		<ul class="vector-menu-content-list"><li id="n-By-platform" class="mw-list-item"><a href="https://datacrystal.tcrf.net/wiki/Category:Games_by_platform"><span>By platform</span></a></li><li id="n-By-series" class="mw-list-item"><a href="https://datacrystal.tcrf.net/wiki/Category:Games_by_series"><span>By series</span></a></li><li id="n-By-content" class="mw-list-item"><a href="https://datacrystal.tcrf.net/wiki/Category:Games_by_content"><span>By content</span></a></li><li id="n-By-hardware" class="mw-list-item"><a href="https://datacrystal.tcrf.net/wiki/Category:Games_by_hardware"><span>By hardware</span></a></li><li id="n-By-release-date" class="mw-list-item"><a href="https://datacrystal.tcrf.net/wiki/Category:Games_by_release_date"><span>By release date</span></a></li><li id="n-By-developer" class="mw-list-item"><a href="https://datacrystal.tcrf.net/wiki/Category:Games_by_developer"><span>By developer</span></a></li><li id="n-By-publisher" class="mw-list-item"><a href="https://datacrystal.tcrf.net/wiki/Category:Games_by_publisher"><span>By publisher</span></a></li><li id="n-RHDI-Games-List" class="mw-list-item"><a href="https://romhack.ing/search/game" rel="nofollow"><span>RHDI Games List</span></a></li><li id="n-Translation-Request-List" class="mw-list-item"><a href="https://datacrystal.tcrf.net/wiki/Translations_Request_List"><span>Translation Request List</span></a></li></ul>
+		
+	</div>
+</nav>
+
+
+<nav id="p-tb" class="vector-menu mw-portlet mw-portlet-tb vector-menu-portal portal" aria-labelledby="p-tb-label" role="navigation">
+	<h3 id="p-tb-label" class="vector-menu-heading ">
+		<span class="vector-menu-heading-label">Tools</span>
+	</h3>
+	<div class="vector-menu-content">
+		
+		<ul class="vector-menu-content-list"><li id="t-whatlinkshere" class="mw-list-item"><a href="https://datacrystal.tcrf.net/wiki/Special:WhatLinksHere/Dragon_Warrior_IV_(NES)/Map_Data_Format" title="A list of all wiki pages that link here [Alt+Shift+j]" accesskey="j"><span>What links here</span></a></li><li id="t-recentchangeslinked" class="mw-list-item"><a href="https://datacrystal.tcrf.net/wiki/Special:RecentChangesLinked/Dragon_Warrior_IV_(NES)/Map_Data_Format" rel="nofollow" title="Recent changes in pages linked from this page [Alt+Shift+k]" accesskey="k"><span>Related changes</span></a></li><li id="t-specialpages" class="mw-list-item"><a href="https://datacrystal.tcrf.net/wiki/Special:SpecialPages" title="A list of all special pages [Alt+Shift+q]" accesskey="q"><span>Special pages</span></a></li><li id="t-print" class="mw-list-item"><a href="javascript:print();" rel="alternate" title="Printable version of this page [Alt+Shift+p]" accesskey="p"><span>Printable version</span></a></li><li id="t-permalink" class="mw-list-item"><a href="https://datacrystal.tcrf.net/w/index.php?title=Dragon_Warrior_IV_(NES)/Map_Data_Format&amp;oldid=64557" title="Permanent link to this revision of this page"><span>Permanent link</span></a></li><li id="t-info" class="mw-list-item"><a href="https://datacrystal.tcrf.net/w/index.php?title=Dragon_Warrior_IV_(NES)/Map_Data_Format&amp;action=info" title="More information about this page"><span>Page information</span></a></li></ul>
+		
+	</div>
+</nav>
+
+	
+</div>
+
+</div>
+
+<footer id="footer" class="mw-footer" role="contentinfo">
+	<ul id="footer-info">
+	<li id="footer-info-lastmod"> This page was last edited on 28 October 2024, at 19:22.</li>
+	<li id="footer-info-copyright">Content is available under <a class="external" rel="nofollow" href="http://www.gnu.org/copyleft/fdl.html">GNU Free Documentation License 1.2</a> unless otherwise noted.</li>
+</ul>
+
+	<ul id="footer-places">
+	<li id="footer-places-privacy"><a href="https://datacrystal.tcrf.net/wiki/Data_Crystal:Privacy_policy">Privacy policy</a></li>
+	<li id="footer-places-about"><a href="https://datacrystal.tcrf.net/wiki/Data_Crystal:About">About Data Crystal</a></li>
+	<li id="footer-places-disclaimer"><a href="https://datacrystal.tcrf.net/wiki/Data_Crystal:General_disclaimer">Disclaimers</a></li>
+</ul>
+
+	<ul id="footer-icons" class="noprint">
+	<li id="footer-copyrightico"><a href="http://www.gnu.org/copyleft/fdl.html"><img src="Dragon%20Warrior%20IV%20(NES)_Map%20Data%20Format%20-%20Data%20Crystal_files/gnu-fdl_lRvb.png" alt="GNU Free Documentation License 1.2" width="88" height="31" loading="lazy"></a></li>
+	<li id="footer-poweredbyico"><a href="https://www.mediawiki.org/"><img src="Dragon%20Warrior%20IV%20(NES)_Map%20Data%20Format%20-%20Data%20Crystal_files/poweredby_mediawiki_88x31_lRvb.png" alt="Powered by MediaWiki" srcset="Dragon%20Warrior%20IV%20(NES)_Map%20Data%20Format%20-%20Data%20Crystal_files/poweredby_mediawiki_132x47_lRvb.png 1.5x, Dragon%20Warrior%20IV%20(NES)_Map%20Data%20Format%20-%20Data%20Crystal_files/poweredby_mediawiki_176x62_lRvb.png 2x" width="88" height="31" loading="lazy"></a></li>
+</ul>
+
+</footer>
+
+<script>(RLQ=window.RLQ||[]).push(function(){mw.config.set({"wgPageParseReport":{"limitreport":{"cputime":"0.027","walltime":"0.035","ppvisitednodes":{"value":74,"limit":1000000},"postexpandincludesize":{"value":533,"limit":2097152},"templateargumentsize":{"value":0,"limit":2097152},"expansiondepth":{"value":7,"limit":100},"expensivefunctioncount":{"value":2,"limit":500},"unstrip-depth":{"value":0,"limit":20},"unstrip-size":{"value":0,"limit":5000000},"timingprofile":["100.00%   10.601      1 Template:Subpage","100.00%   10.601      1 -total"," 23.68%    2.510      1 Template:TalkIndicator"]},"cachereport":{"timestamp":"20260908143348","ttl":86400,"transientcontent":false}}});mw.config.set({"wgBackendResponseTime":404});});</script>
+<script type="module" src="Dragon%20Warrior%20IV%20(NES)_Map%20Data%20Format%20-%20Data%20Crystal_files/v31edd6df95cf4e85bb4c19e7a9bdbcba1788362987495_lRvb" integrity="sha512-iIg7k2xntmwu6/uSb5tpc/hySgZc4eoL31yB29W6tJFo2akwjPWcEqnCEdJvGexCL0KEQwVYv5BlowfhVz26hg==" data-cf-beacon="{&quot;version&quot;:&quot;2024.11.0&quot;,&quot;token&quot;:&quot;2da917652eb5480c878d31f40dd09404&quot;,&quot;r&quot;:1,&quot;spa&quot;:2}" crossorigin="anonymous"></script>
+
+</body></html>

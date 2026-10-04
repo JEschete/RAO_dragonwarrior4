@@ -44,3 +44,15 @@ def test_generated_knowledge_loads_without_reference_pages(tmp_path: Path) -> No
     assert len(knowledge["achievements"]) == 43
     assert load_submap_names(tmp_path)
     assert load_treasure_records(tmp_path)
+
+
+@pytest.mark.parametrize("field,value", (("submap_names", {"invalid": "Town"}),
+                                         ("treasures", [{}]), ("spells", [[{}]]),
+                                         ("achievements", [{}])))
+def test_malformed_nested_knowledge_fails_before_runtime_use(tmp_path: Path, field: str, value) -> None:
+    document = json.loads(KNOWLEDGE_PATH.read_text(encoding="utf-8"))
+    document[field] = value
+    path = tmp_path / "knowledge.json"
+    path.write_text(json.dumps(document), encoding="utf-8")
+    with pytest.raises(ValueError):
+        DragonWarrior4Knowledge.load(path)

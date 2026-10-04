@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Protocol
+from typing import Callable, Protocol
 
 from .reference_data import (
     CHAPTERS,
@@ -20,6 +20,7 @@ from .rom_assets import area_key
 
 RAM_SIZE = 0x0800
 US_TILESET_ADDRESS = 0x0028
+LOCAL_MAP_MODE_ADDRESS = 0x0041
 WRAM_ADDRESS = 0x6000
 WRAM_SIZE = 0x0300
 WORLD_LOCATIONS = {
@@ -78,6 +79,25 @@ class CharacterState:
     luck: int
     items: tuple[InventoryItemState, ...]
     spells: tuple[SpellDefinition, ...]
+    guest: bool = False
+    available: bool = False
+    next_level_experience: int | None = None
+    spell_milestones: tuple[str, ...] = ()
+    level_start_experience: int | None = None
+
+    @property
+    def experience_remaining(self) -> int | None:
+        if self.next_level_experience is None or self.level >= 99:
+            return None
+        return max(0, self.next_level_experience - self.experience)
+
+    @property
+    def experience_fraction(self) -> float | None:
+        """Progress through the current level, when both of its bounds are known."""
+        start, end = self.level_start_experience, self.next_level_experience
+        if start is None or end is None or end <= start or self.level >= 99:
+            return None
+        return max(0.0, min(1.0, (self.experience - start) / (end - start)))
 
 
 @dataclass(frozen=True, slots=True)
@@ -98,6 +118,42 @@ class DragonWarrior4State:
     has_boat: bool
     has_balloon: bool
     small_medals: int
+    party_ids: tuple[int, ...] = ()
+    available_ids: tuple[int, ...] = ()
+    hero_female: bool = False
+    vault_gold: int = 0
+    transform_steps: int = 0
+    transform_shape: int = 0
+    return_flags: bytes = b""
+    ai_knowledge: bytes = b""
+    event_flags: bytes = b""
+    reserve_accessible: bool = False
+
+    @property
+    def transformation_kind(self) -> str | None:
+        if not self.transform_steps:
+            return None
+        return "NPC appearance" if self.transform_shape & 0x80 else "Character appearance"
+
+    @property
+    def transformation_sprite_id(self) -> int | None:
+        return self.transform_shape & 0x7F if self.transform_steps else None
+
+    def knowledge_rank(self, monster_id: int) -> int | None:
+        byte_index, pair = divmod(monster_id, 4)
+        if not 0 <= monster_id < 214 or byte_index >= len(self.ai_knowledge):
+            return None
+        return (self.ai_knowledge[byte_index] >> (pair * 2)) & 3
+
+    @property
+    def active_party(self) -> tuple[CharacterState, ...]:
+        by_id = {character.character_id: character for character in self.characters}
+        return tuple(by_id[identifier] for identifier in self.party_ids if identifier in by_id)
+
+    @property
+    def available_party(self) -> tuple[CharacterState, ...]:
+        by_id = {character.character_id: character for character in self.characters}
+        return tuple(by_id[identifier] for identifier in self.available_ids if identifier in by_id)
 
 
 def read_state(
@@ -105,6 +161,7 @@ def read_state(
     wram: bytes,
     assets: AreaCatalog | None = None,
     submap_names: dict[tuple[int, int], str] | None = None,
+    guest_profile: Callable[[int], tuple[str, int, int] | None] | None = None,
 ) -> DragonWarrior4State:
     if len(ram) < RAM_SIZE:
         raise ValueError("DW4 system RAM snapshot is incomplete")
@@ -112,10 +169,17 @@ def read_state(
         raise ValueError("DW4 work RAM snapshot is incomplete")
 
     party_ids = _party_ids(wram)
+    available_ids = tuple(dict.fromkeys((*party_ids, *_party_ids(wram, reserve=True))))
     hero_name = decode_text(wram[0x15D:0x165])
     characters = tuple(
-        _character(wram, character_id, party_ids, hero_name)
+        _character(wram, character_id, party_ids, hero_name, available_ids)
         for character_id in range(len(PARTY_NAMES))
+    )
+    if 8 in available_ids:
+        characters += (_character(wram, 8, party_ids, hero_name, available_ids),)
+    characters += tuple(
+        _guest_character(wram, identifier, guest_profile, identifier in party_ids)
+        for identifier in available_ids if identifier >= 9
     )
     chapter = wram[0x15A]
     tactics = wram[0x15B]
@@ -138,16 +202,43 @@ def read_state(
         bool(wram[0x28E] & 0x01),
         bool(wram[0x28E] & 0x02),
         wram[0x2A2],
+        party_ids,
+        available_ids,
+        bool(wram[0x15C] & 1),
+        int.from_bytes(wram[0x25B:0x25D], "little") * 1000,
+        wram[0x296],
+        wram[0x297],
+        bytes(wram[0x165:0x16A]),
+        bytes(wram[0x19B:0x1D1]),
+        bytes(wram[0x27B:0x2AD]),
+        reserve_roster_accessible(ram, wram),
     )
 
 
-def _party_ids(wram: bytes) -> tuple[int, ...]:
+def reserve_roster_accessible(ram: bytes, wram: bytes) -> bool:
+    flags = wram[0x18E]
+    if not flags & 0x20 or flags & 0x80:
+        return False
+    mode = flags & 7
+    if mode == 0:
+        return True
+    if not ram[0x41] & 0x80:
+        return False
+    if mode == 1:
+        return ram[0x7BA] not in {4, 5} and wram[0x18F] == ram[0x63]
+    return mode == 2 and wram[0x193] == ram[0x63]
+
+
+def _party_ids(wram: bytes, *, reserve: bool = False) -> tuple[int, ...]:
     result = []
-    for value in wram[0x16A:0x16E]:
+    flags = wram[0x18E]
+    offset = (0x12 if flags & 0x40 else 8) if reserve else (4 if flags & 0x80 else 0) + (0x1C if flags & 0x40 else 0)
+    start = 0x16A + offset
+    for value in wram[start:start + (10 if reserve else 4)]:
         if not value & 0x80:
             continue
         character_id = value & 0x1F
-        if character_id < len(PARTY_NAMES) and character_id not in result:
+        if character_id < 21 and character_id not in result:
             result.append(character_id)
     return tuple(result)
 
@@ -157,11 +248,12 @@ def _character(
     character_id: int,
     party_ids: tuple[int, ...],
     hero_name: str,
+    available_ids: tuple[int, ...] = (),
 ) -> CharacterState:
     start = 1 + character_id * 30
     record = wram[start:start + 30]
     flags = record[0]
-    name = hero_name if character_id == 0 and hero_name else PARTY_NAMES[character_id]
+    name = (hero_name or "Hero") if character_id in {0, 8} else PARTY_NAMES[character_id]
     items = tuple(
         InventoryItemState(
             value & 0x7F,
@@ -191,7 +283,27 @@ def _character(
         record[9],
         record[10],
         items,
-        learned_spells(character_id, record[27:30]),
+        learned_spells(character_id & 7, record[27:30]),
+        False,
+        character_id in available_ids,
+    )
+
+
+def _guest_character(
+    wram: bytes,
+    identifier: int,
+    resolver: Callable[[int], tuple[str, int, int] | None] | None,
+    active: bool,
+) -> CharacterState:
+    start = 0x10F + (identifier - 9) * 6
+    record = wram[start:start + 6]
+    profile = resolver(record[5]) if resolver is not None else None
+    return CharacterState(
+        identifier, profile[0] if profile else "Guest", active,
+        bool(record[0] & 0x80), bool(record[0] & 0x20), bool(record[0] & 0x40),
+        0, int.from_bytes(record[1:3], "little"), profile[1] if profile else 0,
+        int.from_bytes(record[3:5], "little"), profile[2] if profile else 0,
+        0, 0, 0, 0, 0, 0, (), (), True, True,
     )
 
 
@@ -201,7 +313,10 @@ def _location(
     submap_names: dict[tuple[int, int], str] | None,
 ) -> LocationState:
     marker = ram[0x58F]
-    memory_region = "US" if marker == 0x10 else "Japan" if marker == 0 else "Unknown"
+    memory_region = (
+        assets.region if assets is not None and assets.region in {"US", "Japan"}
+        else "US" if marker == 0x10 else "Japan" if marker == 0 else "Unknown"
+    )
     us_candidate = (
         ram[0x63],
         ram[0x64],
@@ -213,14 +328,11 @@ def _location(
         "RetroAchievements JP code note ($0028; submap unavailable)",
     )
     if memory_region == "US":
-        # US $0028 holds the loaded tileset (verified live: Burland $0A,
-        # Burland Castle $0D, overworld $00). Indoor maps use tilesets 1-50, and
-        # $0063/$0064 keep a stale town ID while walking the overworld.
-        if ram[US_TILESET_ADDRESS] == 0:
+        if not ram[LOCAL_MAP_MODE_ADDRESS] & 0x80:
             world_selector = ram[0x65]
             title, area = WORLD_LOCATIONS.get(
                 world_selector,
-                WORLD_LOCATIONS[0],
+                (f"Unknown world (${world_selector:02X})", "Unknown"),
             )
             return LocationState(
                 title,
@@ -269,14 +381,14 @@ def _location(
             evidence,
         )
     return LocationState(
-        "Main World",
-        "World",
+        f"Unknown indoor map ${map_id:02X}:${submap:02X}",
+        "Unknown",
         map_id,
         submap,
-        ram[0x42],
-        ram[0x43],
-        True,
-        -1,
+        ram[0x44],
+        ram[0x45],
+        False,
+        area_key(map_id, submap),
         memory_region,
         f"{evidence}; no documented indoor descriptor matched",
     )

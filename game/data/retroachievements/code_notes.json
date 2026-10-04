@@ -1,0 +1,718 @@
+{
+  "schema_version": 1,
+  "source": "RetroAchievements authenticated code-notes page",
+  "pages": [
+    {
+      "game_id": 4612,
+      "source_url": "https://retroachievements.org/codenotes.php?g=4612",
+      "related_game_ids": [],
+      "notes": [
+        {
+          "address": "0x000014",
+          "scope": "set",
+          "author": "Jamiras",
+          "note": "buttons pressed"
+        },
+        {
+          "address": "0x000017",
+          "scope": "set",
+          "author": "Jamiras",
+          "note": "[2byte] base poker winnings (before double-or-nothing)"
+        },
+        {
+          "address": "0x000028",
+          "scope": "set",
+          "author": "mickyt888",
+          "note": "map id?"
+        },
+        {
+          "address": "0x000029",
+          "scope": "set",
+          "author": "Jamiras",
+          "note": "Slot 1 Position"
+        },
+        {
+          "address": "0x00002A",
+          "scope": "set",
+          "author": "Jamiras",
+          "note": "Slot 2 Position"
+        },
+        {
+          "address": "0x00002B",
+          "scope": "set",
+          "author": "Jamiras",
+          "note": "Slot 3 Position"
+        },
+        {
+          "address": "0x000036",
+          "scope": "set",
+          "author": "Jamiras",
+          "note": "Slot rows lit"
+        },
+        {
+          "address": "0x000042",
+          "scope": "set",
+          "author": "Jamiras",
+          "note": "Player World X"
+        },
+        {
+          "address": "0x000043",
+          "scope": "set",
+          "author": "Jamiras",
+          "note": "Player World Y"
+        },
+        {
+          "address": "0x000044",
+          "scope": "set",
+          "author": "Jamiras",
+          "note": "Player Town/Dungeon X"
+        },
+        {
+          "address": "0x000045",
+          "scope": "set",
+          "author": "Jamiras",
+          "note": "Player Town/Dungeon Y"
+        },
+        {
+          "address": "0x000081",
+          "scope": "set",
+          "author": "Jamiras",
+          "note": "Winning Poker hand type (0=Royal Flush...8=Two Pair, FF=nothing)"
+        },
+        {
+          "address": "0x0000C0",
+          "scope": "set",
+          "author": "macacocareca",
+          "note": "16bit (Monster Code?)"
+        },
+        {
+          "address": "0x0000FA",
+          "scope": "set",
+          "author": "mickyt888",
+          "note": "possible item code?"
+        },
+        {
+          "address": "0x0000FD",
+          "scope": "set",
+          "author": "Jamiras",
+          "note": "Poker Double-or-Nothing index"
+        },
+        {
+          "address": "0x000302",
+          "scope": "set",
+          "author": "Jamiras",
+          "note": "next character to write"
+        },
+        {
+          "address": "0x0003CF",
+          "scope": "set",
+          "author": "Jamiras",
+          "note": "cursor position, high4=X, low4=Y"
+        },
+        {
+          "address": "0x000440",
+          "scope": "set",
+          "author": "macacocareca",
+          "note": "(Monster 1 Code)"
+        },
+        {
+          "address": "0x000441",
+          "scope": "set",
+          "author": "macacocareca",
+          "note": "(Monster 2 Code)"
+        },
+        {
+          "address": "0x000551",
+          "scope": "set",
+          "author": "Jamiras",
+          "note": "text output X"
+        },
+        {
+          "address": "0x000552",
+          "scope": "set",
+          "author": "Jamiras",
+          "note": "text output Y"
+        },
+        {
+          "address": "0x00058F",
+          "scope": "set",
+          "author": "Jamiras",
+          "note": "Region indicator?\n00=JP\n10=US"
+        },
+        {
+          "address": "0x0006AA",
+          "scope": "set",
+          "author": "Jamiras",
+          "note": "[194 bytes] dialogue window text (8 lines, 24 columns)"
+        },
+        {
+          "address": "0x00078B",
+          "scope": "set",
+          "author": "LordKuddy",
+          "note": "Ragnar Inventory?"
+        },
+        {
+          "address": "0x006032",
+          "scope": "set",
+          "author": "macacocareca",
+          "note": "Cristo Item Slot 1"
+        },
+        {
+          "address": "0x00608C",
+          "scope": "set",
+          "author": "macacocareca",
+          "note": "Brey Item Slot 1"
+        },
+        {
+          "address": "0x0060B6",
+          "scope": "set",
+          "author": "mickyt888",
+          "note": "character 1 hp?"
+        },
+        {
+          "address": "0x0060BA",
+          "scope": "set",
+          "author": "mickyt888",
+          "note": "character 1's level"
+        },
+        {
+          "address": "0x0060BB",
+          "scope": "set",
+          "author": "mickyt888",
+          "note": "1 strenth"
+        },
+        {
+          "address": "0x0060BC",
+          "scope": "set",
+          "author": "mickyt888",
+          "note": "1 agility"
+        },
+        {
+          "address": "0x0060C1",
+          "scope": "set",
+          "author": "mickyt888",
+          "note": "max hp"
+        },
+        {
+          "address": "0x0060C5",
+          "scope": "set",
+          "author": "mickyt888",
+          "note": "exp points"
+        },
+        {
+          "address": "0x0060C8",
+          "scope": "set",
+          "author": "LordKuddy",
+          "note": "Ragnar Inventory Slot 1"
+        },
+        {
+          "address": "0x0060C9",
+          "scope": "set",
+          "author": "LordKuddy",
+          "note": "Ragnar Inventory Slot 2"
+        },
+        {
+          "address": "0x0060CA",
+          "scope": "set",
+          "author": "LordKuddy",
+          "note": "Ragnar Inventory Slot 3"
+        },
+        {
+          "address": "0x0060CB",
+          "scope": "set",
+          "author": "LordKuddy",
+          "note": "Ragnar Inventory Slot 4"
+        },
+        {
+          "address": "0x0060CC",
+          "scope": "set",
+          "author": "LordKuddy",
+          "note": "Ragnar Inventory Slot 5"
+        },
+        {
+          "address": "0x0060CD",
+          "scope": "set",
+          "author": "LordKuddy",
+          "note": "Ragnar Inventory Slot 6"
+        },
+        {
+          "address": "0x0060CE",
+          "scope": "set",
+          "author": "LordKuddy",
+          "note": "Ragnar Inventory Slot 7"
+        },
+        {
+          "address": "0x0060CF",
+          "scope": "set",
+          "author": "LordKuddy",
+          "note": "Ragnar Inventory Slot 8"
+        },
+        {
+          "address": "0x0060E6",
+          "scope": "set",
+          "author": "macacocareca",
+          "note": "(Alenna Inventory 1)"
+        },
+        {
+          "address": "0x006157",
+          "scope": "set",
+          "author": "Jamiras",
+          "note": "[24-bit] total Gold"
+        },
+        {
+          "address": "0x00615A",
+          "scope": "set",
+          "author": "Jamiras",
+          "note": "Current Chapter (-1)"
+        },
+        {
+          "address": "0x00615C",
+          "scope": "set",
+          "author": "Jamiras",
+          "note": "Hero gender"
+        },
+        {
+          "address": "0x00615D",
+          "scope": "set",
+          "author": "Jamiras",
+          "note": "[8-bytes] hero name"
+        },
+        {
+          "address": "0x006165",
+          "scope": "set",
+          "author": "mickyt888",
+          "note": "event value? yes? no?"
+        },
+        {
+          "address": "0x00616A",
+          "scope": "set",
+          "author": "macacocareca",
+          "note": "Character 1"
+        },
+        {
+          "address": "0x00616B",
+          "scope": "set",
+          "author": "macacocareca",
+          "note": "Character 2"
+        },
+        {
+          "address": "0x00616C",
+          "scope": "set",
+          "author": "macacocareca",
+          "note": "Character 3"
+        },
+        {
+          "address": "0x00616D",
+          "scope": "set",
+          "author": "macacocareca",
+          "note": "Character 4"
+        },
+        {
+          "address": "0x0061DB",
+          "scope": "set",
+          "author": "Jamiras",
+          "note": "Vault items"
+        },
+        {
+          "address": "0x00625D",
+          "scope": "set",
+          "author": "Jamiras",
+          "note": "b0-3: chests in Burland Castle\nb4-7: chests in Keeleon Castle"
+        },
+        {
+          "address": "0x006261",
+          "scope": "set",
+          "author": "Jamiras",
+          "note": "b0: chest in Aktemto Mine, b1: chest in Desert Inn\nb2: chest in Kievs, b3-5: chests in Lakanaba\nb6-b7: chests in Esturk's Palace"
+        },
+        {
+          "address": "0x006262",
+          "scope": "set",
+          "author": "Jamiras",
+          "note": "b0-5: chests in Esturk's Palace\nb6-7: chests in Aktemto Mine"
+        },
+        {
+          "address": "0x006263",
+          "scope": "set",
+          "author": "Jamiras",
+          "note": "b0-2: chests in Cave of Padequia\nb3-5: chests in Shrine of Breaking Waves\nb6-7: chests in Esturk's Palace"
+        },
+        {
+          "address": "0x006264",
+          "scope": "set",
+          "author": "Jamiras",
+          "note": "b0-4: chests in Cave southeast of Gardenbur\nb5-7: chests in Cave of Padequia"
+        },
+        {
+          "address": "0x006265",
+          "scope": "set",
+          "author": "Jamiras",
+          "note": "b0: chest in Cave south of Frenor\nb1-b6: chests in Cave west of Kievs\nb7: chest in Cave southeast of Gardenbur"
+        },
+        {
+          "address": "0x006266",
+          "scope": "set",
+          "author": "Jamiras",
+          "note": "b0: chest in Cascade Cave\nb1-b3: chests in Secret Playground\nb4-b7: chests in Cave south of Frenor"
+        },
+        {
+          "address": "0x006267",
+          "scope": "set",
+          "author": "Jamiras",
+          "note": "b0-b3: chests in Cave to the Dark World\nb4-b7: chests in Cascade Cave"
+        },
+        {
+          "address": "0x006268",
+          "scope": "set",
+          "author": "Jamiras",
+          "note": "b0-b7: chests in Cave to the Dark World"
+        },
+        {
+          "address": "0x006269",
+          "scope": "set",
+          "author": "Jamiras",
+          "note": "b0-b3: chests in Cave of Silver Statuette\nb4: chest in Cave of Betrayal, b5-b6: chests in Cave north of Lakanaba\nb7: chests in Cave to the Dark World"
+        },
+        {
+          "address": "0x00626A",
+          "scope": "set",
+          "author": "Jamiras",
+          "note": "b0-1: chests in Cave of Izmit\nb2-7: chests in Cave of Silver Statuette"
+        },
+        {
+          "address": "0x00626B",
+          "scope": "set",
+          "author": "Jamiras",
+          "note": "b0-4: chests in Zenithian Tower\nb5-7: chests in Royal Crypt"
+        },
+        {
+          "address": "0x00626C",
+          "scope": "set",
+          "author": "Jamiras",
+          "note": "b0-1: chests in Loch Tower\nb2-4: chests in World Tree\nb5-7: chests in Birdsong Tower"
+        },
+        {
+          "address": "0x00626D",
+          "scope": "set",
+          "author": "Jamiras",
+          "note": "b0-3: chests in Great Lighthouse\nb4-7: chests in Loch Tower"
+        },
+        {
+          "address": "0x00626E",
+          "scope": "set",
+          "author": "Jamiras",
+          "note": "b1: chest in Great Lighthouse\nb2: chest in Konenber\nb3-b4: chests in Great Lighthouse\nb6-b7: chests in Great Lighthouse"
+        },
+        {
+          "address": "0x006270",
+          "scope": "set",
+          "author": "Jamiras",
+          "note": "b0-4: chests in Shrine of the Colossus\nb5-7: chests in Shrine of the Horn"
+        },
+        {
+          "address": "0x006275",
+          "scope": "set",
+          "author": "Jamiras",
+          "note": "items hidden in furniture: Monbaraba, hero's hometown, Izmit, Haville, and Bazaar"
+        },
+        {
+          "address": "0x006276",
+          "scope": "set",
+          "author": "Jamiras",
+          "note": "items hidden in furniture: Lakanaba, Kieves, Gottside, Konenber, Island Shack, Edgar's Lab, Secret Playground"
+        },
+        {
+          "address": "0x00627A",
+          "scope": "set",
+          "author": "Jamiras",
+          "note": "Item received from chest/dresser/pot"
+        },
+        {
+          "address": "0x00627E",
+          "scope": "set",
+          "author": "Jamiras",
+          "note": "b0: follow child at Loch Tower\nb1-3,7: advance story for escape\nb4: start chapter 1, b5-6: flora/alex"
+        },
+        {
+          "address": "0x006281",
+          "scope": "set",
+          "author": "Jamiras",
+          "note": "b0-2: man in Cave to Izmit dialog indicator\nb3-4: Tempe offering, b5: escape castle\nb6: Healie in party, b7: find Alex"
+        },
+        {
+          "address": "0x006283",
+          "scope": "set",
+          "author": "mickyt888",
+          "note": "bit7=defeated 1st boss"
+        },
+        {
+          "address": "0x006284",
+          "scope": "set",
+          "author": "Jamiras",
+          "note": "b0-3: ch3 story flags\nb4-5: ch4 story flags\nb6-7: ch2 story flags"
+        },
+        {
+          "address": "0x006286",
+          "scope": "set",
+          "author": "Jamiras",
+          "note": "b0,2-7: ch3 story flags\nb1: ch2 story flag"
+        },
+        {
+          "address": "0x006289",
+          "scope": "set",
+          "author": "Jamiras",
+          "note": "b0-1,4-5: ch5 story flags\nb2: ch2 story flag, b3,6: ch3 story flag\nb7: patrolling guard sits at eatery"
+        },
+        {
+          "address": "0x00628E",
+          "scope": "set",
+          "author": "Jamiras",
+          "note": "b0: get boat, b1: get balloon\nb3: furniture in woodsmans hut\nb2,4: ch5 story flags, b6-7: ch3 story flags"
+        },
+        {
+          "address": "0x00628F",
+          "scope": "set",
+          "author": "Jamiras",
+          "note": "Taloon's consignment progress: low=swords, hi=armor"
+        },
+        {
+          "address": "0x006292",
+          "scope": "set",
+          "author": "Jamiras",
+          "note": "Characters from earlier chapters that have joined with the hero"
+        },
+        {
+          "address": "0x006296",
+          "scope": "set",
+          "author": "Jamiras",
+          "note": "Transform steps remaining"
+        },
+        {
+          "address": "0x006297",
+          "scope": "set",
+          "author": "Jamiras",
+          "note": "Transform shape"
+        },
+        {
+          "address": "0x0062A2",
+          "scope": "set",
+          "author": "Jamiras",
+          "note": "Small Medals turned in"
+        },
+        {
+          "address": "0x0062AD",
+          "scope": "set",
+          "author": "Jamiras",
+          "note": "[3 bytes] Casino Coins"
+        },
+        {
+          "address": "0x0062E7",
+          "scope": "set",
+          "author": "Jamiras",
+          "note": "[Taloon's Shop] Boomerangs in stock"
+        },
+        {
+          "address": "0x0062E8",
+          "scope": "set",
+          "author": "Jamiras",
+          "note": "[Taloon's Shop] Chain Sickles in stock"
+        },
+        {
+          "address": "0x0062ED",
+          "scope": "set",
+          "author": "Jamiras",
+          "note": "Time of Day"
+        },
+        {
+          "address": "0x006E7F",
+          "scope": "set",
+          "author": "Jamiras",
+          "note": "Arena\nb0-b2=predicted winner\nb7=correct, b6=incorrect"
+        },
+        {
+          "address": "0x006E81",
+          "scope": "set",
+          "author": "Jamiras",
+          "note": "Arena Round"
+        },
+        {
+          "address": "0x006E82",
+          "scope": "set",
+          "author": "Jamiras",
+          "note": "Arena Bet"
+        },
+        {
+          "address": "0x006E83",
+          "scope": "set",
+          "author": "Jamiras",
+          "note": "Arena payout"
+        },
+        {
+          "address": "0x007201",
+          "scope": "set",
+          "author": "Jamiras",
+          "note": "[Battle] [2 bytes] Gold earned from defeated monsters"
+        },
+        {
+          "address": "0x007203",
+          "scope": "set",
+          "author": "Jamiras",
+          "note": "[Battle] [3 bytes] Experience earned from defeated monsters"
+        },
+        {
+          "address": "0x007274",
+          "scope": "set",
+          "author": "Jamiras",
+          "note": "Monster 1 agility"
+        },
+        {
+          "address": "0x007275",
+          "scope": "set",
+          "author": "Jamiras",
+          "note": "Monster 1 attack"
+        },
+        {
+          "address": "0x007277",
+          "scope": "set",
+          "author": "Jamiras",
+          "note": "Monster 1 defense"
+        },
+        {
+          "address": "0x00727A",
+          "scope": "set",
+          "author": "Jamiras",
+          "note": "Monster 1 status"
+        },
+        {
+          "address": "0x00727E",
+          "scope": "set",
+          "author": "Jamiras",
+          "note": "[2byte] Monster 1 HP"
+        },
+        {
+          "address": "0x007280",
+          "scope": "set",
+          "author": "Jamiras",
+          "note": "Monster 1 MP"
+        },
+        {
+          "address": "0x007281",
+          "scope": "set",
+          "author": "Jamiras",
+          "note": "Monster 1 group/letter"
+        },
+        {
+          "address": "0x007282",
+          "scope": "set",
+          "author": "Jamiras",
+          "note": "Monster 2 agility"
+        },
+        {
+          "address": "0x007283",
+          "scope": "set",
+          "author": "Jamiras",
+          "note": "Monster 2 attack"
+        },
+        {
+          "address": "0x007285",
+          "scope": "set",
+          "author": "Jamiras",
+          "note": "Monster 2 defense"
+        },
+        {
+          "address": "0x007288",
+          "scope": "set",
+          "author": "Jamiras",
+          "note": "Monster 2 status"
+        },
+        {
+          "address": "0x00728C",
+          "scope": "set",
+          "author": "Jamiras",
+          "note": "[2byte] Monster 2 HP"
+        },
+        {
+          "address": "0x00728E",
+          "scope": "set",
+          "author": "Jamiras",
+          "note": "Monster 2 MP"
+        },
+        {
+          "address": "0x00728F",
+          "scope": "set",
+          "author": "Jamiras",
+          "note": "Monster 2 group/letter"
+        },
+        {
+          "address": "0x007290",
+          "scope": "set",
+          "author": "Jamiras",
+          "note": "Monster 3 agility"
+        },
+        {
+          "address": "0x007291",
+          "scope": "set",
+          "author": "Jamiras",
+          "note": "Monster 3 attack"
+        },
+        {
+          "address": "0x007293",
+          "scope": "set",
+          "author": "Jamiras",
+          "note": "Monster 3 defense"
+        },
+        {
+          "address": "0x007296",
+          "scope": "set",
+          "author": "Jamiras",
+          "note": "Monster 3 status"
+        },
+        {
+          "address": "0x00729A",
+          "scope": "set",
+          "author": "Jamiras",
+          "note": "[2byte] Monster 3 HP"
+        },
+        {
+          "address": "0x00729D",
+          "scope": "set",
+          "author": "Jamiras",
+          "note": "Monster 3 group/letter"
+        },
+        {
+          "address": "0x007600",
+          "scope": "set",
+          "author": "Jamiras",
+          "note": "Poker Card 1"
+        },
+        {
+          "address": "0x007601",
+          "scope": "set",
+          "author": "Jamiras",
+          "note": "Poker Card 2"
+        },
+        {
+          "address": "0x007602",
+          "scope": "set",
+          "author": "Jamiras",
+          "note": "Poker Card 3"
+        },
+        {
+          "address": "0x007603",
+          "scope": "set",
+          "author": "Jamiras",
+          "note": "Poker Card 4"
+        },
+        {
+          "address": "0x007604",
+          "scope": "set",
+          "author": "Jamiras",
+          "note": "Poker Card 5"
+        }
+      ]
+    }
+  ],
+  "expected_game_id": 4612,
+  "source_url": "https://retroachievements.org/codenotes.php?g=4612",
+  "imported_at": "2026-09-08T14:33:15.935545+00:00"
+}
