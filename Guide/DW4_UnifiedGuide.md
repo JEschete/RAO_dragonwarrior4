@@ -1489,7 +1489,7 @@ The `Private Dance` interaction requires a male character in the party, so Nara 
 
 Make it night with the Lamp of Darkness if necessary, enter Monbaraba's bar, and speak with the dancing girl. Accept her free private dance and allow the scene to finish.
 
-> **Achievement Alert: Private Dance**
+> **Achievement Alert: Private Dance** -- Needs correction, cannot be achieved in chapter 4.
 >
 > **Trigger:** Accept the Monbaraba dancing girl's Puff-Puff offer while Orin is accompanying the sisters.
 
@@ -1765,7 +1765,7 @@ Sell the unusable Feather Hat for 210G. The free Leather Armor is adequate for t
 
 Save after reaching level 3 or 4. Leave Branca and travel southwest to the tunnel built by Taloon. The passage is linear. Walk all the way through and climb the stairs on the Endor side.
 
-> **Achievement Alert: Tunnel Rat**
+> **Achievement Alert: Tunnel Rat** -- Needs correction, this will not trigger until some internal condition is met and the guard stops you. 
 >
 > **Trigger:** Complete the Hero's first crossing of the finished Endor-Branca tunnel. This is the delayed payoff for Taloon's Chapter 3 investment and satisfies "Be the 1000th person to use the new tunnel."
 
@@ -1780,7 +1780,7 @@ If the achievement does not appear at the first staircase, speak with the tunnel
 
 Before recruiting the sisters, resolve the Endor treasure check. Enter the castle through the western doorway leading toward the coliseum. In the hallway, take the small opening on the west side to step onto the castle exterior. Walk south along the outer wall to the concealed stairwell, descend, and open the lone chest for **Lifeforce Nuts**.
 
-> **Achievement Alert: Hidden Treasure - Endor**
+> **Achievement Alert: Hidden Treasure - Endor**  -- Needs correction. chest described is wrong, the chest is in the lower right building of endor and is the cursed sword the multi-edged sword
 >
 > **Trigger:** Open the concealed Lifeforce Nuts chest below Endor's western coliseum approach.
 
