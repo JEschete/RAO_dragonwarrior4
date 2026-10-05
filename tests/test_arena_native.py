@@ -1,17 +1,24 @@
+import os
 from pathlib import Path
 from threading import Event
 
 import pytest
 
 from game.arena_native import ArenaSimulationError, NativeArena
+from game.rom_reader import RomReader
 
 
 @pytest.fixture
 def prg() -> bytes:
-    path = Path(__file__).parents[1] / "resources/DW4_Disassembly/build/arena/Dragon Warrior IV (USA).nes"
+    configured = os.environ.get("RAO_DW4_TEST_ROM")
+    path = Path(configured) if configured else Path(__file__).parents[1] / "resources/DW4_Disassembly/build/arena/Dragon Warrior IV (USA).nes"
     if not path.is_file():
-        pytest.skip("Build the local reference ROM to run native arena checks")
-    return path.read_bytes()[16:]
+        if configured:
+            pytest.fail("RAO_DW4_TEST_ROM does not identify an available ROM")
+        pytest.skip("Set RAO_DW4_TEST_ROM or build the local reference ROM to run native arena checks")
+    reader = RomReader()
+    reader._load_cartridge(path)
+    return reader._data[reader._prg_offset:reader._prg_offset + 0x80000]
 
 
 def workspace(entries=(0, 0, 0, 0)) -> bytes:

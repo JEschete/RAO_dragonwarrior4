@@ -1,9 +1,9 @@
 from pathlib import Path
 
+from game.knowledge_builder import _SubmapTableParser
 from game.reference_data import (
     CHARACTER_SPELL_BITS,
     ITEM_NAMES,
-    _SubmapTableParser,
     load_treasure_records,
     decode_text,
     item_category,

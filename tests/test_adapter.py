@@ -3,6 +3,8 @@ from dataclasses import replace
 from unittest.mock import Mock
 from pathlib import Path
 
+import pytest
+
 from retroarch_overlay.core.contracts import GameContext
 from retroarch_overlay.core.retroachievements import RAProgress
 from retroarch_overlay.models import RetroArchStatus, MapDocument, MapLayer, MapOverlay, MapWaypoint, PanelRow
@@ -233,16 +235,17 @@ def memory() -> FakeMemory:
 
 
 def test_every_panel_section_and_action_declares_a_stable_key() -> None:
-    path = ROOT / "game" / "adapter.py"
-    tree = ast.parse(path.read_text(encoding="utf-8"), filename=str(path))
     missing = []
-    for node in ast.walk(tree):
-        if not isinstance(node, ast.Call) or not isinstance(node.func, ast.Name):
-            continue
-        if node.func.id not in {"PanelSection", "PanelAction"}:
-            continue
-        if not any(keyword.arg == "key" for keyword in node.keywords):
-            missing.append((node.func.id, node.lineno))
+    for name in ("adapter.py", "map_snapshot.py", "presentation.py"):
+        path = ROOT / "game" / name
+        tree = ast.parse(path.read_text(encoding="utf-8"), filename=str(path))
+        for node in ast.walk(tree):
+            if not isinstance(node, ast.Call) or not isinstance(node.func, ast.Name):
+                continue
+            if node.func.id not in {"PanelSection", "PanelAction"}:
+                continue
+            if not any(keyword.arg == "key" for keyword in node.keywords):
+                missing.append((name, node.func.id, node.lineno))
 
     assert missing == []
 
@@ -902,3 +905,137 @@ def test_world_encounter_zone_region_uses_native_grid_and_clears_indoors(tmp_pat
     game_memory.ram = bytes(ram)
     snapshot = adapter.snapshot(game_memory)
     assert snapshot.map_document.layers[0].regions == ()
+
+
+def _live_map_snapshot(tmp_path: Path) -> tuple[Adapter, FakeMemory, Mock, Mock]:
+    game_memory = memory()
+    ram = bytearray(game_memory.ram)
+    ram[0x3F:0x41] = bytes((2, 2))
+    ram[0x573] = 1
+    ram[0x7BA] = 4
+    ram[0x520] = 3
+    game_memory.ram = bytes(ram)
+
+    def read_memory(address: int, size: int) -> bytes:
+        if address == 0x7800:
+            return bytes((1, 2, 3, 4))[:size]
+        if address == 0x7600:
+            return bytes(136)[:size]
+        return game_memory.read_memory(address, size)
+
+    reader = Mock()
+    reader.read_memory.side_effect = read_memory
+    assets = Mock()
+    assets.region = "US"
+    assets.diagnostics = ()
+    assets.spell_milestones.return_value = ()
+    assets.collectible_catalog.return_value = ()
+    assets.indoor_encounter_pool.return_value = None
+    assets.feature_overlay.return_value = None
+    assets.conditional_search_overlay.return_value = None
+    assets.tile_transition_routes.return_value = ()
+    assets.town_shops.return_value = ()
+    assets.monster_definition.return_value = None
+    assets.return_destinations.return_value = ()
+    assets.descriptor.side_effect = lambda map_id, submap: Mock(width=2, height=2, key=(map_id << 8) | submap)
+    assets.native_palette_frame.return_value = (1, 2, 3, 4)
+    assets.native_pattern_frame.return_value = ((2, bytes(16)),)
+    assets.display_layers.side_effect = lambda layers, *args: layers
+    document = MapDocument("Atlas", (
+        MapLayer("area-04-06", "Endor F2", "Town", tmp_path / "floor-6.png"),
+        MapLayer("area-04-07", "Endor F3", "Town", tmp_path / "floor-7.png"),
+    ))
+    adapter = Adapter(GameContext(repository_root=ROOT), assets, document)
+    return adapter, game_memory, reader, assets
+
+
+def test_map_capture_shares_live_tiles_with_features_and_native_rendering(tmp_path: Path) -> None:
+    adapter, _, reader, assets = _live_map_snapshot(tmp_path)
+    snapshot = adapter.snapshot(reader)
+    assert snapshot.map_position.map_id == 0x0406
+    assert assets.feature_overlay.call_args.args[3] == bytes((1, 2, 3, 4))
+    assert assets.conditional_search_overlay.call_args.args[-1] == bytes((1, 2, 3, 4))
+    assert assets.tile_transition_routes.call_args.args[-1] == bytes((1, 2, 3, 4))
+    assert assets.display_layers.call_args.args[4:] == (
+        (0x0406, bytes((1, 2, 3, 4))), (0x0406, 3),
+        ("area-04-06", (1, 2, 3, 4)), ("area-04-06", ((2, bytes(16)),)),
+    )
+    assert adapter.snapshot(reader).map_document is snapshot.map_document
+    assert assets.display_layers.call_count == 1
+    assert adapter._display_document is snapshot.map_document
+
+
+@pytest.mark.parametrize("changed_address", (0x7800, 0x3F, 0x63))
+def test_incomplete_or_transitioning_live_map_is_not_used(tmp_path: Path, changed_address: int) -> None:
+    adapter, _, reader, assets = _live_map_snapshot(tmp_path)
+    original_read = reader.read_memory.side_effect
+    changed = False
+
+    def read_memory(address: int, size: int) -> bytes:
+        nonlocal changed
+        result = original_read(address, size)
+        if address == changed_address and not changed:
+            changed = True
+            return result[:-1] if address == 0x7800 else bytes((5,)) + result[1:]
+        return result
+
+    reader.read_memory.side_effect = read_memory
+    snapshot = adapter.snapshot(reader)
+    assert snapshot.map_position.map_id == 0x0406
+    assets.feature_overlay.assert_not_called()
+    assets.conditional_search_overlay.assert_not_called()
+    assert assets.display_layers.call_args.args[4] is None
+    assert adapter.snapshot(reader).map_position.map_id == 0x0406
+    assert assets.feature_overlay.call_args.args[3] == bytes((1, 2, 3, 4))
+
+
+def test_native_frame_cache_tracks_live_tiles_palette_and_patterns(tmp_path: Path) -> None:
+    adapter, _, reader, assets = _live_map_snapshot(tmp_path)
+    previous = adapter.snapshot(reader)
+    original_read = reader.read_memory.side_effect
+    reader.read_memory.side_effect = lambda address, size: (
+        bytes((4, 3, 2, 1)) if address == 0x7800 else original_read(address, size))
+    updated = adapter.snapshot(reader)
+    assert updated.map_document is not previous.map_document
+    assert assets.display_layers.call_args.args[4] == (0x0406, bytes((4, 3, 2, 1)))
+    assets.native_palette_frame.return_value = (4, 3, 2, 1)
+    recolored = adapter.snapshot(reader)
+    assert recolored.map_document is not updated.map_document
+    assert assets.display_layers.call_args.args[6] == ("area-04-06", (4, 3, 2, 1))
+    assets.native_pattern_frame.return_value = ((2, bytes((1,)) * 16),)
+    animated = adapter.snapshot(reader)
+    assert animated.map_document is not recolored.map_document
+    assert assets.display_layers.call_args.args[7] == ("area-04-06", ((2, bytes((1,)) * 16),))
+    assert adapter.snapshot(reader).map_document is animated.map_document
+    assert assets.display_layers.call_count == 4
+
+
+def test_optional_pattern_read_failure_keeps_the_map_snapshot(tmp_path: Path) -> None:
+    adapter, _, reader, assets = _live_map_snapshot(tmp_path)
+    original_read = reader.read_memory.side_effect
+
+    def read_memory(address: int, size: int) -> bytes:
+        if address == 0x7600:
+            raise RuntimeError("Pattern memory is temporarily unavailable")
+        return original_read(address, size)
+
+    reader.read_memory.side_effect = read_memory
+    snapshot = adapter.snapshot(reader)
+    assert snapshot.map_position.map_id == 0x0406
+    assert assets.display_layers.call_args.args[7] is None
+    assets.native_pattern_frame.assert_not_called()
+
+
+def test_floor_follow_identity_and_animation_layer_change_together(tmp_path: Path) -> None:
+    adapter, game_memory, reader, assets = _live_map_snapshot(tmp_path)
+    first = adapter.snapshot(reader)
+    ram = bytearray(game_memory.ram)
+    ram[0x64] = 7
+    game_memory.ram = bytes(ram)
+    second = adapter.snapshot(reader)
+    assert first.map_position.map_id == 0x0406 and second.map_position.map_id == 0x0407
+    assert (first.map_position.x, first.map_position.y) == (second.map_position.x, second.map_position.y)
+    assert second.map_document is not first.map_document
+    assert assets.display_layers.call_args.args[4] == (0x0407, bytes((1, 2, 3, 4)))
+    assert assets.display_layers.call_args.args[6][0] == "area-04-07"
+    assert assets.display_layers.call_args.args[7][0] == "area-04-07"

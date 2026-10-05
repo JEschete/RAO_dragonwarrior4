@@ -1,12 +1,8 @@
-/bin/
-/html/
-/info/
-/lib/
-/libwrk/
-/target/
-/testwrk/
-/wrk/
-/cc65.zip
-/util/atari/*.exe
-/util/gamate/*.exe
+__pycache__/
+*.py[cod]
+.pytest_cache/
+/resources/*
+!/resources/.gitkeep
+/Guide/*.htm
+/Guide/*_files/
 

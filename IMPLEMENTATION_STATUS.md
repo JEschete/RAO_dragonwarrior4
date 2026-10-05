@@ -194,6 +194,32 @@ explicit removal requirement 100, not retained as hidden features.
 - Walking records/arrival scans: bank 08 `$B22E-$B2E4`, `$B323-$B373`, `$B397-$B48D`, `$B4C1-$B59E`, pointer `$B974`. Land thresholds: bank 18 `$9C88-$9D0D/$A0BA-$A0F8`, wrapping math bank 1F `$C827-$C850`. Tournament completion and tunnel funding use separate inspected native event writes; native chest locations establish retrieval floors. Arena fractions use bank 18 `$A961-$A97A/$AAE0-$AB41`; Bolero gate uses bank 11 `$A873-$A8A6`.
 - Original SRAM SHA-256 remains `B75E400F8838E42B897493004D04A034FCAAA49918C1FF1F9065666E2D7FA1E9`. Read-only Mesen access remains available. Background-targeted messages do not move the SDL2 core; global input is paused after another application took focus, so fresh live transition capture is not claimed.
 
+## Structural Cleanup
+
+Completed 2026-10-04 without reducing the feature backlog:
+
+- Preserved and SHA-256 verified 4,151 unrelated cc65 files outside the plugin
+  at `F:/tools/cc65-dw4-reference`, including the original license and notices.
+  Compiler source, raw research captures, and bytecode are no longer tracked in
+  the plugin; local research captures were not deleted.
+- Replaced compiler-oriented root metadata with the plugin README and MIT
+  license. ROM access, map data/rendering, catalogs, and map features now have
+  typed ownership modules behind the compatible 143-line ROM facade.
+- The 410-line adapter coordinates memory and arena lifecycle; map capture and
+  panel presentation have separate modules. Snapshot transition guards remain.
+- Runtime reference loaders use validated knowledge only. HTML parsing remains
+  in the development-only knowledge builder; generation still matches the
+  unchanged reviewed artifact.
+- Combined host/plugin acceptance: **658 passed, 7 skipped, 105 subtests passed**.
+  Native arena CPU/RAM/RNG parity checks ran against the owned US ROM through
+  `RAO_DW4_TEST_ROM`. The skips are opt-in native Windows Qt checks, not arena
+  checks. Runtime modules have clear editor diagnostics.
+- The bounded owned-ROM gate passed all 279 floors, 73,088 world lookups, native
+  catalogs, walking routes, and palette/cutaway checks. No fresh emulator capture
+  or broader timing/transition certification is claimed by this refactor.
+- Original `Ideas.md`, `Guide/DW4_UnifiedGuide.md`, and the knowledge artifact are
+  unchanged. Previously unresolved semantics and feature entries remain open.
+
 ## Next Required Work
 
 Complete the unresolved portions of 097/098/102-105 with captured emulator

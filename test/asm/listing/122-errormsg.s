@@ -1,3 +1,0 @@
-.struct         x
-        .word
-.endstruct

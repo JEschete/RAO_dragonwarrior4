@@ -1,1 +1,0 @@
-runtime/sp-compat.s:16: Warning: Assertion failed: Symbol 'sp' is deprecated - please use 'c_sp' instead

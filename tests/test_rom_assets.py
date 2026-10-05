@@ -5,6 +5,7 @@ from unittest.mock import Mock, patch
 
 from PIL import Image
 
+from game import rom_assets, rom_catalog, rom_features, rom_map_data, rom_maps, rom_reader
 from game.rom_assets import (
     AreaGraphics,
     AreaMapDescriptor,
@@ -80,6 +81,54 @@ def bitstream(bits: str) -> bytes:
         int(padded[index:index + 8], 2)
         for index in range(0, len(padded), 8)
     )
+
+
+class RomComponentCompatibilityTests(unittest.TestCase):
+    def test_facade_reexports_domain_types_decoders_helpers_and_constants(self) -> None:
+        for module in (rom_reader, rom_map_data, rom_maps, rom_catalog, rom_features):
+            for name, value in vars(module).items():
+                if name.isupper() or getattr(value, "__module__", None) == module.__name__:
+                    with self.subTest(module=module.__name__, symbol=name):
+                        self.assertIs(getattr(rom_assets, name), value)
+        self.assertIs(DragonWarrior4RomAssets.monster_definition, rom_catalog.RomCatalog.monster_definition)
+        self.assertIs(DragonWarrior4RomAssets.render_area_map, rom_maps.RomMaps.render_area_map)
+        self.assertIs(DragonWarrior4RomAssets.feature_overlay, rom_features.RomFeatures.feature_overlay)
+        self.assertEqual(DragonWarrior4RomAssets.__mro__.count(rom_reader.RomReader), 1)
+        self.assertEqual(DragonWarrior4RomAssets.__mro__.count(rom_map_data.RomMapData), 1)
+
+    def test_partial_fixture_retains_shared_reader_and_map_state(self) -> None:
+        assets = DragonWarrior4RomAssets.__new__(DragonWarrior4RomAssets)
+        assets._prg_offset = PRG_OFFSET
+        assets._data = synthetic_rom()
+        assets.region = "US"
+        descriptor = AreaMapDescriptor(0, 0, 0, 1, 1, 9, 0)
+        assets._descriptor_by_key = {descriptor.key: descriptor}
+        assets._data[cpu_offset(0x10, 0x9DE2)] = 17
+        furniture = cpu_offset(0x1E, 0xBCED)
+        assets._data[furniture:furniture + 8] = bytes((0, 0, 0, 0, 0x53, 0, 1, 0xFF))
+        assets._data[cpu_offset(0x1E, 0xBF59)] = 0xFF
+
+        self.assertIs(assets.descriptor(0, 0), descriptor)
+        self.assertEqual(assets.equipment_bonus(2), 17)
+        self.assertEqual(assets._read_hidden_treasures()[0].reward, "Medical Herb")
+        assets._cpu_bytes = Mock(return_value=b"\x2a")
+        self.assertEqual(assets.equipment_bonus(2), 42)
+        assets._cpu_bytes.assert_called_once_with(0x10, 0x9DE2, 1)
+
+    def test_extractor_version_tracks_every_split_module(self) -> None:
+        sources = {
+            "rom_assets.py", "rom_reader.py", "rom_map_data.py", "rom_maps.py",
+            "rom_catalog.py", "rom_features.py",
+        }
+        for changed in sources:
+            with self.subTest(module=changed):
+                with patch.object(Path, "read_bytes", autospec=True,
+                                  side_effect=lambda path: path.name.encode("ascii")) as reads:
+                    before = rom_assets._extractor_version()
+                    self.assertEqual({call.args[0].name for call in reads.call_args_list}, sources)
+                with patch.object(Path, "read_bytes", autospec=True,
+                                  side_effect=lambda path: path.name.encode("ascii") + (b"changed" if path.name == changed else b"")):
+                    self.assertNotEqual(rom_assets._extractor_version(), before)
 
 
 class MdecDecoderTests(unittest.TestCase):

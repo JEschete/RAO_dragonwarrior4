@@ -1,108 +1,64 @@
-The cc65 cross-compiler suite
-=============================
+# Dragon Warrior IV Overlay
 
-cc65 is a complete cross-development package for 65(C)02 systems,
-including a powerful macro assembler, a C compiler, linker, archiver,
-simulator and several other tools.  cc65 has C and runtime library
-support for many of the old 6502 machines.  For details look at
-the [cc65 web site](https://cc65.github.io):
+Read-only Dragon Warrior IV plugin for RetroArchOverlay. The US NES ROM is
+required for ROM-backed maps, names, catalogs, and arena simulation; ROMs,
+save data, and extracted graphics are not distributed.
 
-| Company / People        | Machine / Environment               |
-|-------------------------|-------------------------------------|
-| Apple                   | Apple II                            |
-|                         | Apple IIe enhanced                  |
-| Atari                   | Atari 400/800                       |
-|                         | Atari 2600                          |
-|                         | Atari 5200                          |
-|                         | Atari 7800                          |
-|                         | Atari XL                            |
-|                         | Lynx                                |
-| Tangerine               | Oric Atmos                          |
-| Eureka                  | Oric Telestrat                      |
-| Acorn                   | BBC series                          |
-| Commodore               | C128                                |
-|                         | C16                                 |
-|                         | C64                                 |
-|                         | CBM 510/610                         |
-|                         | PET                                 |
-|                         | Plus/4                              |
-|                         | VIC-20                              |
-| VTech                   | CreatiVision                        |
-| Commander X16 Community | Commander X16                       |
-| Bit Corporation         | Gamate                              |
-| Berkeley Softworks      | GEOS (Apple/CBM)                    |
-| LUnix Team              | LUnix (C64)                         |
-| Nintendo                | Nintendo Entertainment System (NES) |
-| Ohio Scientific         | OSI C1P                             |
-| MOS Technology, Inc.    | KIM-1                               |
-| NEC                     | PC Engine (PCE)                     |
-| Rumbledethumps          | Picocomputer 6502 (RP6502)          |
-| Watara                  | Watara/QuickShot Supervision        |
-| Synertek                | SYM-1                               |
-| USSR                    | Agat-7/9                            |
+## Setup
 
-A generic configuration to adapt cc65 to new targets is also around.
+Install the RetroArchOverlay host and its dependencies, then select this plugin
+in Plugin Manager and configure `rom_path` with a locally owned US ROM.
+The manifest lists recognized NES cores and content identities. Unsupported
+ROM layouts remain unavailable rather than being decoded with US addresses.
+Generated map images belong in the host-provided plugin state directory.
 
-## People
+The optional arena predictor additionally requires the packages in
+[requirements-arena.txt](requirements-arena.txt). The cc65 compiler is not a
+plugin runtime or build dependency.
 
-cc65 is originally based on the "Small C" compiler by Ron Cain and
-enhanced by James E. Hendrix.
+## Structure
 
-### Project founders
+| Component | Responsibility |
+| --- | --- |
+| `plugin.py` | Host entry point and ROM setup |
+| `game/adapter.py` | Activation, coherent memory reads, and snapshot orchestration |
+| `game/map_snapshot.py` | Live map capture, entities, animation, and display state |
+| `game/presentation.py` | Party, catalogs, objectives, guide, and other panel sections |
+| `game/rom_assets.py` | Stable ROM facade and compatibility exports |
+| `game/rom_reader.py` | Cartridge validation and bounded byte access |
+| `game/rom_map_data.py` | Map decoding, layout, and graphics data |
+| `game/rom_maps.py` | Rendered layers and generated-image caches |
+| `game/rom_catalog.py` | Monster, equipment, shop, growth, and encounter catalogs |
+| `game/rom_features.py` | Rewards, hazards, reachability, and map routes |
+| `game/knowledge_builder.py` | Development-only parsing of research captures |
 
-* John R. Dunning: [original implementation](https://public.websites.umich.edu/~archive/atari/8bit/Languages/Cc65/)
-  of the C compiler and runtime library, Atari hosted.
-* Ullrich von Bassewitz:
-  * moved Dunning's code to modern systems,
-  * rewrote most parts of the compiler,
-  * rewrote all of the runtime library.
+Battle, growth, equipment comparison, objectives, and entity decoding retain
+their focused modules. Existing facade imports and adapter behavior are kept.
+Runtime reference loaders consume the validated `game/data/dw4_knowledge.json`
+artifact only; missing or malformed knowledge does not fall back to saved HTML.
 
-### Core team members
+## Verification
 
-* [Christian Groessler](https://github.com/groessler): Atari, Atari5200, and CreatiVision library Maintainer
-* [dqh](https://github.com/dqh-au): GHA help
-* [Greg King](https://github.com/greg-king5): all around hackery
-* [groepaz](https://github.com/mrdudz): CBM library, Project Maintainer
-* [Oliver Schmidt](https://github.com/oliverschmidt): Apple II library Maintainer
+From the RetroArchOverlay host root, using its Python environment:
 
-### External contributors
+```powershell
+python -B -m pytest plugins/RAO_dragonwarrior4/tests -p no:cacheprovider -o "pythonpath=src plugins/RAO_dragonwarrior4 plugins/RAO_dragonwarrior4/tests"
+python -B plugins/RAO_dragonwarrior4/tools/generate_knowledge.py --check
+python -B plugins/RAO_dragonwarrior4/tools/verify_rom.py --rom "path/to/owned/Dragon Warrior IV (USA).nes" --timeout 120
+```
 
-* [acqn](https://github.com/acqn): various compiler fixes
-* [jedeoric](https://github.com/jedeoric): Telestrat target
-* [jmr](https://github.com/jmr): compiler fixes
-* [karrika](https://github.com/karrika): Atari 7800 target
-* [Stephan Mühlstrasser](https://github.com/smuehlst): osic1p target
-* [Wayne Parham](https://github.com/WayneParham): Sym-1 target
-* [Dave Plummer](https://github.com/davepl): KIM-1 target
-* [Rumbledethumps](https://github.com/rumbledethumps): RP6502 target
+Knowledge regeneration requires the ignored local `resources` captures; normal
+operation and packaged tests do not. Raw guide webpages and their support files
+also stay local and ignored. The authored unified guide remains in `Guide`.
+Set `RAO_DW4_TEST_ROM` to a locally owned US ROM to include the opt-in native
+arena instruction/parity tests without building a local disassembly checkout.
+The unrelated cc65 source tree and its original notices were preserved outside
+the plugin at `F:/tools/cc65-dw4-reference` during the local cleanup.
 
-*(The above list is incomplete, if you feel left out - please speak up or add yourself in a PR)*
+## Coverage And Rights
 
-For a complete list look at the [full team list](https://github.com/orgs/cc65/teams)
-or the list of [all contributors](https://github.com/cc65/cc65/graphs/contributors).
-
-# Contact
-
-For general discussion, questions, etc subscribe to the
-[mailing list](https://cc65.github.io/mailing-lists.html)
-or use the [github discussions](https://github.com/cc65/cc65/discussions).
-
-Some of us may also be around on IRC [#cc65](https://web.libera.chat/#cc65) on libera.chat.
-
-# Documentation
-
-* The main [Documentation](https://cc65.github.io/doc) for users and
-  developers.
-* Info on [Contributing](Contributing.md) to the CC65 project. Please
-  read this before working on something you want to contribute, and
-  before reporting bugs.
-* The [Wiki](https://github.com/cc65/wiki/wiki) contains some extra info
-  that does not fit into the regular documentation.
-
-# Downloads
-
-* [Windows 64bit Snapshot](https://sourceforge.net/projects/cc65/files/cc65-snapshot-win64.zip)
-* [Windows 32bit Snapshot](https://sourceforge.net/projects/cc65/files/cc65-snapshot-win32.zip)
-* [Linux Snapshot DEB and RPM](https://software.opensuse.org/download.html?project=home%3Astrik&package=cc65)
-
-[![Snapshot Build](https://github.com/cc65/cc65/actions/workflows/snapshot-on-push-master.yml/badge.svg?branch=master)](https://github.com/cc65/cc65/actions/workflows/snapshot-on-push-master.yml)
+[IMPLEMENTATION_STATUS.md](IMPLEMENTATION_STATUS.md) records delivered behavior
+and unresolved verification. The full backlog in [Ideas.md](Ideas.md) remains
+unchanged and is not claimed complete by this structural cleanup.
+See [docs/ARENA_PREDICTOR.md](docs/ARENA_PREDICTOR.md) for simulation limits and
+[RIGHTS_AND_PROVENANCE.md](RIGHTS_AND_PROVENANCE.md) for research and asset terms.

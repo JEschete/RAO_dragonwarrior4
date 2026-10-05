@@ -1,2 +1,0 @@
-custom-reference.c:23: Warning: Parameter 'argc' is never used
-custom-reference.c:23: Warning: Parameter 'argv' is never used

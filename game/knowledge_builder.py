@@ -13,9 +13,110 @@ from .reference_data import (
     CHARACTER_SPELL_BITS,
     ITEM_NAMES,
     REFERENCE_SOURCE_SPECS,
-    _SubmapTableParser,
-    _TreasureTableParser,
+    TreasureRecord,
 )
+
+
+class _SubmapTableParser(HTMLParser):
+    def __init__(self) -> None:
+        super().__init__(convert_charrefs=True)
+        self.in_maps = False
+        self.in_table = False
+        self.in_cell = False
+        self.row: list[str] = []
+        self.cell: list[str] = []
+        self.names: dict[tuple[int, int], str] = {}
+
+    def handle_starttag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
+        values = dict(attrs)
+        if values.get("id") == "Maps":
+            self.in_maps = True
+        elif self.in_maps and tag == "table" and not self.in_table:
+            self.in_table = True
+        elif self.in_table and tag in {"td", "th"}:
+            self.in_cell = True
+            self.cell = []
+
+    def handle_data(self, data: str) -> None:
+        if self.in_cell:
+            self.cell.append(data)
+
+    def handle_endtag(self, tag: str) -> None:
+        if self.in_table and tag in {"td", "th"} and self.in_cell:
+            self.row.append(" ".join("".join(self.cell).split()))
+            self.in_cell = False
+        elif self.in_table and tag == "tr":
+            self._finish_row()
+        elif self.in_table and tag == "table":
+            self._finish_row()
+            self.in_table = False
+            self.in_maps = False
+
+    def _finish_row(self) -> None:
+        if len(self.row) >= 3:
+            try:
+                map_id = int(self.row[0].removeprefix("$"), 16)
+                submap = int(self.row[1].removeprefix("$"), 16)
+            except ValueError:
+                pass
+            else:
+                if self.row[2]:
+                    self.names[(map_id, submap)] = self.row[2]
+        self.row = []
+
+
+class _TreasureTableParser(HTMLParser):
+    def __init__(self) -> None:
+        super().__init__(convert_charrefs=True)
+        self.in_treasure_list = False
+        self.in_table = False
+        self.in_cell = False
+        self.row: list[str] = []
+        self.cell: list[str] = []
+        self.records: list[TreasureRecord] = []
+
+    def handle_starttag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
+        values = dict(attrs)
+        if values.get("id") == "Full_List":
+            self.in_treasure_list = True
+        elif self.in_treasure_list and tag == "table" and not self.in_table:
+            self.in_table = True
+        elif self.in_table and tag in {"td", "th"}:
+            self.in_cell = True
+            self.cell = []
+
+    def handle_data(self, data: str) -> None:
+        if self.in_cell:
+            self.cell.append(data)
+
+    def handle_endtag(self, tag: str) -> None:
+        if self.in_table and tag in {"td", "th"} and self.in_cell:
+            self.row.append(" ".join("".join(self.cell).split()))
+            self.in_cell = False
+        elif self.in_table and tag == "tr":
+            self._finish_row()
+        elif self.in_table and tag == "table":
+            self._finish_row()
+            self.in_table = False
+            self.in_treasure_list = False
+
+    def _finish_row(self) -> None:
+        if len(self.row) >= 7 and self.row[0] == "Treasure":
+            address = re.search(r"\$([0-9a-fA-F]{4})\s*#\s*([01_]{8,})", self.row[1])
+            try:
+                map_id = int(self.row[3].removeprefix("$"), 16)
+                submap = int(self.row[4].removeprefix("$"), 16)
+            except ValueError:
+                pass
+            else:
+                if address is not None and self.row[5] != "..." and self.row[6] != "...":
+                    ram_address = int(address.group(1), 16)
+                    mask = int(address.group(2).replace("_", ""), 2)
+                    if 0x625D <= ram_address <= 0x6277 and mask.bit_count() == 1:
+                        self.records.append(TreasureRecord(
+                            (ram_address - 0x625D) * 8 + (mask.bit_length() - 1),
+                            map_id, submap, self.row[5], self.row[6]))
+        self.row = []
 
 
 class _SectionTableParser(HTMLParser):
