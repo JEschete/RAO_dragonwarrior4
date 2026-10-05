@@ -16,6 +16,7 @@ from retroarch_overlay.models import (
 from .battle import BATTLE_CONTEXT_ADDRESS, BATTLE_MEMORY_ADDRESS, BATTLE_MEMORY_SIZE, BattleState, read_battle_state
 from .arena import ArenaPredictor, SIMULATION_COUNT, arena_betting_open, arena_key, validate_simulations
 from .map_snapshot import MEMORY_ERRORS, MapSnapshot, _layer_key
+from .poker import PokerTable, read_poker_table
 from .rom_assets import DragonWarrior4RomAssets
 from .presentation import (
     BAD_COLOR, CAUTION_COLOR, CURRENCY_UNITS, GOOD_COLOR, HP_COLOR, MP_COLOR,
@@ -143,6 +144,13 @@ class Adapter(PanelPresentation):
             encounters=lambda: self._encounter_section(memory, state, ram, wram),
             arena_section=lambda: self._arena_section(state, battle),
         )
+        try:
+            poker = read_poker_table(memory, ram)
+        except MEMORY_ERRORS as error:
+            poker = PokerTable("waiting", wager=None, detail="Waiting for current poker cards")
+            self._log(f"Poker table read interrupted: {error}")
+        if poker is not None:
+            sections = (*sections, self._poker_section(poker, state.casino_coins))
         display_document = self._map_snapshot.display(
             memory, state, ram, wram, battle, map_capture, current_zone,
             assets=self.assets, map_document=self.map_document,
@@ -388,6 +396,10 @@ class Adapter(PanelPresentation):
         # and drop the map position, so the last good snapshot stands in briefly.
         self._stale_polls += 1
         if self._last_snapshot is not None and self._stale_polls <= STALE_SNAPSHOT_LIMIT:
+            if any(section.key == "poker" for section in self._last_snapshot.sections):
+                self._last_snapshot = replace(self._last_snapshot, sections=tuple(
+                    section for section in self._last_snapshot.sections if section.key != "poker"
+                ))
             return self._last_snapshot
         return self._memory_unavailable(detail)
 

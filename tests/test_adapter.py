@@ -744,6 +744,77 @@ def test_area_transition_keeps_the_last_snapshot_instead_of_dropping_the_map(tmp
     assert adapter.snapshot(reader).map_position is not None
 
 
+def poker_memory(double: bool = False) -> FakeMemory:
+    result = memory()
+    ram = bytearray(result.ram)
+    ram[0x63:0x65] = bytes((4, 1))
+    ram[0x1F] = 8
+    ram[0x553] = 0x80
+    ram[0x595] = 4
+    ram[0x5FC] = 10
+    ram[0xF6] = 0x3D
+    ram[0x2E] = 0 if double else 4
+    ram[0x36:0x39] = (200 if double else 100).to_bytes(3, "little")
+    position = 56 if double else 8
+    ram[0x200:0x208] = bytes((0x90, 1, 0, position, 0x90, 2, 0, position + 8))
+    result.ram = bytes(ram)
+    first = (5, 22, 23, 4, 39) if double else (50, 3, 41, 20, 7, 44, 5, 18, 6, 51)
+    deck = bytes((*first, *(card for card in range(53) if card not in first)))
+    original = result.read_memory
+    result.read_memory = lambda address, size: deck[:size] if address == 0x7600 else original(address, size)
+    return result
+
+
+@pytest.mark.parametrize("double", (False, True))
+def test_snapshot_automatically_displays_exact_poker_advice_only_at_the_table(double: bool) -> None:
+    game_memory = poker_memory(double)
+    instance = Adapter(GameContext(repository_root=ROOT))
+    snapshot = instance.snapshot(game_memory)
+    section = next(section for section in snapshot.sections if section.key == "poker")
+    assert section.rows[1].text == ("Choose card 1 · Win 400 coins" if double else "Hold 5 · Replace 1, 2, 3, 4")
+    ram = bytearray(game_memory.ram)
+    ram[0x553] = 0
+    game_memory.ram = bytes(ram)
+    assert all(section.key != "poker" for section in instance.snapshot(game_memory).sections)
+
+
+@pytest.mark.parametrize("schedule,expected", (
+    ((2, 3, 4), "Continue double-or-nothing"), ((1, 3, 4), "Collect 200 coins"),
+))
+def test_snapshot_displays_safe_stop_from_live_initialized_round_schedule(schedule, expected: str) -> None:
+    game_memory = poker_memory(True)
+    ram = bytearray(game_memory.ram)
+    ram[0x82:0x86] = bytes((0, *schedule))
+    ram[0x200:0x208] = bytes((0xA0, 1, 0, 80, 0xA0, 2, 0, 88))
+    game_memory.ram = bytes(ram)
+    snapshot = Adapter(GameContext(repository_root=ROOT)).snapshot(game_memory)
+    section = next(section for section in snapshot.sections if section.key == "poker")
+    assert section.rows[1].text == expected
+
+
+def test_interrupted_snapshot_removes_old_poker_advice_immediately() -> None:
+    instance = Adapter(GameContext(repository_root=ROOT))
+    game_memory = poker_memory()
+    assert any(section.key == "poker" for section in instance.snapshot(game_memory).sections)
+
+    def unavailable(address: int, size: int) -> bytes:
+        raise OSError("Disconnected")
+
+    game_memory.read_memory = unavailable
+    assert all(section.key != "poker" for section in instance.snapshot(game_memory).sections)
+
+
+def test_incomplete_poker_read_never_displays_a_zero_stake_or_old_recommendation() -> None:
+    instance = Adapter(GameContext(repository_root=ROOT))
+    game_memory = poker_memory(True)
+    original = game_memory.read_memory
+    game_memory.read_memory = lambda address, size: b"" if address == 0x7600 else original(address, size)
+    section = next(section for section in instance.snapshot(game_memory).sections if section.key == "poker")
+    assert section.rows[0].text.endswith("At stake updating")
+    assert section.rows[1].text == "Waiting for current poker cards"
+    assert section.columns == () and section.actions == ()
+
+
 def test_native_ai_training_catalog_is_distinct_from_unlocks_and_decision_accuracy(tmp_path: Path) -> None:
     game_memory = memory()
     wram = bytearray(game_memory.wram)

@@ -18,6 +18,7 @@ from .bestiary import monster_card, resistance_lines
 from .guide import chapter_heading, guide_headings, location_heading
 from .map_snapshot import MEMORY_ERRORS, _layer_key
 from .objectives import chapter_objectives, chapter_transition_losses
+from .poker import PokerTable, card_label, classify_hand, double_advice, next_double_guaranteed, recommend_hold, redraw_hand
 from .reference_data import MAP_NAMES, item_category, load_submap_names, map_title
 from .rom_assets import DragonWarrior4RomAssets
 from .shops import EquipmentComparison, compare_equipment, shop_currency
@@ -87,6 +88,86 @@ class PanelPresentation:
         monster = self.assets.monster_definition(monster_id)
         resistances = getattr(monster, "resistances", ())
         return resistances if isinstance(resistances, tuple) else ()
+
+    def _poker_section(self, table: PokerTable, coins: int) -> PanelSection:
+        stake = f"{table.wager:,}" if table.wager is not None else "updating"
+        rows = [PanelRow(f"Coins {coins:,} · At stake {stake}")]
+        columns: tuple[PanelColumn, ...] = ()
+        if table.phase in ("hold", "wager") and table.wager is not None:
+            advice = recommend_hold(table.deck, table.held_mask if table.phase == "hold" else 0)
+            hold = ", ".join(map(str, advice.held_slots)) or "none"
+            replace = ", ".join(str(slot + 1) for slot in range(5) if not advice.mask & (1 << slot)) or "none"
+            if table.phase == "wager":
+                action = "Confirm wager" if advice.hand.multiplier else "Keep wager at 1 coin"
+            else:
+                action = "Draw" if table.held_mask == advice.mask else f"Hold {hold} · Replace {replace}"
+            rows.append(PanelRow(action, emphasis="success" if advice.hand.multiplier else "warning"))
+            rows.append(PanelRow(
+                f"Best result: {advice.hand.name} · {advice.hand.multiplier}x · {table.wager * advice.hand.multiplier:,} coins",
+                detail=" · ".join(card_label(card) for card in advice.cards)))
+            current_result = classify_hand(redraw_hand(table.deck, table.held_mask))
+            if table.phase == "hold":
+                held = table.held_mask.bit_count()
+                rows.append(PanelRow(
+                    f"Current selection: {held} held · {5 - held} to draw · {current_result.name} · {table.wager * current_result.multiplier:,} coins",
+                    detail=" · ".join(card_label(card) for card in redraw_hand(table.deck, table.held_mask)),
+                ))
+                toggles = tuple(str(slot + 1) for slot in range(5) if (table.held_mask ^ advice.mask) & (1 << slot))
+                if toggles:
+                    rows.append(PanelRow(f"Change cards {', '.join(toggles)}", emphasis="muted"))
+            columns = (PanelColumn("poker-hand", "Your hand" if table.phase == "hold" else "Upcoming hand", tuple(
+                PanelRow(f"Card {slot + 1} · {card_label(card)}", chips=(
+                    PanelChip("Hold" if advice.mask & (1 << slot) else "Replace",
+                              GOOD_COLOR if advice.mask & (1 << slot) else CAUTION_COLOR),
+                    *((PanelChip("Held", MP_COLOR),) if table.phase == "hold" and table.held_mask & (1 << slot) else ()),
+                )) for slot, card in enumerate(table.deck[:5])
+            )),)
+        elif table.phase == "double":
+            advice = double_advice(table.deck)
+            if advice.choice is None:
+                rows.append(PanelRow("No winning or tying card · Loss is unavoidable", emphasis="danger"))
+            elif advice.outcomes[advice.choice - 1] == "Win":
+                payout = f"Win {table.wager * 2:,} coins" if table.wager is not None else "Win"
+                rows.append(PanelRow(f"Choose card {advice.choice} · {payout}", emphasis="success"))
+            else:
+                rows.append(PanelRow(f"Choose card {advice.choice} · Tie", emphasis="warning",
+                                     detail="Stake unchanged; the tie deals a new round."))
+            rows.append(PanelRow(f"Dealer · {card_label(table.deck[0])} · Round {table.round}"))
+            if advice.choice is not None and advice.outcomes[advice.choice - 1] == "Win":
+                safe = next_double_guaranteed(table)
+                rows.append(PanelRow(
+                    "After winning: continue" if safe is True else "After winning: collect",
+                    emphasis="success" if safe is True else "warning",
+                    detail="Next round has a guaranteed winning choice" if safe is True else
+                           "Next round is not guaranteed" if safe is False else "Next round safety is unknown",
+                ))
+            colors = {"Win": GOOD_COLOR, "Tie": CAUTION_COLOR, "Lose": BAD_COLOR}
+            columns = (PanelColumn("poker-choices", "Face-down cards", tuple(
+                PanelRow(f"Card {slot} · {card_label(card)}", chips=(
+                    PanelChip(advice.outcomes[slot - 1], colors[advice.outcomes[slot - 1]]),
+                    *((PanelChip("Choose", MP_COLOR),) if advice.choice == slot else ()),
+                )) for slot, card in enumerate(table.deck[1:5], 1)
+            )),)
+        elif table.phase == "collect":
+            safe = next_double_guaranteed(table)
+            if safe is True:
+                rows.append(PanelRow("Continue double-or-nothing", emphasis="success"))
+                rows.append(PanelRow("Next round has a guaranteed winning choice", emphasis="success"))
+            else:
+                collect = f"Collect {table.wager:,} coins" if table.wager is not None else "Collect winnings"
+                rows.append(PanelRow(collect, emphasis="success"))
+                rows.append(PanelRow(
+                    "Next round is not guaranteed · Stop here" if safe is False else
+                    "Next round is not dealt yet · Safety unknown",
+                    emphasis="warning",
+                ))
+        else:
+            rows.append(PanelRow(table.detail or "Waiting for the table to settle", emphasis="muted"))
+        actions = (PanelAction("Deck order", "Poker deck order", tuple(
+            PanelRow(f"{index + 1:02} · {card_label(card)}") for index, card in enumerate(table.deck)
+        ), key="poker-deck"),) if table.deck else ()
+        return PanelSection("Poker", tuple(rows), priority=1, role="urgent", key="poker",
+                            columns=columns, actions=actions, collapsible=False)
 
 
     def _sections(
