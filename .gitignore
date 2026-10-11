@@ -6,3 +6,23 @@ __pycache__/
 /Guide/*.htm
 /Guide/*_files/
 
+# LaTeX build artifacts; keep .tex sources and .pdf guides
+/Guide/*.aux
+/Guide/*.bbl
+/Guide/*.bcf
+/Guide/*.blg
+/Guide/*.dvi
+/Guide/*.fdb_latexmk
+/Guide/*.fls
+/Guide/*.idx
+/Guide/*.ilg
+/Guide/*.ind
+/Guide/*.lof
+/Guide/*.log
+/Guide/*.lot
+/Guide/*.out
+/Guide/*.run.xml
+/Guide/*.synctex*
+/Guide/*.toc
+/Guide/*.xdv
+
